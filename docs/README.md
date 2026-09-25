@@ -10,17 +10,18 @@ docs/
 ├── vision.md                концепция, аудитория, принципы, не-цели
 ├── glossary.md              термины проекта
 ├── roadmap.md               этапы разработки и критерии готовности
-├── open-questions.md        нерешённые вопросы
+├── open-questions.md        открытые вопросы и принятые решения
 │
 ├── architecture/            как устроено технически
 │   ├── overview.md          модули, потоки данных, правила потоков
 │   ├── tech-stack.md        версии, зависимости, что изменилось в 26.x
-│   ├── ai-integration.md    ИИ: провайдер, запросы, кеш, батчи, лимиты, стоимость
+│   ├── ai-integration.md    ИИ: OpenRouter, модели, кеш, батчи, лимиты, стоимость
 │   ├── ai-actions.md        контракт: какие действия ИИ может запросить
 │   ├── storage.md           данные игроков и сервера, схема БД
 │   ├── content-delivery.md  Polymer, ресурспак, модели, звуки
 │   ├── worlds.md            хаб, измерения, структуры, откат
-│   └── performance.md       бюджет CPU, лимиты мобов, профилирование
+│   ├── performance.md       бюджет CPU, лимиты мобов, профилирование
+│   └── server-integration.md сервер Vanilla+ 26.2 и его моды: что с ними делаем
 │
 ├── design/                  что видит игрок (геймдизайн)
 │   ├── characters/          ИИ-персонажи: общая модель + файлы героев
@@ -30,10 +31,11 @@ docs/
 │   ├── quests.md            квесты
 │   ├── mini-events.md       короткие случайные события
 │   ├── flavor.md            реакции, газета, MOTD, дневники, некрологи
+│   ├── voice.md             голос персонажей и разговор голосом
 │   └── events/              большие ивенты: общий движок + файл на ивент
 │
 ├── ops/                     эксплуатация сервера
-│   ├── server-setup.md      железо, моды, прегенерация, бэкапы
+│   ├── server-setup.md      хостинг, выкладка, ключ OpenRouter, бэкапы
 │   ├── configuration.md     конфиг мода
 │   ├── commands.md          команды игроков и админов
 │   └── content-policy.md    правила 18+ контента и фильтры
@@ -70,7 +72,7 @@ docs/
 | Новый персонаж | `design/characters/` по [шаблону персонажа](templates/character.md) |
 | Новый большой ивент | `design/events/` по [шаблону ивента](templates/event.md) |
 | Техническое решение с альтернативами | новый ADR в [adr/](adr/README.md) |
-| Вопрос без ответа | [open-questions.md](open-questions.md) |
+| Вопрос без ответа | [open-questions.md](open-questions.md), решённый — там же в «Решённые» |
 | Новое действие ИИ | [architecture/ai-actions.md](architecture/ai-actions.md): сначала контракт, потом код |
 
 ## Правила

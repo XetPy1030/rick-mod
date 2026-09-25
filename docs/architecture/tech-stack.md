@@ -34,10 +34,21 @@
 | sgui | 2.1.0+26.2 | серверные GUI на сундуках и книгах: магазин, меню, голосование | 3–5 |
 | Fantasy | 0.8.3+26.2 | runtime-измерения для арен и копий мира | 6–7 |
 | Text Placeholder API | 3.1.0-beta.1+26.2 | плейсхолдеры для MOTD, таблиста, чата | 2 |
-| Anthropic Java SDK | `com.anthropic:anthropic-java`, версию уточнить | ИИ-запросы ([ADR 0003](../adr/0003-ai-provider-and-protocol.md)) | 1 |
 | SQLite JDBC (xerial) | актуальная | хранилище ([ADR 0004](../adr/0004-storage-sqlite.md)) | 1 |
 
-Репозитории Maven: `maven.fabricmc.net` для Fabric, `maven.nucleoid.xyz` для Polymer, sgui, Fantasy и Placeholder API.
+ИИ-запросы к OpenRouter — через `java.net.http.HttpClient` из JDK и Gson, который уже есть в Minecraft: отдельных библиотек не нужно ([ADR 0003](../adr/0003-ai-provider-and-protocol.md)).
+
+### API модов сервера (только компиляция)
+
+Эти моды уже стоят на сервере, мы подключаем только их API и работаем, лишь если мод загружен ([server-integration](server-integration.md)).
+
+| API | Зачем | Этап |
+|---|---|---|
+| `de.maxhenkel.voicechat:voicechat-api` | голоса персонажей, разговор голосом | 3, 5 |
+| `me.lucko:spark-api` | текущий MSPT для адаптивной нагрузки | 1 |
+| Origins: Legacy, FTB Quests, EasyAuth | раса игрока, мост квестов, событие входа — способ подключения уточнить по исходникам | 1–3 |
+
+Репозитории Maven: `maven.fabricmc.net` для Fabric, `maven.nucleoid.xyz` для Polymer, sgui, Fantasy и Placeholder API, `maven.maxhenkel.de/repository/public` для Voice Chat.
 
 Text Placeholder API под 26.2 пока в бете. Если это станет проблемой — MOTD и таблист можно собрать напрямую через ванильные пакеты.
 
@@ -50,9 +61,11 @@ Text Placeholder API под 26.2 пока в бете. Если это стан�
 | Chunky | 1.5.3 | прегенерация основного мира и арен |
 | spark | 1.10.187 | профилирование CPU, памяти, TPS |
 
+Остальные моды сервера и что мы с ними делаем — в [server-integration](server-integration.md).
+
 ## Риски
 
-- **Размер и конфликты jar-in-jar.** ИИ-SDK тянет HTTP-клиент, JSON-библиотеку и рантайм Kotlin, SQLite — нативные библиотеки под все платформы. Проверить размер итогового jar и конфликты с другими модами на этапе 1. Запасной вариант — `java.net.http.HttpClient` из JDK.
+- **Размер jar.** SQLite тянет нативные библиотеки под все платформы, это несколько МБ. Проверить на этапе 1; при желании оставить только Linux x64 — платформу хостинга.
 - **Бета Placeholder API** — см. выше.
 - **Переход на 26.3** — все библиотеки уже вышли под 26.3, порт должен быть механическим, но проверяется отдельно.
 
