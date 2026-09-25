@@ -1,0 +1,32 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Fabric Loom (dev-запуски клиента и сервера)
+run/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Секреты: ключи API только через переменные окружения
+.env
+.env.*
+secrets/
+
+# Локальный тестовый сервер
+server/
+logs/
+*.log
