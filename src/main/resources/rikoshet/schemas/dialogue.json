@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "properties": {
+    "say": { "type": "string" },
+    "mood": {
+      "type": "string",
+      "enum": ["neutral", "annoyed", "amused", "angry", "drunk", "proud", "bored", "suspicious"]
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["remember", "change_reputation", "give_item"] },
+          "note": { "type": ["string", "null"] },
+          "delta": { "type": ["integer", "null"] },
+          "reason": { "type": ["string", "null"] },
+          "item": { "type": ["string", "null"] },
+          "count": { "type": ["integer", "null"] }
+        },
+        "required": ["type", "note", "delta", "reason", "item", "count"],
+        "additionalProperties": false
+      }
+    },
+    "memory_note": { "type": "string" }
+  },
+  "required": ["say", "mood", "actions", "memory_note"],
+  "additionalProperties": false
+}

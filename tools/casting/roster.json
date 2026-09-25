@@ -1,0 +1,17 @@
+{
+  "_comment": "Вымышленные ники для кастинга. Настоящий состав сервера живёт в БД мода.",
+  "players": [
+    { "name": "dimon_228", "title": "Джерри", "archetype": "jerry", "note": "" },
+    { "name": "Kate_Frost", "title": "Джессика", "archetype": "other", "note": "одноклассница Морти, его безответная любовь" },
+    { "name": "tolyan", "title": "Жопосранчик", "archetype": "other", "note": "Мистер Жопосранчик, «Ууу-ии!»" },
+    { "name": "vovan_tractor", "title": "Фермер Рик", "archetype": "rick", "note": "Рик-фермер" },
+    { "name": "zloy_kot", "title": "Токсик Рик", "archetype": "rick", "note": "токсичная половина Рика после детокс-машины; он же Злой коп Рик" },
+    { "name": "morty_prime", "title": "Морти", "archetype": "morty", "note": "" },
+    { "name": "silent_bob", "title": "Немой Морти", "archetype": "morty", "note": "Морти, который почти никогда не говорит" },
+    { "name": "evil_m", "title": "Злой Морти", "archetype": "morty", "note": "главный манипулятор мультивселенной" },
+    { "name": "lesha_d", "title": "Дуфус Рик", "archetype": "rick", "note": "добрый и туповатый Рик, над которым смеются другие Рики" },
+    { "name": "toxic_m", "title": "Токсик Морти", "archetype": "morty", "note": "токсичная половина Морти после детокс-машины" },
+    { "name": "dimasik", "title": "Дуфус Джерри", "archetype": "jerry", "note": "Джерри ещё глупее обычного" },
+    { "name": "daen", "title": "Даен", "archetype": "other", "note": "" }
+  ]
+}

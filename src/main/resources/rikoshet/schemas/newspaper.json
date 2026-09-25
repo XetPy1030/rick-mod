@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "headline": { "type": "string" },
+    "articles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "body": { "type": "string" }
+        },
+        "required": ["title", "body"],
+        "additionalProperties": false
+      }
+    },
+    "ad": { "type": "string" },
+    "weather": { "type": "string" }
+  },
+  "required": ["headline", "articles", "ad", "weather"],
+  "additionalProperties": false
+}

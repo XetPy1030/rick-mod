@@ -30,3 +30,7 @@ secrets/
 server/
 logs/
 *.log
+
+# Результаты кастинга моделей
+tools/casting/out/
+__pycache__/

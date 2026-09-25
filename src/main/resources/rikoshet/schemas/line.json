@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "properties": {
+    "say": { "type": "string" }
+  },
+  "required": ["say"],
+  "additionalProperties": false
+}

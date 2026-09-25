@@ -34,19 +34,18 @@
     timeout_seconds: 15,
     requests_per_minute: 20,
     batch_hour: 4,                 // ночной батч, час по времени сервера
-    // models: первая — основная, дальше запасные; OpenRouter переключается сам
+    // models: первая — основная, дальше запасные; @effort — размышления для одной модели
     routes: {
-      dialogue:       { models: ["anthropic/claude-sonnet-5", "x-ai/grok-4.7", "google/gemini-3.8-flash"], max_tokens: 1024 },
-      visit:          { models: ["google/gemini-3.8-flash", "deepseek/deepseek-v4.1-flash"], max_tokens: 512 },
-      death_special:  { models: ["google/gemini-3.8-flash", "deepseek/deepseek-v4.1-flash"], max_tokens: 512 },
-      newspaper:      { models: ["anthropic/claude-opus-5", "anthropic/claude-sonnet-5"], max_tokens: 4096 },
-      judge:          { models: ["anthropic/claude-opus-5", "anthropic/claude-sonnet-5"], max_tokens: 4096 },
-      pools:          { models: ["google/gemini-3.8-flash:batch", "deepseek/deepseek-v4.1-flash:batch"], max_tokens: 4096 },
-      memory_compact: { models: ["google/gemini-3.8-flash:batch", "deepseek/deepseek-v4.1-flash:batch"], max_tokens: 1024 },
-      voice_in:       { models: ["google/gemini-3.8-flash"], max_tokens: 1024 },
+      flavor:         { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024 },
+      dialogue:       { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536 },
+      visit:          { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024 },
+      newspaper:      { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096 },
+      judge:          { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096 },
+      pools:          { models: ["moonshotai/kimi-k3", "anthropic/claude-sonnet-5"], reasoning: "low", max_tokens: 3072 },
+      memory_compact: { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "low", max_tokens: 1024 },
+      voice_in:       { models: ["google/gemini-3.8-flash@minimal"], max_tokens: 1024 },
       voice_out:      { models: ["openai/gpt-audio-mini"] },
     },
-    reasoning_effort: "low",       // для всех маршрутов, если не задано в маршруте
   },
 
   voice: {
@@ -89,7 +88,7 @@
 }
 ```
 
-Модели по маршрутам — гипотеза до [кастинга](../architecture/ai-integration.md#кастинг-моделей), `daily_budget_usd: 2.0` — принятый дневной бюджет ([№ 16](../open-questions.md)). Имя голоса `ash` — пример: список голосов берём из документации модели на кастинге.
+Модели `flavor`, `dialogue`, `newspaper` и `pools` выбраны на [кастинге](../architecture/ai-integration.md#кастинг-моделей), остальные — гипотеза до своего этапа. `daily_budget_usd: 2.0` — принятый дневной бюджет ([№ 16](../open-questions.md)). Имя голоса `ash` — пример: список голосов берём из документации модели на кастинге.
 
 ## Правила
 
