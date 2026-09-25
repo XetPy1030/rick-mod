@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "rikoshet",
+  "version": "${version}",
+  "name": "Рикошет",
+  "description": "Серверный мод по «Рику и Морти»: ИИ-персонажи, флейвор и ивенты для сервера Vanilla+ 26.2.",
+  "authors": ["XetPy"],
+  "license": "All-Rights-Reserved",
+  "environment": "server",
+  "entrypoints": {
+    "server": ["ru.xetpy.rikoshet.Rikoshet"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "fabric-api": "*",
+    "minecraft": "~26.2",
+    "java": ">=25"
+  },
+  "suggests": {
+    "easyauth": "*",
+    "spark": "*"
+  }
+}

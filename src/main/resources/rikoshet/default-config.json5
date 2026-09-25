@@ -1,0 +1,67 @@
+// «Рикошет» — конфиг мода. Описание всех ключей: docs/ops/configuration.md.
+// Перечитать без перезапуска: /rickadmin reload. Ключ OpenRouter сюда не пишем:
+// он в переменной окружения OPENROUTER_API_KEY или в rikoshet/secrets.json5.
+{
+  protocol_version: 1,
+
+  // Часовой пояс для дневного бюджета, суточной статистики и газеты
+  timezone: "Europe/Moscow",
+
+  // Каждая фича включается и выключается отдельно
+  features: {
+    rick: true,                    // Рик комментирует события в чате
+    death_messages: true,          // комментарии к смертям
+    join_leave: true,              // приветствия и прощания
+    newspaper: false,              // этап 2
+    motd_tab: false,               // этап 2
+    roles_in_tab: false,           // «Ник · Роль» в таблисте
+    voice: false,                  // этап 3, нужен Simple Voice Chat
+    visits: false,
+    mini_events: false,
+    gadgets: false,
+    events: false,
+  },
+
+  ai: {
+    enabled: true,                 // false — только заготовки
+    base_url: "https://openrouter.ai/api/v1",
+    daily_budget_usd: 2.0,         // выше — живые запросы выключаются до полуночи
+    max_concurrent: 4,             // параллельных запросов
+    requests_per_minute: 20,       // живых запросов в минуту на сервер
+    timeout_seconds: 15,           // таймаут запроса для маршрутов без своего
+    reasoning_effort: "low",       // размышления для маршрутов без своего
+    // models: первая — основная, дальше запасные; @effort — размышления для одной модели.
+    // timeout_seconds — на все попытки вместе; флейвор не успел — выводится заготовка.
+    routes: {
+      flavor:    { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024, timeout_seconds: 5 },
+      dialogue:  { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536, timeout_seconds: 15 },
+      newspaper: { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096, timeout_seconds: 120 },
+      pools:     { models: ["moonshotai/kimi-k3", "anthropic/claude-sonnet-5"], reasoning: "low", max_tokens: 3072, timeout_seconds: 120 },
+    },
+  },
+
+  // Комментарии к смерти, входу и выходу
+  flavor: {
+    death_cooldown_seconds: 20,    // смерти игрока чаще — без комментария
+    series_window_minutes: 10,     // окно для «серии смертей»
+    leave_delay_seconds: 15,       // прощание ждёт: вдруг игрок сразу переподключится
+    rejoin_quiet_minutes: 3,       // вернулся раньше — без приветствия
+  },
+
+  content: {
+    max_message_length: 256,       // длиннее — обрезается по концу фразы
+    blocklist: [],                 // стоп-слова: реплика с ними не выводится
+  },
+
+  performance: {
+    mspt_soft: 35,                 // выше — новые мини-события и визиты не начинаются
+    mspt_hard: 45,                 // выше — живые запросы флейвора заменяются заготовками
+    recover_seconds: 60,           // столько секунд ниже порога — и всё возвращается
+  },
+
+  storage: {
+    path: "rikoshet/rikoshet.db",  // относительно папки сервера; меняется только с перезапуском
+    dialogue_retention_days: 14,
+    ai_log_retention_days: 90,
+  },
+}

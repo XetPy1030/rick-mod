@@ -9,7 +9,7 @@
 | Minecraft | **26.2** | 26.3 уже вышел, решение — в [ADR 0002](../adr/0002-minecraft-26-2.md) |
 | Java | **25** | обязательна с 26.1, в том числе для JVM Gradle |
 | Gradle | 9.5.1+ | |
-| Fabric Loom | 1.17+ | плагин `net.fabricmc.fabric-loom`, без ремапа |
+| Fabric Loom | 1.17.21 | плагин `net.fabricmc.fabric-loom`, без ремапа |
 | Fabric Loader | 0.19.5 | последний stable |
 | Fabric API | 0.161.0+26.2 | |
 | IDE | IntelliJ IDEA 2025.3+ | более старые версии не понимают миксины на 26.x |
@@ -34,7 +34,7 @@
 | sgui | 2.1.0+26.2 | серверные GUI на сундуках и книгах: магазин, меню, голосование | 3–5 |
 | Fantasy | 0.8.3+26.2 | runtime-измерения для арен и копий мира | 6–7 |
 | Text Placeholder API | 3.1.0-beta.1+26.2 | плейсхолдеры для MOTD, таблиста, чата | 2 |
-| SQLite JDBC (xerial) | актуальная | хранилище ([ADR 0004](../adr/0004-storage-sqlite.md)) | 1 |
+| SQLite JDBC (xerial) | 3.53.4.0 | хранилище ([ADR 0004](../adr/0004-storage-sqlite.md)); вложен в jar мода, отсюда его размер ~12 МБ — нативные библиотеки под все платформы | 1 |
 
 ИИ-запросы к OpenRouter — через `java.net.http.HttpClient` из JDK и Gson, который уже есть в Minecraft: отдельных библиотек не нужно ([ADR 0003](../adr/0003-ai-provider-and-protocol.md)).
 
