@@ -50,7 +50,7 @@
 ## Этап 3 — Рик в Цитадели
 
 - Хаб-измерение Цитадель, постройка из NBT ([worlds](architecture/worlds.md))
-- Спайк манекенов: скин из ресурспака виден на клиенте TLauncher, подпись «NPC» скрыта ([server-integration](architecture/server-integration.md#скины))
+- Спайк манекенов: скин из ресурспака виден у игроков с их лаунчерами, подпись «NPC» скрыта ([server-integration](architecture/server-integration.md#скины))
 - Генератор скинов `tools/skins/`, скин Рика
 - NPC Рика: внешний вид, разговор по ПКМ, память, репутация «Полезность для науки» ([rick](design/characters/rick.md))
 - Голос Рика: озвучка реплик через Simple Voice Chat ([voice](design/voice.md))

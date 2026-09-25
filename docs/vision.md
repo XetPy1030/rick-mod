@@ -9,7 +9,7 @@
 ## Аудитория
 
 - Компания из 8 друзей, все 18+, знают сериал. Пиковый онлайн — 8 человек.
-- Играют на сервере «Vanilla+ 26.2»: околованильная сборка на Fabric (Terralith, Origins, FTB Quests, Simple Voice Chat и др.), клиентская часть раздаётся архивом, запуск через TLauncher ([server-integration](architecture/server-integration.md)).
+- Играют на сервере «Vanilla+ 26.2»: околованильная сборка на Fabric (Terralith, Origins, FTB Quests, Simple Voice Chat и др.), клиентская часть раздаётся архивом, лаунчеры у всех разные, аккаунты пиратские ([server-integration](architecture/server-integration.md)).
 - Язык — русский, имена и термины — как в русском дубляже.
 - Собираются в основном вечерами и на выходных, поэтому ивенты планируются под это время.
 

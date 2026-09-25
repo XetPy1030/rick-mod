@@ -6,7 +6,7 @@
 
 ```mermaid
 flowchart LR
-    Client["Клиент сборки Vanilla+ 26.2<br/>(TLauncher)"]
+    Client["Клиент сборки Vanilla+ 26.2<br/>(любой лаунчер)"]
     subgraph Server["Fabric-сервер на Millida"]
         Mod["rikoshet"]
         Polymer["Polymer"]
