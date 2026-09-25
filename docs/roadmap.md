@@ -33,6 +33,7 @@
 - Адаптивная нагрузка: пауза фоновых фич при высоком MSPT по данным spark ([performance](architecture/performance.md))
 - Проверка на полной копии сборки сервера, а не только в `runServer`
 - Мод полностью работает без API-ключа: только заготовки
+- Роли игроков: таблица, команды `/rickadmin role …` и `/rick who`, роль в промпте и ключах пулов ([player-roles](design/player-roles.md))
 - Команды `/rick off|on`, `/rickadmin reload`, `/rickadmin ai status` ([commands](ops/commands.md))
 - Первая выкладка на сервер Millida, ключ OpenRouter ([server-setup](ops/server-setup.md))
 

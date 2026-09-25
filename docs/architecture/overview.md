@@ -42,7 +42,7 @@ flowchart LR
 | `ai.action` | исполнение действий из белого списка | [ai-actions](ai-actions.md) |
 | `voice` | озвучка реплик и голосовой ввод через Simple Voice Chat | [voice](../design/voice.md) |
 | `integration` | мягкие интеграции: FTB Quests, Origins, EasyAuth, spark, Carry On | [server-integration](server-integration.md) |
-| `persona` | персонажи, их промпты, память, репутация | [characters](../design/characters/README.md) |
+| `persona` | персонажи, их промпты, память, репутация; роли игроков | [characters](../design/characters/README.md), [player-roles](../design/player-roles.md) |
 | `storage` | БД, миграции, репозитории | [storage](storage.md) |
 | `content` | предметы, блоки, сущности через Polymer; ресурспак | [content-delivery](content-delivery.md) |
 | `world` | хаб, измерения, структуры, реестр изменений, откат | [worlds](worlds.md) |

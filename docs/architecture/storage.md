@@ -16,6 +16,7 @@
 | Таблица | Поля | Для чего |
 |---|---|---|
 | `player` | `uuid` PK, `name`, `first_seen`, `last_seen`, `playtime_s`, `ai_opt_out`, `voice_opt_out` | профиль, `/rick off`, `/rick voice off`. UUID оффлайновый — от ника с учётом регистра |
+| `player_role` | `uuid` PK, `title`, `archetype`, `note`, `set_at` | роль игрока: кто он во вселенной ([player-roles](../design/player-roles.md)) |
 | `player_stat_daily` | `uuid`, `date`, `key`, `value` | статистика за день для газеты и титулов: смерти по причинам, добыча, убийства |
 | `title` | `uuid`, `title_id`, `earned_at`, `active` | титулы |
 

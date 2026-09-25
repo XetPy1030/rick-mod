@@ -17,6 +17,7 @@
     newspaper: true,
     motd_tab: true,
     rick: true,
+    roles_in_tab: false,           // «Ник · Роль» в таблисте
     voice: false,                  // озвучка и голосовой ввод, нужен Simple Voice Chat
     visits: false,
     mini_events: false,
