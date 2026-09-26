@@ -9,6 +9,8 @@ import net.minecraft.server.permissions.Permissions;
 import org.slf4j.Logger;
 import ru.xetpy.rikoshet.ai.AiService;
 import ru.xetpy.rikoshet.ai.PromptLibrary;
+import ru.xetpy.rikoshet.builds.BuildService;
+import ru.xetpy.rikoshet.builds.BuildStore;
 import ru.xetpy.rikoshet.chronicle.ChronicleService;
 import ru.xetpy.rikoshet.chronicle.ChronicleStore;
 import ru.xetpy.rikoshet.chronicle.analysis.DayReport;
@@ -67,6 +69,7 @@ public final class RikoshetRuntime {
 	public final ChronicleService chronicle;
 	public final MemoryService memory;
 	public final NewspaperService newspaper;
+	public final BuildService builds;
 	/** Проблемы конфига при старте: пока они есть, действуют значения по умолчанию. */
 	public final List<String> startupProblems = new ArrayList<>();
 
@@ -109,6 +112,23 @@ public final class RikoshetRuntime {
 		chronicle = new ChronicleService(log, clock, this::config, this::today, chronicleStore, stats, players, roles);
 		memory = new MemoryService(log, clock, () -> config.timezone(), new MemoryStore(db), chronicleStore, chronicle::whoPublic);
 		chronicle.onEvent(memory::onEvent);
+		builds = new BuildService(log, clock, this::today, new BuildStore(db), chronicle::record, chronicle::whoPublic,
+				msg -> server.execute(() -> alertAdmins(msg)));
+		chronicle.setBuildHooks(new ChronicleService.BuildHooks() {
+			@Override
+			public void window(java.util.UUID uuid, String dim, int cx, int cz, long placed, long mined, long now) {
+				if (config.feature("builds")) {
+					builds.window(uuid, dim, cx, cz, placed, mined, now);
+				}
+			}
+
+			@Override
+			public void presence(String dim, int cx, int cz, long now) {
+				if (config.feature("builds")) {
+					builds.presence(dim, cx, cz, now);
+				}
+			}
+		});
 		// Итоги дня приходят из потока БД — дальше работаем в главном
 		chronicle.onReport((day, report) -> server.execute(() -> nightly(day, report)));
 
@@ -132,8 +152,9 @@ public final class RikoshetRuntime {
 		return new RikoshetRuntime(server, log);
 	}
 
-	/** Дни, за которые дневник уже написан с этого запуска. */
+	/** Дни, за которые дневник уже написан и имена постройкам даны с этого запуска. */
 	private final java.util.Set<LocalDate> diaryDone = java.util.concurrent.ConcurrentHashMap.newKeySet();
+	private final java.util.Set<LocalDate> namesDone = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
 	/** Итоги дня готовы: консолидация памяти и дневник дня. Газета читает их сама в час выхода. Главный поток. */
 	private void nightly(LocalDate day, DayReport report) {
@@ -142,7 +163,13 @@ public final class RikoshetRuntime {
 		} catch (RuntimeException e) {
 			log.warn("[память] консолидация {}: {}", day, e.toString());
 		}
-		if (report.players().isEmpty() || day.isBefore(today().minusDays(1)) || !diaryDone.add(day)) {
+		if (report.players().isEmpty() || day.isBefore(today().minusDays(1))) {
+			return;
+		}
+		if (namesDone.add(day)) {
+			nameBuilds();
+		}
+		if (!diaryDone.add(day)) {
 			return;
 		}
 		String system = ru.xetpy.rikoshet.ai.PromptBuilder.system(prompts, flavor.rosterBlock(), "editor", "diary");
@@ -161,6 +188,28 @@ public final class RikoshetRuntime {
 						chronicle.record(new ru.xetpy.rikoshet.chronicle.ChronicleEvent(now, day.toString(), uuid, "diary", null, 10, d));
 					});
 					log.info("[память] дневник {}: {} записей, ${}", day, entries.size(), String.format("%.4f", res.costUsd()));
+				}));
+	}
+
+	/** Имена изменившимся постройкам — одним запросом аналитика; хозяину — в память. */
+	private void nameBuilds() {
+		if (!config.feature("builds")) {
+			return;
+		}
+		var need = builds.needNames(10);
+		if (need.isEmpty()) {
+			return;
+		}
+		String system = ru.xetpy.rikoshet.ai.PromptBuilder.system(prompts, flavor.rosterBlock(), "editor", "builds");
+		String user = ru.xetpy.rikoshet.ai.PromptBuilder.user(null, builds.namingInput(need), null, null);
+		ai.submit(new ru.xetpy.rikoshet.ai.AiRequest("analyst", "builds", system, user, "builds", null))
+				.thenAccept(res -> server.execute(() -> {
+					if (!res.ok()) {
+						return;
+					}
+					int n = builds.applyNames(need, res.value(), s -> memory.remember(s.owner(), "build",
+							"строит «" + s.name() + "»" + (s.description() == null ? "" : ": " + s.description()), 15));
+					log.info("[постройки] имён дано: {}, ${}", n, String.format("%.4f", res.costUsd()));
 				}));
 	}
 
@@ -235,6 +284,9 @@ public final class RikoshetRuntime {
 		}
 		auth.poll(server);
 		chronicle.everySecond(server);
+		if (config.feature("chronicle") && config.feature("builds")) {
+			builds.step(server);
+		}
 	}
 
 	/** Сообщение всем админам онлайн. Только из главного потока. */

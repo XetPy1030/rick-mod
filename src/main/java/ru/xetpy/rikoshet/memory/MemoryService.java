@@ -305,6 +305,20 @@ public final class MemoryService {
 		return new Consolidation(changes, stories);
 	}
 
+	/** Записать знание в слот вне ночной консолидации (имя постройки и т. п.). Главный поток. */
+	public void remember(UUID subject, String slot, String value, int importance) {
+		long now = clock.millis();
+		MemoryStore.Row cur = get(subject.toString(), slot);
+		MemoryStore.Row next = new MemoryStore.Row(subject.toString(), slot, value, null, importance,
+				cur != null && cur.value().equals(value) ? cur.firstTs() : now, now);
+		put(next);
+		if (cur != null && cur.value().equals(value)) {
+			store.touch(subject.toString(), slot, null, now);
+		} else {
+			store.replace(next, now);
+		}
+	}
+
 	/** Смены слотов, найденные при консолидации этого дня (для газеты). */
 	public List<String> changesFor(LocalDate day) {
 		return day.equals(changesDay) ? changes : List.of();

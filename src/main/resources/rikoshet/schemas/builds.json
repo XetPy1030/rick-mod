@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "builds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "n": { "type": "integer" },
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["n", "name", "description"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["builds"],
+  "additionalProperties": false
+}

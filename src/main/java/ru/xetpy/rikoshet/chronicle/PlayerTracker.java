@@ -34,6 +34,8 @@ final class PlayerTracker {
 	final Map<String, Long> pending = new HashMap<>();
 	/** Секунды в клетках до сброса в player_cell. */
 	final Long2LongOpenHashMap cellSeconds = new Long2LongOpenHashMap();
+	/** Замеры окна по клеткам: где игрок провёл окно — там и стройка. */
+	final it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap windowCells = new it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap();
 
 	// ---------- прошлый замер ----------
 	long lastSample;
@@ -72,6 +74,7 @@ final class PlayerTracker {
 		idle = 0;
 		underground = 0;
 		newCells = 0;
+		windowCells.clear();
 	}
 
 	/** Ценное при себе: для заметки «погиб с 23 алмазами». items — короткие id выпавших ценных вещей. */

@@ -24,6 +24,7 @@ import java.util.UUID;
  * @param totals       счётчики за всё время
  * @param seen         что игроки увидели впервые в этот день
  * @param headlines    заголовки прошлых выпусков, свежие первыми
+ * @param builds       постройки с историей сканов
  */
 public record DayData(
 		LocalDate day,
@@ -40,8 +41,17 @@ public record DayData(
 		Map<LocalDate, List<PairRow>> pairs,
 		Map<UUID, Map<String, Long>> totals,
 		List<Seen> seen,
-		List<String> headlines
+		List<String> headlines,
+		List<Build> builds
 ) {
+	/**
+	 * Постройка: хозяин, имя или null, где (биом, измерение), рукотворных по дням
+	 * (ГГГГ-ММ-ДД → на последнем скане дня), рядом ли структура (деревня, крепость).
+	 */
+	public record Build(String dim, int cx, int cz, UUID owner, String name, String where, java.util.NavigableMap<String, Long> history,
+			boolean structure) {
+	}
+
 	/** Игрок: ник, роль (или null), /rick off, когда впервые зашёл. */
 	public record Person(String name, String role, boolean optedOut, long firstSeen) {
 		/** Как назвать в тексте: «Роль (ник)» или ник. */

@@ -38,6 +38,7 @@ class AnalyzerTest {
 		final List<ChronicleEvent> deaths = new ArrayList<>();
 		final List<DayData.Session> sessions = new ArrayList<>();
 		final Map<LocalDate, List<DayData.PairRow>> pairs = new TreeMap<>();
+		final List<DayData.Build> builds = new ArrayList<>();
 
 		Day() {
 			long old = DAY.minusDays(60).atStartOfDay(Z).toInstant().toEpochMilli();
@@ -92,7 +93,7 @@ class AnalyzerTest {
 
 		DayData build() {
 			return new DayData(DAY, Z, people, counters, history, serverBest, personalBest, activeDays, events, deaths,
-					sessions, pairs, Map.of(), List.of(), List.of("Вчерашний заголовок"));
+					sessions, pairs, Map.of(), List.of(), List.of("Вчерашний заголовок"), builds);
 		}
 	}
 
@@ -238,6 +239,25 @@ class AnalyzerTest {
 		List<DayReport.Fact> sel = Analyzer.select(new Day().build(), all, 25);
 		assertEquals(Analyzer.PER_PLAYER + 1, sel.size());
 		assertEquals("мелочь", sel.getLast().text());
+	}
+
+	@Test
+	void buildGrowthAndLossWithSuspects() {
+		Day d = new Day().today(rick, Keys.ONLINE, 3600L).active(rick, 0);
+		java.util.TreeMap<String, Long> grow = new java.util.TreeMap<>(Map.of(DAY.minusDays(1).toString(), 800L, DAY.toString(), 2300L));
+		java.util.TreeMap<String, Long> loss = new java.util.TreeMap<>(Map.of(DAY.minusDays(2).toString(), 1000L, DAY.toString(), 500L));
+		java.util.TreeMap<String, Long> fresh = new java.util.TreeMap<>(Map.of(DAY.toString(), 600L));
+		d.builds.add(new DayData.Build("overworld", 0, 0, rick, "Амбар", "mangrove swamp", grow, false));
+		d.builds.add(new DayData.Build("overworld", 5, 5, morty, null, "plains", loss, false));
+		d.builds.add(new DayData.Build("overworld", 9, 9, morty, null, "desert", fresh, false));
+		d.builds.add(new DayData.Build("overworld", 7, 7, rick, null, "village", fresh, true));
+		d.pair(0, rick, morty, PairKeys.MINE_ABSENT, 300);
+		DayReport r = Analyzer.analyze(d.build(), 40);
+		DayReport.Fact g = r.facts().stream().filter(f -> f.kind().equals("build_day")).findFirst().orElseThrow();
+		assertTrue(g.text().contains("«Амбар»") && g.text().contains("1 500"), g.text());
+		DayReport.Fact l = r.facts().stream().filter(f -> f.kind().equals("build_loss")).findFirst().orElseThrow();
+		assertTrue(l.text().contains("50%") && l.text().contains("замечены: Токсик Рик (sh5dawg)"), l.text());
+		assertEquals(1, r.facts().stream().filter(f -> f.kind().equals("build_new")).count(), "деревня — не новая стройка");
 	}
 
 	@Test

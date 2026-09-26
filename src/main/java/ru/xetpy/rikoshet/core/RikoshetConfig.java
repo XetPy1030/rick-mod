@@ -38,6 +38,7 @@ public record RikoshetConfig(
 		f.put("death_messages", true);
 		f.put("join_leave", true);
 		f.put("chronicle", false);
+		f.put("builds", false);
 		f.put("newspaper", false);
 		f.put("motd_tab", false);
 		f.put("roles_in_tab", false);

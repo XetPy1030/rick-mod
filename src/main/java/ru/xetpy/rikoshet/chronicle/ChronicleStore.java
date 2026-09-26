@@ -445,8 +445,25 @@ public final class ChronicleStore {
 			}
 		}
 
+		List<DayData.Build> builds = new ArrayList<>();
+		try (PreparedStatement st = c.prepareStatement("SELECT dim, cx, cz, owner, name, scan, history FROM build_site WHERE history IS NOT NULL");
+				ResultSet rs = st.executeQuery()) {
+			while (rs.next()) {
+				String owner = rs.getString(4);
+				JsonObject scan = json(rs.getString(6));
+				JsonObject h = json(rs.getString(7));
+				TreeMap<String, Long> hist = new TreeMap<>();
+				h.entrySet().forEach(e -> hist.put(e.getKey(), e.getValue().getAsLong()));
+				String dim = rs.getString(1);
+				String biome = scan.has("biome") ? Names.pretty(scan.get("biome").getAsString()) : "?";
+				builds.add(new DayData.Build(dim, rs.getInt(2), rs.getInt(3), owner == null ? null : UUID.fromString(owner), rs.getString(5),
+						dim.equals("overworld") ? biome : Names.dimension(dim) + ", " + biome, hist,
+						scan.has("structure") && scan.get("structure").getAsBoolean()));
+			}
+		}
+
 		return new DayData(day, zone, people, counters, history, serverBest, personalBest, activeDays, events, deaths,
-				sessions, pairs, totals, seen, headlines);
+				sessions, pairs, totals, seen, headlines, builds);
 	}
 
 	private static List<ChronicleEvent> events(Connection c, String sql, String... args) throws SQLException {

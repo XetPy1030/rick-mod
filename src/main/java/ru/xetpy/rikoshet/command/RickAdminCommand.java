@@ -89,6 +89,12 @@ public final class RickAdminCommand {
 								.executes(c -> news(c, rt, null, false))
 								.then(Commands.argument("date", StringArgumentType.word())
 										.executes(c -> news(c, rt, StringArgumentType.getString(c, "date"), false)))))
+				.then(Commands.literal("builds")
+						.executes(c -> buildsList(c, rt))
+						.then(Commands.literal("scan")
+								.then(Commands.argument("x", com.mojang.brigadier.arguments.IntegerArgumentType.integer())
+										.then(Commands.argument("z", com.mojang.brigadier.arguments.IntegerArgumentType.integer())
+												.executes(c -> buildsScan(c, rt))))))
 				.then(Commands.literal("memory")
 						.then(Commands.literal("show")
 								.then(Commands.argument("nick", StringArgumentType.word()).suggests(nicks)
@@ -264,6 +270,48 @@ public final class RickAdminCommand {
 			src.sendSuccess(() -> Component.literal(("ai".equals(issue.source()) ? "Написала редакция: " + issue.model() : "Собран без ИИ")
 					+ String.format(", $%.4f", issue.costUsd()) + (publish ? ", разослан" : ", не опубликован")).withStyle(ChatFormatting.DARK_GRAY), false);
 		}));
+		return 1;
+	}
+
+	// ---------- постройки ----------
+
+	/** Постройки по размеру: где (координаты видит только админ), хозяин, имя, виды блоков. */
+	private static int buildsList(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		var all = r.builds.all();
+		MutableComponent out = Component.literal("Постройки (" + all.size() + ", в очереди скана " + r.builds.queued() + ")"
+				+ (r.config().feature("builds") ? "" : " — features.builds выключен")).withStyle(ChatFormatting.GOLD);
+		int n = 0;
+		for (var s : all) {
+			if (n++ >= 15) {
+				break;
+			}
+			String owner = s.owner() == null ? "?" : r.chronicle.whoPublic(s.owner());
+			out.append(Component.literal("\n" + s.dim() + " " + (s.cx() * 64 + 32) + " " + (s.cz() * 64 + 32) + " — " + owner + ": "
+					+ s.artificial() + " рукотворных" + (s.name() == null ? "" : ", «" + s.name() + "»")).withStyle(ChatFormatting.WHITE));
+			if (s.scan() != null && s.scan().has("kinds")) {
+				out.append(Component.literal("\n  " + s.scan().getAsJsonObject("kinds")).withStyle(ChatFormatting.DARK_GRAY));
+			}
+		}
+		c.getSource().sendSuccess(() -> out, false);
+		return all.size();
+	}
+
+	private static int buildsScan(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		int x = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "x");
+		int z = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "z");
+		var level = c.getSource().getLevel();
+		String dim = ru.xetpy.rikoshet.chronicle.Keys.shortId(level.dimension().identifier().toString());
+		r.builds.scanNow(dim, Math.floorDiv(x, 64), Math.floorDiv(z, 64));
+		c.getSource().sendSuccess(() -> Component.literal("Клетка " + Math.floorDiv(x, 64) + " " + Math.floorDiv(z, 64)
+				+ " в очереди: скан — 16 секунд, если чанки загружены"), false);
 		return 1;
 	}
 

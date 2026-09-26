@@ -59,6 +59,7 @@ public final class Analyzer {
 		crimes(d, active, facts);
 		explorers(d, active, facts);
 		serverFacts(d, active, facts);
+		buildFacts(d, facts);
 
 		Map<UUID, Forecaster.Online> online = Forecaster.online(d);
 		Relations.Result rel = Relations.analyze(d, online);
@@ -470,6 +471,48 @@ public final class Analyzer {
 			if (first >= 40) {
 				out.add(fact("pioneer", u, 10, d.who(u) + " побывал там, где до него не ступал никто: " + first + " "
 						+ Metrics.plural(first, "участок", "участка", "участков") + " карты"));
+			}
+		}
+	}
+
+	/** Постройки: новая стройка, рост за день, потеря рукотворных блоков. */
+	static void buildFacts(DayData d, List<DayReport.Fact> out) {
+		String day = d.day().toString();
+		for (DayData.Build b : d.builds()) {
+			if (b.owner() == null || !d.visible(b.owner()) || b.structure()) {
+				continue;
+			}
+			Long today = b.history().get(day);
+			if (today == null) {
+				continue;
+			}
+			var before = b.history().lowerEntry(day);
+			String what = b.name() != null ? "постройка «" + b.name() + "»" : "постройка";
+			String who = d.who(b.owner());
+			if (before == null) {
+				if (today >= 300) {
+					out.add(fact("build_new", b.owner(), 12, who + " начал стройку (" + b.where() + "): уже " + Metrics.count(today)
+							+ " рукотворных блоков" + (b.name() != null ? " — «" + b.name() + "»" : "")));
+				}
+				continue;
+			}
+			long prev = before.getValue();
+			long delta = today - prev;
+			if (delta >= 400) {
+				out.add(fact("build_day", b.owner(), 15 + (int) Math.min(15, delta / 500), what + " " + who + " (" + b.where()
+						+ ") за день выросла на " + Metrics.count(delta) + " блоков, теперь в ней " + Metrics.count(today)));
+			} else if (prev >= 300 && today <= prev * 0.7) {
+				long pct = Math.round(100.0 * (prev - today) / prev);
+				List<String> seen = new ArrayList<>();
+				for (DayData.PairRow r : d.pairs().getOrDefault(d.day(), List.of())) {
+					if (r.b().equals(b.owner()) && (r.key().equals(PairKeys.VISIT) || r.key().equals(PairKeys.MINE_ABSENT)
+							|| r.key().equals(PairKeys.BUILD_ABSENT)) && d.visible(r.a()) && !seen.contains(d.who(r.a()))) {
+						seen.add(d.who(r.a()));
+					}
+				}
+				out.add(fact("build_loss", b.owner(), 25, what + " " + who + " (" + b.where() + ") за день лишилась " + pct
+						+ "% рукотворных блоков: было " + Metrics.count(prev) + ", стало " + Metrics.count(today)
+						+ (seen.isEmpty() ? "" : "; у дома без хозяина замечены: " + String.join(", ", seen))));
 			}
 		}
 	}

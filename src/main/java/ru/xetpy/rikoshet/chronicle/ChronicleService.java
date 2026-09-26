@@ -97,6 +97,7 @@ public final class ChronicleService {
 	private final List<Consumer<ChronicleEvent>> eventListeners = new CopyOnWriteArrayList<>();
 	private final List<BiConsumer<LocalDate, DayReport>> reportListeners = new CopyOnWriteArrayList<>();
 
+	private volatile BuildHooks buildHooks;
 	private LocalDate currentDay;
 	private long lastSample;
 	private long lastCycle;
@@ -133,6 +134,19 @@ public final class ChronicleService {
 
 	/** Счётчики за всё время из БД — для игроков, которых ещё не видели в этой сессии сервера. */
 	private final Map<UUID, Map<String, Long>> totalsAtStart;
+
+	/** Куда сообщать о стройке ({@link ru.xetpy.rikoshet.builds.BuildService}). */
+	public interface BuildHooks {
+		/** Игрок провёл окно в клетке и поставил или добыл там столько. */
+		void window(UUID uuid, String dim, int cx, int cz, long placed, long mined, long now);
+
+		/** Игрок сейчас в клетке. */
+		void presence(String dim, int cx, int cz, long now);
+	}
+
+	public void setBuildHooks(BuildHooks hooks) {
+		this.buildHooks = hooks;
+	}
 
 	public boolean enabled() {
 		return config.get().feature("chronicle");
@@ -329,6 +343,11 @@ public final class ChronicleService {
 		int cz = Math.floorDiv(pos.getZ(), 64);
 		long key = cellKey(dim, cx, cz);
 		t.cellSeconds.addTo(key, dt);
+		t.windowCells.addTo(key, 1);
+		BuildHooks hooks = buildHooks;
+		if (hooks != null) {
+			hooks.presence(dim, cx, cz, now);
+		}
 		if (cells.computeIfAbsent(t.uuid, u -> new LongOpenHashSet()).add(key)) {
 			t.newCells++;
 			add(t, Keys.NEW_CELLS, 1);
@@ -441,11 +460,35 @@ public final class ChronicleService {
 		t.lifetime = life;
 		flushCells(t, now);
 		d.forEach((k, v) -> t.session.merge(k, v, Long::sum));
+		traceBuild(t, d, now);
 		t.resetWindow(now);
 		if (deltasOut != null) {
 			deltasOut.put(t.uuid, d);
 			actsOut.put(t.uuid, act);
 		}
+	}
+
+	/** След стройки: окно — в клетке, где было больше всего замеров. */
+	private void traceBuild(PlayerTracker t, Map<String, Long> d, long now) {
+		BuildHooks hooks = buildHooks;
+		if (hooks == null || t.windowCells.isEmpty()) {
+			return;
+		}
+		long placed = d.getOrDefault(Keys.PLACED, 0L);
+		long mined = d.getOrDefault(Keys.MINED, 0L) - d.getOrDefault(Keys.LOGS, 0L) - d.getOrDefault(Keys.CROPS, 0L);
+		if (placed <= 0 && mined <= 0) {
+			return;
+		}
+		long best = 0;
+		int bestN = -1;
+		for (var e : t.windowCells.long2IntEntrySet()) {
+			if (e.getIntValue() > bestN) {
+				bestN = e.getIntValue();
+				best = e.getLongKey();
+			}
+		}
+		hooks.window(t.uuid, dims.get((int) (best >>> 48)), (int) ((best >>> 24) & 0xFFFFFF) << 8 >> 8,
+				(int) (best & 0xFFFFFF) << 8 >> 8, placed, Math.max(0, mined), now);
 	}
 
 	/** Счётчики за всё время для вех: из тех же ванильных значений. */
