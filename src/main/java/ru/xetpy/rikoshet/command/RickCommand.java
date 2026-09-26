@@ -103,6 +103,11 @@ public final class RickCommand {
 		for (String line : PlayerCard.lines(r.stats.today(p.getUUID()), r.chronicle.profile(p.getUUID()), r.chronicle::whoPublic)) {
 			out.append(Component.literal("\n" + line).withStyle(ChatFormatting.GRAY));
 		}
+		var build = r.config().feature("builds") ? r.builds.mainOf(p.getUUID()) : null;
+		if (build != null) {
+			out.append(Component.literal("\nГлавная постройка: " + (build.name() != null ? "«" + build.name() + "», " : "")
+					+ build.artificial() + " рукотворных блоков").withStyle(ChatFormatting.GRAY));
+		}
 		c.getSource().sendSuccess(() -> out, false);
 		return 1;
 	}

@@ -149,7 +149,7 @@
 ## Техника
 
 - Флаг `features.chronicle`, по умолчанию выключен. Настройки — раздел `chronicle` ([configuration](../ops/configuration.md)).
-- Таблицы — [storage](../architecture/storage.md#летопись).
+- Таблицы — [storage](../architecture/storage.md#летопись--этап-2).
 - Команды: `/rick me`; `/rickadmin chronicle status|day [дата]|player <ник>`; для отладки — `/rickdev chronicle …` ([commands](../ops/commands.md)).
 - Доступ к словарю статистики игрока — через `rikoshet.classtweaker` (`StatsCounter.stats`), без миксинов.
 - Полночь по `timezone`: снимок всех, день закрывается, анализ уходит в поток БД. Итог — в `chronicle_day`, профили — в `player_profile`.

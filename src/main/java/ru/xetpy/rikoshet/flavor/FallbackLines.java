@@ -31,6 +31,17 @@ public final class FallbackLines {
 	private final Map<String, Map<String, List<String>>> sections;
 	private final RandomGenerator random;
 	private final Deque<String> recent = new ArrayDeque<>();
+	/** Реплики пулов от ИИ: подмешиваются к рукописным (docs/architecture/ai-integration.md#пулы-заготовок). */
+	private volatile Map<String, Map<String, List<String>>> extra = Map.of();
+	/** Кому сообщить, какая реплика (до подстановки) выбрана: пулы считают показы. */
+	private volatile java.util.function.Consumer<String> picked = s -> {
+	};
+
+	public void setExtra(Map<String, Map<String, List<String>>> extra, java.util.function.Consumer<String> picked) {
+		this.extra = extra == null ? Map.of() : extra;
+		this.picked = picked == null ? s -> {
+		} : picked;
+	}
 
 	FallbackLines(Map<String, Map<String, List<String>>> sections, RandomGenerator random) {
 		this.sections = sections;
@@ -92,7 +103,9 @@ public final class FallbackLines {
 			if (c.chance() < 1 && random.nextDouble() >= c.chance()) {
 				continue;
 			}
-			List<String> lines = sections.getOrDefault(c.section(), Map.of()).getOrDefault(c.key(), List.of());
+			List<String> own = sections.getOrDefault(c.section(), Map.of()).getOrDefault(c.key(), List.of());
+			List<String> pool = extra.getOrDefault(c.section(), Map.of()).getOrDefault(c.key(), List.of());
+			List<String> lines = pool.isEmpty() ? own : java.util.stream.Stream.concat(own.stream(), pool.stream()).toList();
 			List<String> usable = lines.stream().filter(l -> fits(l, vars)).toList();
 			if (usable.isEmpty()) {
 				continue;
@@ -104,6 +117,7 @@ public final class FallbackLines {
 			while (recent.size() > NO_REPEAT) {
 				recent.removeFirst();
 			}
+			picked.accept(line);
 			return fill(line, vars);
 		}
 		return null;

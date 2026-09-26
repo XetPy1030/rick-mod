@@ -277,6 +277,53 @@ public final class AiService {
 		}
 	}
 
+	// ---------- пакеты (Batch API) ----------
+
+	/** Почему пакет сейчас отправлять нельзя, или null. Лимит запросов в минуту к пакетам не относится. */
+	public String refuseBatch() {
+		RikoshetConfig cfg = config;
+		if (!cfg.ai().enabled()) {
+			return "ИИ выключен в конфиге";
+		}
+		if (!secrets.hasKey()) {
+			return "нет ключа";
+		}
+		if (paused) {
+			return "пауза админа";
+		}
+		if (blockedUntilMillis > clock.millis()) {
+			return blockReason;
+		}
+		if (!budget.canSpend()) {
+			return "дневной бюджет исчерпан";
+		}
+		return null;
+	}
+
+	/** Клиент пакетов с тем же адресом и ключом. */
+	public BatchClient batchClient() {
+		return new BatchClient(config.ai().baseUrl(), this::key);
+	}
+
+	/** Схема ответа по имени — для разбора результатов пакета. */
+	public JsonObject schema(String name) {
+		return prompts.schema(name);
+	}
+
+	/** Один результат пакета: в ai_log, в бюджет и в статистику маршрута. */
+	public void recordBatchResult(String route, String tag, String model, String status, OpenRouterClient.Usage usage,
+			String output, String error) {
+		budget.add(usage.cost());
+		stats.attempt(route, usage);
+		String out = output != null && output.length() > OUTPUT_LOG_LIMIT ? output.substring(0, OUTPUT_LOG_LIMIT) : output;
+		try {
+			sink.write(new AiLogEntry(clock.instant(), budget.day(), route, tag, model, status, usage.promptTokens(),
+					usage.cachedTokens(), usage.completionTokens(), usage.reasoningTokens(), 0, usage.cost(), null, out, error));
+		} catch (RuntimeException e) {
+			log.warn("[ИИ] ai_log не записан: {}", e.toString());
+		}
+	}
+
 	public void setPaused(boolean paused) {
 		this.paused = paused;
 		if (!paused) {

@@ -11,7 +11,10 @@ import ru.xetpy.rikoshet.ai.AiService;
 import ru.xetpy.rikoshet.ai.PromptLibrary;
 import ru.xetpy.rikoshet.builds.BuildService;
 import ru.xetpy.rikoshet.builds.BuildStore;
+import ru.xetpy.rikoshet.ai.BatchService;
 import ru.xetpy.rikoshet.chronicle.ChronicleService;
+import ru.xetpy.rikoshet.flavor.ServerListService;
+import ru.xetpy.rikoshet.pools.PoolService;
 import ru.xetpy.rikoshet.chronicle.ChronicleStore;
 import ru.xetpy.rikoshet.chronicle.analysis.DayReport;
 import ru.xetpy.rikoshet.memory.MemoryService;
@@ -70,6 +73,10 @@ public final class RikoshetRuntime {
 	public final MemoryService memory;
 	public final NewspaperService newspaper;
 	public final BuildService builds;
+	public final BatchService batch;
+	public final PoolService pools;
+	public final ServerListService serverList;
+	private volatile java.util.Map<String, java.util.Map<String, List<String>>> poolLines = java.util.Map.of();
 	/** Проблемы конфига при старте: пока они есть, действуют значения по умолчанию. */
 	public final List<String> startupProblems = new ArrayList<>();
 
@@ -144,6 +151,13 @@ public final class RikoshetRuntime {
 				FallbackLines.load("rick", paths.dataDir().resolve("fallback"), new Random()));
 		newspaper = new NewspaperService(log, clock, this::config, this::today, ai, prompts, chronicle, memory, new NewspaperStore(db),
 				players, flavor::rosterBlock, flavor::canSee, paths.dataDir());
+		batch = new BatchService(log, clock, ai, db, server);
+		pools = new PoolService(log, clock, this::config, ai, batch, prompts, db, flavor::rosterBlock, m -> {
+			poolLines = m;
+			flavor.fallback().setExtra(m, this::poolShown);
+		});
+		batch.register("pools", pools);
+		serverList = new ServerListService(log, clock, this::config, newspaper, pools, flavor::canSee, paths.dataDir());
 		log.info("Рикошет запущен: игроков {}, ролей {}, потрачено сегодня ${}",
 				players.names().size(), roles.all().size(), String.format("%.4f", ai.budget().spentToday()));
 	}
@@ -228,6 +242,17 @@ public final class RikoshetRuntime {
 	/** Сервер запущен: расписания. */
 	public void started() {
 		newspaper.start(server);
+		pools.start(server);
+		serverList.start(server);
+		try {
+			batch.resume();
+		} catch (SQLException e) {
+			log.warn("[пакеты] не прочитаны: {}", e.toString());
+		}
+	}
+
+	private void poolShown(String line) {
+		pools.shown(line);
 	}
 
 	public RikoshetConfig config() {
@@ -261,8 +286,10 @@ public final class RikoshetRuntime {
 		startupProblems.clear();
 		prompts.clear();
 		newspaper.reloadExtras();
+		serverList.reload();
 		try {
 			flavor.setFallback(FallbackLines.load("rick", paths.dataDir().resolve("fallback"), new Random()));
+			flavor.fallback().setExtra(poolLines, this::poolShown);
 		} catch (RuntimeException e) {
 			warnings.add("заготовки не перечитаны: " + e.getMessage());
 		}
@@ -305,6 +332,9 @@ public final class RikoshetRuntime {
 	}
 
 	public void stopping() {
+		serverList.stop();
+		pools.stop();
+		batch.stop();
 		newspaper.stopping();
 		chronicle.stopping(server);
 		flavor.stopping();

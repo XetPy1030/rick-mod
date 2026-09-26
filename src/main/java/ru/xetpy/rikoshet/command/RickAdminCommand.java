@@ -80,6 +80,11 @@ public final class RickAdminCommand {
 								.then(Commands.literal("dialogue")
 										.then(Commands.argument("text", StringArgumentType.greedyString())
 												.executes(c -> test(c, rt, "dialogue", StringArgumentType.getString(c, "text")))))))
+				.then(Commands.literal("pool")
+						.then(Commands.literal("status").executes(c -> poolStatus(c, rt)))
+						.then(Commands.literal("regen")
+								.executes(c -> poolRegen(c, rt, false))
+								.then(Commands.literal("live").executes(c -> poolRegen(c, rt, true)))))
 				.then(Commands.literal("news")
 						.then(Commands.literal("publish")
 								.executes(c -> news(c, rt, null, true))
@@ -226,6 +231,9 @@ public final class RickAdminCommand {
 				sb.append("\n   последняя ошибка: ").append(s.lastError());
 			}
 		}
+		if (r.batch.pendingCount() > 0) {
+			sb.append("\nПакетов Batch API в работе: ").append(r.batch.pendingCount());
+		}
 		if (r.reports.open() > 0) {
 			sb.append("\nЖалоб не разобрано: ").append(r.reports.open()).append(" — /rickadmin report list");
 		}
@@ -236,6 +244,32 @@ public final class RickAdminCommand {
 		String text = sb.toString();
 		c.getSource().sendSuccess(() -> Component.literal(text), false);
 		return 1;
+	}
+
+	// ---------- пулы ----------
+
+	private static int poolStatus(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		MutableComponent out = Component.literal("Пулы: живых реплик / запас" + (r.pools.running() ? " (идёт генерация)" : ""))
+				.withStyle(ChatFormatting.GOLD);
+		r.pools.status().forEach((k, v) -> out.append(Component.literal("\n" + k + ": " + v).withStyle(ChatFormatting.GRAY)));
+		c.getSource().sendSuccess(() -> out, false);
+		return 1;
+	}
+
+	private static int poolRegen(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt, boolean live) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		int n = r.pools.run(live);
+		c.getSource().sendSuccess(() -> Component.literal(n == 0
+				? "Пулы полны или генерация уже идёт."
+				: "Ушло запросов: " + n + (live ? ", живыми — по одному в 5 с" : ", пакетом: результат — через минуты, до 24 ч")), true);
+		return n;
 	}
 
 	// ---------- газета ----------

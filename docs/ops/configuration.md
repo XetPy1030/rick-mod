@@ -13,6 +13,7 @@
 | `rikoshet/secrets.json5` | `{ openrouter_api_key: "…" }`, если ключ не в переменной окружения; переменная важнее файла |
 | `rikoshet/prompts/…` | переопределения промптов: тот же путь, что в `resources/rikoshet/prompts/` мода, например `rikoshet/prompts/personas/rick.md` |
 | `rikoshet/fallback/rick.json` | переопределение заготовок Рика ([flavor](../design/flavor.md#заготовки)) |
+| `rikoshet/fallback/news.json` | переопределение рукописных новостей для MOTD и таблиста, пока нет пулов: `{ motd: [], tab: [] }` |
 | `rikoshet/fallback/newspaper.json` | переопределение рекламы, погоды и пророчеств для газеты без ИИ: `{ ads: [], weather: [], prophecy: [] }` |
 
 Промпты и заготовки перечитываются по `/rickadmin reload`. Схемы ответа ИИ — только из мода: их правка без кода сломает валидатор.
@@ -33,7 +34,7 @@
     chronicle: false,              // летопись: что игроки делали за день — основа газеты
     builds: false,                 // анализ построек: где строят, что построено; нужна летопись
     newspaper: false,              // утренняя газета, нужна летопись
-    motd_tab: false,               // этап 2
+    motd_tab: false,               // MOTD и шапка таблиста с новостями других вселенных
     roles_in_tab: false,           // «Ник · Роль» в таблисте
     voice: false,                  // этап 3, нужен Simple Voice Chat
     visits: false,
@@ -50,6 +51,8 @@
     requests_per_minute: 20,       // живых запросов в минуту на сервер
     timeout_seconds: 15,           // таймаут для маршрутов без своего
     reasoning_effort: "low",       // размышления для маршрутов без своего
+    batch: true,                   // ночные пулы — пакетом Batch API (вдвое дешевле); false — живыми запросами
+    batch_hour: 3,                 // час ночной генерации пулов по timezone
     routes: {
       flavor:    { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024, timeout_seconds: 5 },
       dialogue:  { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536, timeout_seconds: 15 },
@@ -107,6 +110,7 @@
 - **`leave_delay_seconds`** — 0–300. Прощание планируется по таймеру, а не по тикам, поэтому приходит и тогда, когда пустой сервер стоит на паузе (`pause-when-empty-seconds`).
 - **`storage.path`** — `/rickadmin reload` его не меняет, только перезапуск.
 - **`features.chronicle`** — выключение через `/rickadmin reload` закрывает сессии летописи, собранное остаётся. Включение начинает следить за теми, кто онлайн ([chronicle](../design/chronicle.md)).
+- **`ai.batch`**, **`ai.batch_hour`** — ночные пулы заготовок в `batch_hour`:30 ([пулы](../architecture/ai-integration.md#пулы-заготовок)). Пакет Batch API — половина цены, ответ за минуты, гарантия 24 ч; модель без пакетного варианта или отказ — живые запросы.
 - **`features.builds`** — сканы построек, их рост, потери и имена ([builds](../design/builds.md)). Работает только с `features.chronicle`: следы стройки приходят из летописи.
 - **`chronicle.snapshot_minutes`** — окно, в пределах которого летопись знает время события («в окне 21:35–21:40 добыл 3 алмазной руды»); занятие определяется по окну. Меньше — точнее, но больше строк в БД.
 - **`chronicle.sample_seconds`** — шаг замеров времени по биомам, AFK, «рядом с кем». AFK засчитывается после 4 неподвижных замеров подряд.
@@ -116,7 +120,7 @@
 
 ## Зарезервировано на следующие этапы
 
-Эти ключи мод знает и не ругается на них, но пока не читает: `ai.language`, `ai.batch_hour`, `content.profanity`, разделы `voice`, `personas`, `visits`. Маршруты `visit`, `judge`, `voice_in`, `voice_out` появятся со своими фичами:
+Эти ключи мод знает и не ругается на них, но пока не читает: `ai.language`, `content.profanity`, разделы `voice`, `personas`, `visits`. Маршруты `visit`, `judge`, `voice_in`, `voice_out` появятся со своими фичами:
 
 ```json5
 routes: {

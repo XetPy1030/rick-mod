@@ -101,4 +101,14 @@ class FallbackLinesTest {
 		assertTrue(s.tryComment(u, 721_000, 20_000));
 		assertEquals(3, s.get(u).deaths());
 	}
+
+	@Test
+	void poolLinesMixInAndReportPick() {
+		FallbackLines f = new FallbackLines(java.util.Map.of("death", java.util.Map.of("lava", java.util.List.of())), new java.util.Random(1));
+		java.util.List<String> picked = new java.util.ArrayList<>();
+		f.setExtra(java.util.Map.of("death", java.util.Map.of("lava", java.util.List.of("Лава, {player}."))), picked::add);
+		String line = f.pick(java.util.List.of(new FallbackLines.Choice("death", "lava", 1)), java.util.Map.of("player", "Джерри"));
+		org.junit.jupiter.api.Assertions.assertEquals("Лава, Джерри.", line);
+		org.junit.jupiter.api.Assertions.assertEquals(java.util.List.of("Лава, {player}."), picked, "пул узнаёт о показе до подстановки");
+	}
 }

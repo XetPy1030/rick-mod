@@ -60,7 +60,9 @@ public record RikoshetConfig(
 			double dailyBudgetUsd,
 			int maxConcurrent,
 			int requestsPerMinute,
-			Map<String, AiRoute> routes
+			Map<String, AiRoute> routes,
+			boolean batch,
+			int batchHour
 	) {
 		public AiRoute route(String name) {
 			AiRoute r = routes.get(name);
@@ -152,7 +154,9 @@ public record RikoshetConfig(
 		int defTimeout = ar.integer("timeout_seconds", 15, 1, 300);
 		String defReasoning = ar.string("reasoning_effort", "low");
 		checkEffort(defReasoning, "ai.reasoning_effort", errors);
-		ar.reserve("language", "batch_hour");
+		ar.reserve("language");
+		boolean batch = ar.bool("batch", true);
+		int batchHour = ar.integer("batch_hour", 3, 0, 23);
 		Map<String, AiRoute> routes = new LinkedHashMap<>(DEFAULT_ROUTES);
 		ConfigReader rr = ar.section("routes");
 		for (String name : rr.keys()) {
@@ -178,7 +182,8 @@ public record RikoshetConfig(
 			routes.put(name, new AiRoute(name, List.copyOf(models), reasoning, maxTokens, timeout));
 		}
 		ar.finish();
-		Ai ai = new Ai(aiEnabled, stripSlash(baseUrl), budget, maxConcurrent, rpm, java.util.Collections.unmodifiableMap(routes));
+		Ai ai = new Ai(aiEnabled, stripSlash(baseUrl), budget, maxConcurrent, rpm, java.util.Collections.unmodifiableMap(routes),
+				batch, batchHour);
 
 		ConfigReader flr = r.section("flavor");
 		Flavor flavor = new Flavor(

@@ -75,8 +75,8 @@
 
 | Таблица | Поля | Для чего |
 |---|---|---|
-| `content_pool` | `id`, `pool`, `key`, `text`, `generated_at`, `shown_count` | пулы заготовок |
-| `pool_seen` | `uuid`, `pool_item_id` | чтобы игрок не видел одно и то же |
+| `content_pool` · этап 2 | `id`, `pool`, `key`, `text`, `generated_at`, `model`, `shown_count` | пулы заготовок: реплики и новости; `shown_count` — сколько раз показана, после порога — на пенсию ([пулы](ai-integration.md#пулы-заготовок)) |
+| `ai_batch` · этап 2 | `id`, `created_at`, `route`, `model`, `purpose`, `requests`, `status`, `done_at`, `cost_usd` | пакеты Batch API: что отправлено и для чего; незавершённые опрашиваются и после перезапуска |
 | `newspaper` · этап 2 | `day`, `published_at`, `headline`, `body`, `source`, `model`, `cost_usd` | архив газет: за какой день, JSON выпуска, `ai` или `fallback` |
 | `ai_log` · этап 1 | `id`, `ts`, `day`, `route`, `tag`, `model`, `status`, `input_tokens`, `cached_tokens`, `output_tokens`, `reasoning_tokens`, `latency_ms`, `cost_usd`, `player_uuid`, `output`, `error` | расходы и отладка. Строка на каждую попытку, не на запрос. `tag` — задача (`death`, `join`, `test`…), `status` — `ok`, `invalid`, `refused`, `error`, `timeout`, `late` ([ai-integration](ai-integration.md#отказы-и-ошибки)), `output` — ответ до 4000 символов. По `day` восстанавливается дневной бюджет после перезапуска |
 | `ai_report` · этап 1 | `id`, `ts`, `reporter_uuid`, `reporter_name`, `persona_id`, `line`, `line_ts`, `comment`, `resolved` | жалобы `/rick report`: на какую реплику и что не так. Разбор — `/rickadmin report` ([commands](../ops/commands.md)) |
@@ -87,7 +87,7 @@
 |---|---|
 | `dialogue_log` | 14 дней (`dialogue_retention_days`), дальше живёт только саммари. Чистка — при старте сервера |
 | `ai_log` | 90 дней (`ai_log_retention_days`), чистка при старте |
-| `content_pool` | неиспользованное старше 7 дней удаляется |
+| `content_pool` | бессрочно; ушедшее на пенсию остаётся для истории |
 | остальное | бессрочно |
 
 ## Решённые вопросы

@@ -110,6 +110,10 @@ public final class FlavorService {
 		this.fallback = fallback;
 	}
 
+	public FallbackLines fallback() {
+		return fallback;
+	}
+
 	public void stopping() {
 		stopping = true;
 		pendingLeaves.clear();
