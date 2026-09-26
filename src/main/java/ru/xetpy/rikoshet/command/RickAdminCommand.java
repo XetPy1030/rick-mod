@@ -80,6 +80,15 @@ public final class RickAdminCommand {
 								.then(Commands.literal("dialogue")
 										.then(Commands.argument("text", StringArgumentType.greedyString())
 												.executes(c -> test(c, rt, "dialogue", StringArgumentType.getString(c, "text")))))))
+				.then(Commands.literal("chronicle")
+						.then(Commands.literal("status").executes(c -> chronicleStatus(c, rt)))
+						.then(Commands.literal("day")
+								.executes(c -> chronicleDay(c, rt, null))
+								.then(Commands.argument("date", StringArgumentType.word())
+										.executes(c -> chronicleDay(c, rt, StringArgumentType.getString(c, "date")))))
+						.then(Commands.literal("player")
+								.then(Commands.argument("nick", StringArgumentType.word()).suggests(nicks)
+										.executes(c -> chroniclePlayer(c, rt)))))
 				.then(Commands.literal("report")
 						.then(Commands.literal("list").executes(c -> reportList(c, rt)))
 						.then(Commands.literal("resolve")
@@ -204,6 +213,72 @@ public final class RickAdminCommand {
 		}
 		String text = sb.toString();
 		c.getSource().sendSuccess(() -> Component.literal(text), false);
+		return 1;
+	}
+
+	// ---------- летопись ----------
+
+	private static int chronicleStatus(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		List<String> names = r.chronicle.trackedNames();
+		String text = "Летопись: " + (r.chronicle.enabled() ? "включена" : "выключена (features.chronicle)")
+				+ "\nДень: " + r.chronicle.currentDay()
+				+ "\nВедёт: " + (names.isEmpty() ? "никого" : String.join(", ", names))
+				+ "\nДомов найдено: " + r.chronicle.homes().size();
+		c.getSource().sendSuccess(() -> Component.literal(text), false);
+		return 1;
+	}
+
+	/** Итоги дня: пересчитать и показать сводку, как её увидит редакция газеты. */
+	private static int chronicleDay(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt, String date) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		java.time.LocalDate day;
+		try {
+			day = date == null ? r.today().minusDays(1) : java.time.LocalDate.parse(date);
+		} catch (java.time.format.DateTimeParseException e) {
+			c.getSource().sendFailure(Component.literal("Дата — ГГГГ-ММ-ДД, например " + r.today()));
+			return 0;
+		}
+		CommandSourceStack src = c.getSource();
+		src.sendSuccess(() -> Component.literal("Считаю итоги " + day + "…").withStyle(ChatFormatting.GRAY), false);
+		r.chronicle.analyze(day).whenComplete((rep, err) -> r.server.execute(() -> {
+			if (err != null) {
+				src.sendFailure(Component.literal("Анализ не удался: " + err));
+				return;
+			}
+			String text = ru.xetpy.rikoshet.chronicle.analysis.DigestWriter.write(rep, List.of(), List.of());
+			r.log.info("[летопись] итоги {}:\n{}", day, text);
+			src.sendSuccess(() -> Component.literal(text), false);
+		}));
+		return 1;
+	}
+
+	private static int chroniclePlayer(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		Target t = r == null ? null : resolve(c, r);
+		if (t == null) {
+			return 0;
+		}
+		MutableComponent out = Component.literal(r.chronicle.whoPublic(t.uuid()) + (r.chronicle.tracked(t.uuid()) ? " (онлайн)" : ""))
+				.withStyle(ChatFormatting.GOLD);
+		for (String line : ru.xetpy.rikoshet.chronicle.PlayerCard.lines(r.stats.today(t.uuid()), r.chronicle.profile(t.uuid()), r.chronicle::whoPublic)) {
+			out.append(Component.literal("\n" + line).withStyle(ChatFormatting.GRAY));
+		}
+		String last = r.chronicle.lastSession(t.uuid());
+		if (last != null) {
+			out.append(Component.literal("\nПрошлая сессия: " + last).withStyle(ChatFormatting.DARK_GRAY));
+		}
+		var totals = r.chronicle.totals(t.uuid());
+		if (!totals.isEmpty()) {
+			out.append(Component.literal("\nЗа всё время: " + totals).withStyle(ChatFormatting.DARK_GRAY));
+		}
+		c.getSource().sendSuccess(() -> out, false);
 		return 1;
 	}
 

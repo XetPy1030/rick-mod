@@ -67,7 +67,7 @@ class DatabaseTest {
 			NoteStore notes = new NoteStore(db);
 			notes.load();
 			assertEquals(List.of("любит лаву"), notes.recent(u, "rick"));
-			assertEquals(1, (int) db.call(c -> {
+			assertEquals(Database.MIGRATIONS.size(), (int) db.call(c -> {
 				try (var st = c.createStatement(); var rs = st.executeQuery("SELECT COUNT(*) FROM schema_version")) {
 					return rs.next() ? rs.getInt(1) : -1;
 				}

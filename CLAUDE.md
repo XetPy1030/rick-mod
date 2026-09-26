@@ -3,7 +3,8 @@
 Контекст для ИИ-ассистентов, работающих в этом репозитории.
 
 - Проект: «Рикошет» (`rikoshet`, пакет `ru.xetpy.rikoshet`) — серверный Fabric-мод по «Рику и Морти» для сервера друзей «Vanilla+ 26.2», 18+. Minecraft 26.2, Java 25. Весь кастомный контент — через Polymer, клиентскую сборку не трогаем ([ADR 0001](docs/adr/0001-server-side-only.md)).
-- Сейчас этап 0 закончен, кода нет. Перед кодом сверяйся с [docs/roadmap.md](docs/roadmap.md) и [docs/open-questions.md](docs/open-questions.md).
+- Этап 1 готов и выложен, идёт этап 2: летопись, память, газета ([docs/roadmap.md](docs/roadmap.md)). Перед кодом сверяйся с дорожной картой и [docs/open-questions.md](docs/open-questions.md).
+- Проверка на полной копии сервера — [tools/testserver](tools/testserver/README.md); сборка — `./gradlew build` с Java 25.
 - Документация на русском. Имена файлов — английский `kebab-case`, идентификаторы контента в коде и конфиге — английский `snake_case`.
 - Правила ведения доков — в [docs/README.md](docs/README.md): фича по шаблону из `docs/templates/`, техническое решение с альтернативами — ADR в `docs/adr/`, сырые идеи — в `docs/ideas/backlog.md`.
 - Minecraft 26.x не обфусцирован: официальные имена Mojang, плагин `net.fabricmc.fabric-loom` без ремапа, Yarn не используется ([ADR 0002](docs/adr/0002-minecraft-26-2.md)).

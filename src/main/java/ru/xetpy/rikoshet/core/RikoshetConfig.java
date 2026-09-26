@@ -23,7 +23,9 @@ public record RikoshetConfig(
 		Flavor flavor,
 		Content content,
 		Performance performance,
-		Storage storage
+		Storage storage,
+		Chronicle chronicle,
+		Newspaper newspaper
 ) {
 	public static final int PROTOCOL_VERSION = 1;
 
@@ -35,6 +37,7 @@ public record RikoshetConfig(
 		f.put("rick", true);
 		f.put("death_messages", true);
 		f.put("join_leave", true);
+		f.put("chronicle", false);
 		f.put("newspaper", false);
 		f.put("motd_tab", false);
 		f.put("roles_in_tab", false);
@@ -79,6 +82,14 @@ public record RikoshetConfig(
 	}
 
 	public record Storage(String path, int dialogueRetentionDays, int aiLogRetentionDays) {
+	}
+
+	/** Летопись: как часто снимать статистику и замерять положение (docs/design/chronicle.md). */
+	public record Chronicle(int snapshotMinutes, int sampleSeconds) {
+	}
+
+	/** Газета: во сколько выходит (час по timezone) и сколько фактов получает редакция. */
+	public record Newspaper(int hour, int maxFacts) {
 	}
 
 	public static final Map<String, AiRoute> DEFAULT_ROUTES;
@@ -199,9 +210,22 @@ public record RikoshetConfig(
 				sr.integer("ai_log_retention_days", 90, 1, 3650));
 		sr.finish();
 
+		ConfigReader chr = r.section("chronicle");
+		Chronicle chronicle = new Chronicle(
+				chr.integer("snapshot_minutes", 5, 1, 30),
+				chr.integer("sample_seconds", 15, 5, 120));
+		chr.finish();
+
+		ConfigReader nr = r.section("newspaper");
+		Newspaper newspaper = new Newspaper(
+				nr.integer("hour", 7, 0, 23),
+				nr.integer("max_facts", 25, 5, 60));
+		nr.finish();
+
 		r.reserve("personas", "visits", "voice");
 		r.finish();
-		return new RikoshetConfig(protocol, zone, java.util.Collections.unmodifiableMap(features), ai, flavor, content, perf, storage);
+		return new RikoshetConfig(protocol, zone, java.util.Collections.unmodifiableMap(features), ai, flavor, content, perf, storage,
+				chronicle, newspaper);
 	}
 
 	private static final List<String> EFFORTS = List.of("none", "minimal", "low", "medium", "high", "default");

@@ -9,6 +9,8 @@ import net.minecraft.server.permissions.Permissions;
 import org.slf4j.Logger;
 import ru.xetpy.rikoshet.ai.AiService;
 import ru.xetpy.rikoshet.ai.PromptLibrary;
+import ru.xetpy.rikoshet.chronicle.ChronicleService;
+import ru.xetpy.rikoshet.chronicle.ChronicleStore;
 import ru.xetpy.rikoshet.core.ConfigLoader;
 import ru.xetpy.rikoshet.core.LoadMonitor;
 import ru.xetpy.rikoshet.core.ModPaths;
@@ -57,6 +59,7 @@ public final class RikoshetRuntime {
 	public final Speaker speaker;
 	public final AuthTracker auth;
 	public final FlavorService flavor;
+	public final ChronicleService chronicle;
 	/** Проблемы конфига при старте: пока они есть, действуют значения по умолчанию. */
 	public final List<String> startupProblems = new ArrayList<>();
 
@@ -95,6 +98,7 @@ public final class RikoshetRuntime {
 		reports = new ReportStore(db);
 		reports.load();
 		AiLogStore aiLog = new AiLogStore(db);
+		chronicle = new ChronicleService(log, clock, this::config, this::today, new ChronicleStore(db), stats, players, roles);
 
 		prompts = new PromptLibrary(paths.dataDir().resolve("prompts"));
 		load = new LoadMonitor(config.performance());
@@ -116,6 +120,7 @@ public final class RikoshetRuntime {
 
 	/** Игрок вошёл и ввёл пароль EasyAuth (или EasyAuth нет). */
 	private void onAuthenticated(ServerPlayer p) {
+		chronicle.track(p);
 		flavor.onJoin(p);
 		int open = reports.open();
 		if (open > 0 && isAdmin(p)) {
@@ -161,6 +166,7 @@ public final class RikoshetRuntime {
 		}
 		ai.reconfigure(next, secrets);
 		load.configure(next.performance());
+		chronicle.reconfigure(server, auth::isAuthenticated);
 		return new Reload(true, warnings, List.of());
 	}
 
@@ -175,6 +181,7 @@ public final class RikoshetRuntime {
 			log.info("[нагрузка] уровень {} (MSPT {})", changed, String.format("%.1f", load.mspt()));
 		}
 		auth.poll(server);
+		chronicle.everySecond(server);
 	}
 
 	/** Сообщение всем админам онлайн. Только из главного потока. */
@@ -193,11 +200,12 @@ public final class RikoshetRuntime {
 	}
 
 	public void stopping() {
+		chronicle.stopping(server);
 		flavor.stopping();
 		ai.shutdown();
 		// Время сессий засчитываем сейчас: при остановке прощаний не будет
 		for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-			flavor.onLeave(p, auth.onLeave(p));
+			flavor.onLeave(p, auth.onLeave(p), null);
 		}
 	}
 

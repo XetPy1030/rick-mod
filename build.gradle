@@ -14,6 +14,9 @@ repositories {
 }
 
 loom {
+	// Доступ к полям Minecraft: rikoshet.classtweaker
+	accessWidenerPath = file('src/main/resources/rikoshet.classtweaker')
+
 	// Мод серверный: клиентский запуск не нужен
 	runs {
 		remove client

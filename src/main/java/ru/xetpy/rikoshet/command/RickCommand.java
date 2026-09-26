@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import ru.xetpy.rikoshet.RikoshetRuntime;
+import ru.xetpy.rikoshet.chronicle.PlayerCard;
 import ru.xetpy.rikoshet.persona.Role;
 import ru.xetpy.rikoshet.persona.Speaker;
 
@@ -26,6 +27,7 @@ public final class RickCommand {
 				.then(Commands.literal("off").executes(c -> optOut(c, rt, true)))
 				.then(Commands.literal("on").executes(c -> optOut(c, rt, false)))
 				.then(Commands.literal("who").executes(c -> who(c, rt)))
+				.then(Commands.literal("me").executes(c -> me(c, rt)))
 				.then(Commands.literal("report")
 						.executes(c -> report(c, rt, null))
 						.then(Commands.argument("comment", StringArgumentType.greedyString())
@@ -37,6 +39,7 @@ public final class RickCommand {
 				Рикошет: на сервере живёт Рик. Он комментирует смерти, входы и выходы.
 				/rick off — Рик тебя не видит и ты его не видишь; /rick on — вернуть.
 				/rick who — кто есть кто среди тех, кто онлайн.
+				/rick me — что ты сегодня делал, по записям летописи.
 				/rick report [комментарий] — пожаловаться админу на последнюю реплику.""").withStyle(ChatFormatting.GRAY), false);
 		return 1;
 	}
@@ -48,6 +51,11 @@ public final class RickCommand {
 			return 0;
 		}
 		r.players.setOptOut(p.getUUID(), off);
+		if (off) {
+			r.chronicle.forget(p.getUUID());
+		} else if (r.auth.isAuthenticated(p)) {
+			r.chronicle.track(p);
+		}
 		c.getSource().sendSuccess(() -> Component.literal(off
 				? "Рик тебя больше не видит, и ты его тоже. Вернуть — /rick on."
 				: "Рик снова с тобой. Сам напросился.").withStyle(ChatFormatting.GRAY), false);
@@ -76,6 +84,25 @@ public final class RickCommand {
 		}
 		c.getSource().sendSuccess(() -> out, false);
 		return n;
+	}
+
+	private static int me(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		ServerPlayer p = Cmd.player(c);
+		if (r == null || p == null) {
+			return 0;
+		}
+		if (!r.chronicle.enabled() || r.players.optedOut(p.getUUID())) {
+			c.getSource().sendFailure(Component.literal(r.chronicle.enabled()
+					? "Летопись тебя не ведёт: у тебя /rick off." : "Летопись на сервере выключена."));
+			return 0;
+		}
+		MutableComponent out = Component.literal("Летопись о тебе").withStyle(ChatFormatting.GOLD);
+		for (String line : PlayerCard.lines(r.stats.today(p.getUUID()), r.chronicle.profile(p.getUUID()), r.chronicle::whoPublic)) {
+			out.append(Component.literal("\n" + line).withStyle(ChatFormatting.GRAY));
+		}
+		c.getSource().sendSuccess(() -> out, false);
+		return 1;
 	}
 
 	private static int report(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt, String comment) {

@@ -24,7 +24,8 @@ tools/testserver/testserver.sh stop
 | `OPENROUTER_API_KEY` | — | ключ для живых запросов; без него — только заготовки. Для `start` |
 | `WAIT` | 2 | сколько секунд `cmd` ждёт вывод |
 | `MEM` | 4G | `-Xms` и `-Xmx` |
-| `PAUSE_EMPTY` | как в сборке (60) | `pause-when-empty-seconds` копии; `0` — для `profile`. Для `prepare` |
+| `PAUSE_EMPTY` | как в сборке (60) | `pause-when-empty-seconds` копии; `0` — для `profile` и летописи с фейковыми игроками. Для `prepare` |
+| `FEATURES` | — | флаги, которые включить: `FEATURES="chronicle newspaper"` кладёт в копию конфиг мода по умолчанию с этими флагами. Для `prepare` |
 | `RIKOSHET_SERVER_SRC`, `RIKOSHET_TEST_DIR` | см. скрипт | откуда копировать и куда |
 
 Ключ передаём только через окружение, в файлы копии не пишем:
@@ -47,6 +48,18 @@ $T cmd "rickadmin ai status"
 ```
 
 Фейковые игроки не входят в список игроков, поэтому через минуту пустой сервер встаёт на паузу. Для событий это не мешает — прощания и ответы ИИ приходят и на паузе.
+
+Летопись с фейковыми игроками — только без паузы: замеры и снимки идут по тикам.
+
+```sh
+FEATURES=chronicle PAUSE_EMPTY=0 $T prepare && $T start
+$T cmd "rickdev join dimon_228"
+$T cmd "rickdev chronicle stat dimon_228 20 mined:diamond_ore"
+$T cmd "rickdev chronicle move dimon_228 300 -200"
+$T cmd "rickdev chronicle cycle"            # снимок сейчас, не ждать snapshot_minutes
+$T cmd "rickadmin chronicle player dimon_228"
+$T cmd "rickdev chronicle analyze $(date +%F)"   # итоги дня — в лог
+```
 
 ## Замер нагрузки
 

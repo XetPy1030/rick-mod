@@ -36,6 +36,15 @@ cmd_prepare() {
   if [[ -n "${PAUSE_EMPTY:-}" ]]; then
     sed -i '' "s/^pause-when-empty-seconds=.*/pause-when-empty-seconds=$PAUSE_EMPTY/" "$WORK/server.properties"
   fi
+  # Конфиг мода по умолчанию с включёнными флагами: FEATURES="chronicle newspaper" testserver.sh prepare
+  if [[ -n "${FEATURES:-}" ]]; then
+    mkdir -p "$WORK/config"
+    cp "$REPO/src/main/resources/rikoshet/default-config.json5" "$WORK/config/rikoshet.json5"
+    for f in $FEATURES; do
+      grep -q "^    $f: false," "$WORK/config/rikoshet.json5" || { echo "нет флага $f"; exit 1; }
+      sed -i '' "s/^    $f: false,/    $f: true,/" "$WORK/config/rikoshet.json5"
+    done
+  fi
   echo "готово: $WORK (мод $(ls "$WORK"/mods/rikoshet-*.jar | xargs basename))"
 }
 

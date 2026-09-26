@@ -12,7 +12,8 @@
     rick: true,                    // Рик комментирует события в чате
     death_messages: true,          // комментарии к смертям
     join_leave: true,              // приветствия и прощания
-    newspaper: false,              // этап 2
+    chronicle: false,              // летопись: что игроки делали за день — основа газеты
+    newspaper: false,              // утренняя газета, нужна летопись
     motd_tab: false,               // этап 2
     roles_in_tab: false,           // «Ник · Роль» в таблисте
     voice: false,                  // этап 3, нужен Simple Voice Chat
@@ -63,5 +64,17 @@
     path: "rikoshet/rikoshet.db",  // относительно папки сервера; меняется только с перезапуском
     dialogue_retention_days: 14,
     ai_log_retention_days: 90,
+  },
+
+  // Летопись: сбор статистики игроков
+  chronicle: {
+    snapshot_minutes: 5,           // как часто снимать ванильную статистику игрока (1–30)
+    sample_seconds: 15,            // как часто замерять, где игрок и что с ним (5–120)
+  },
+
+  // Газета «Межпространственный вестник»
+  newspaper: {
+    hour: 7,                       // час выхода по timezone; выпуск — за вчерашний день
+    max_facts: 25,                 // сколько фактов дня получает редакция
   },
 }

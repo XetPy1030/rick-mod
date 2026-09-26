@@ -1,0 +1,4 @@
+classTweaker	v1	official
+
+# Летопись читает счётчики игрока целиком, без перебора всех возможных Stat (docs/adr/0006-chronicle-from-vanilla-stats.md)
+accessible	field	net/minecraft/stats/StatsCounter	stats	Lit/unimi/dsi/fastutil/objects/Object2IntMap;

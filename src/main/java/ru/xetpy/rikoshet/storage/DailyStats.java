@@ -4,21 +4,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
- * Счётчики игрока за день (player_stat_daily): смерти, смерти по причинам. Сегодняшние —
- * в памяти для контекста ИИ, в БД — для газеты этапа 2. День — по timezone конфига.
+ * Счётчики игрока за день (player_stat_daily). Этап 1 писал сюда смерти, с этапа 2 летопись
+ * пишет всё: приросты ванильной статистики, свои счётчики, занятия (docs/design/chronicle.md).
+ * Сегодняшние — в памяти для контекста ИИ и /rick me, запись — в фоне. День — по timezone конфига.
  */
 public final class DailyStats {
 	public static final String DEATHS = "deaths";
 
 	private final Database db;
 	private final Supplier<LocalDate> today;
-	private final Map<String, Integer> counters = new ConcurrentHashMap<>();
+	private final Map<UUID, Map<String, Long>> counters = new ConcurrentHashMap<>();
 	private volatile LocalDate day;
 
 	public DailyStats(Database db, Supplier<LocalDate> today) {
@@ -36,7 +38,7 @@ public final class DailyStats {
 				st.setString(1, d.toString());
 				try (ResultSet rs = st.executeQuery()) {
 					while (rs.next()) {
-						counters.put(rs.getString(1) + "|" + rs.getString(2), rs.getInt(3));
+						mine(UUID.fromString(rs.getString(1))).put(rs.getString(2), rs.getLong(3));
 					}
 				}
 			}
@@ -46,24 +48,74 @@ public final class DailyStats {
 
 	public int get(UUID uuid, String key) {
 		roll();
-		return counters.getOrDefault(uuid + "|" + key, 0);
+		Map<String, Long> m = counters.get(uuid);
+		return m == null ? 0 : (int) (long) m.getOrDefault(key, 0L);
+	}
+
+	/** Все счётчики игрока за сегодня, копия. */
+	public Map<String, Long> today(UUID uuid) {
+		roll();
+		Map<String, Long> m = counters.get(uuid);
+		return m == null ? Map.of() : new HashMap<>(m);
 	}
 
 	public int increment(UUID uuid, String key) {
 		roll();
+		long v = mine(uuid).merge(key, 1L, Long::sum);
 		String d = day.toString();
-		int v = counters.merge(uuid + "|" + key, 1, Integer::sum);
 		db.execute("stat " + key, c -> {
-			try (PreparedStatement st = c.prepareStatement("""
-					INSERT INTO player_stat_daily (uuid, day, key, value) VALUES (?, ?, ?, 1)
-					ON CONFLICT (uuid, day, key) DO UPDATE SET value = value + 1""")) {
-				st.setString(1, uuid.toString());
-				st.setString(2, d);
-				st.setString(3, key);
+			try (PreparedStatement st = c.prepareStatement(UPSERT)) {
+				bind(st, uuid, d, key, 1);
 				st.executeUpdate();
 			}
 		});
-		return v;
+		return (int) v;
+	}
+
+	/** Прибавить пачку счётчиков за день одной транзакцией. Вчерашний день в памяти не держим. */
+	public void add(UUID uuid, LocalDate forDay, Map<String, Long> delta) {
+		if (delta.isEmpty()) {
+			return;
+		}
+		roll();
+		if (forDay.equals(day)) {
+			Map<String, Long> m = mine(uuid);
+			delta.forEach((k, v) -> m.merge(k, v, Long::sum));
+		}
+		Map<String, Long> copy = Map.copyOf(delta);
+		String d = forDay.toString();
+		db.execute("stats " + uuid, c -> {
+			boolean auto = c.getAutoCommit();
+			c.setAutoCommit(false);
+			try (PreparedStatement st = c.prepareStatement(UPSERT)) {
+				for (var e : copy.entrySet()) {
+					bind(st, uuid, d, e.getKey(), e.getValue());
+					st.addBatch();
+				}
+				st.executeBatch();
+				c.commit();
+			} catch (SQLException e) {
+				c.rollback();
+				throw e;
+			} finally {
+				c.setAutoCommit(auto);
+			}
+		});
+	}
+
+	private static final String UPSERT = """
+			INSERT INTO player_stat_daily (uuid, day, key, value) VALUES (?, ?, ?, ?)
+			ON CONFLICT (uuid, day, key) DO UPDATE SET value = value + excluded.value""";
+
+	private static void bind(PreparedStatement st, UUID uuid, String day, String key, long v) throws SQLException {
+		st.setString(1, uuid.toString());
+		st.setString(2, day);
+		st.setString(3, key);
+		st.setLong(4, v);
+	}
+
+	private Map<String, Long> mine(UUID uuid) {
+		return counters.computeIfAbsent(uuid, u -> new ConcurrentHashMap<>());
 	}
 
 	private void roll() {

@@ -268,8 +268,11 @@ public final class FlavorService {
 		request(server, "join", uuid, ctx.toString(), choices, vars);
 	}
 
-	/** Игрок отключился. authenticated — входил ли он по паролю. */
-	public void onLeave(ServerPlayer player, boolean authenticated) {
+	/**
+	 * Игрок отключился. authenticated — входил ли он по паролю, session — итог сессии из
+	 * летописи («2 ч: стройка…») или null.
+	 */
+	public void onLeave(ServerPlayer player, boolean authenticated, String session) {
 		long now = clock.millis();
 		UUID uuid = player.getUUID();
 		SessionTracker.Session s = sessions.end(uuid);
@@ -287,7 +290,8 @@ public final class FlavorService {
 		String core = "Событие: выход\n"
 				+ "Игрок: " + Roster.describe(nick, role) + '\n'
 				+ "Сессия: " + duration(seconds) + '\n'
-				+ "Смертей за сессию: " + s.deaths() + '\n';
+				+ "Смертей за сессию: " + s.deaths() + '\n'
+				+ (session == null ? "" : "Чем занимался: " + session + '\n');
 		PendingLeave l = new PendingLeave(uuid, nick, core, s.deaths(), seconds);
 		pendingLeaves.put(uuid, l);
 		scheduleLeave(player.level().getServer(), l, cfg.flavor().leaveDelaySeconds() * 1000L);

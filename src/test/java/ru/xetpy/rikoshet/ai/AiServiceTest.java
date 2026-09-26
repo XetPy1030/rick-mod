@@ -74,7 +74,8 @@ class AiServiceTest {
 		AiRoute flavor = new AiRoute("flavor", List.of(ModelSpec.parse("a/main", null), ModelSpec.parse("b/backup", null)), "none", 256, timeoutSeconds);
 		RikoshetConfig.Ai ai = new RikoshetConfig.Ai(true, "http://127.0.0.1:" + http.getAddress().getPort() + "/api/v1",
 				budget, 2, 100, Map.of("flavor", flavor));
-		RikoshetConfig cfg = new RikoshetConfig(d.protocolVersion(), d.timezone(), d.features(), ai, d.flavor(), d.content(), d.performance(), d.storage());
+		RikoshetConfig cfg = new RikoshetConfig(d.protocolVersion(), d.timezone(), d.features(), ai, d.flavor(), d.content(), d.performance(), d.storage(),
+				d.chronicle(), d.newspaper());
 		return new AiService(LoggerFactory.getLogger("test"), Clock.systemUTC(), cfg, secrets(), new PromptLibrary(Path.of("none")),
 				log::add, () -> overloaded, msg -> { });
 	}

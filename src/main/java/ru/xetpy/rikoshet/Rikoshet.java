@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
@@ -58,10 +59,37 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 			}
 		});
 
-		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
 			RikoshetRuntime r = runtime;
 			if (r != null && entity instanceof ServerPlayer player) {
-				safe("смерть", () -> r.flavor.onDeath(player, source));
+				safe("перед смертью", () -> r.chronicle.beforeDeath(player));
+			}
+			return true;
+		});
+		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			RikoshetRuntime r = runtime;
+			if (r == null) {
+				return;
+			}
+			if (entity instanceof ServerPlayer player) {
+				safe("смерть", () -> {
+					r.chronicle.death(player, source);
+					r.flavor.onDeath(player, source);
+				});
+			} else {
+				safe("смерть моба", () -> r.chronicle.entityDeath(entity, source));
+			}
+		});
+		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, base, taken, blocked) -> {
+			RikoshetRuntime r = runtime;
+			if (r != null && entity instanceof ServerPlayer) {
+				safe("урон", () -> r.chronicle.damage(entity, source, taken));
+			}
+		});
+		ServerMessageEvents.CHAT_MESSAGE.register((message, sender, params) -> {
+			RikoshetRuntime r = runtime;
+			if (r != null) {
+				safe("чат", () -> r.chronicle.chat(sender, message.signedContent()));
 			}
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -73,7 +101,10 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			RikoshetRuntime r = runtime;
 			if (r != null) {
-				safe("выход", () -> r.flavor.onLeave(handler.player, r.auth.onLeave(handler.player)));
+				safe("выход", () -> {
+					String session = r.chronicle.leave(handler.player);
+					r.flavor.onLeave(handler.player, r.auth.onLeave(handler.player), session);
+				});
 			}
 		});
 
