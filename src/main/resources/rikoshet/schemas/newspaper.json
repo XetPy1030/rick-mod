@@ -1,22 +1,44 @@
 {
   "type": "object",
   "properties": {
-    "headline": { "type": "string" },
+    "headline": {
+      "type": "string"
+    },
     "articles": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "title": { "type": "string" },
-          "body": { "type": "string" }
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
         },
-        "required": ["title", "body"],
+        "required": [
+          "title",
+          "body"
+        ],
         "additionalProperties": false
       }
     },
-    "ad": { "type": "string" },
-    "weather": { "type": "string" }
+    "ad": {
+      "type": "string"
+    },
+    "weather": {
+      "type": "string"
+    },
+    "forecast": {
+      "type": "string"
+    }
   },
-  "required": ["headline", "articles", "ad", "weather"],
+  "required": [
+    "headline",
+    "articles",
+    "ad",
+    "weather",
+    "forecast"
+  ],
   "additionalProperties": false
 }

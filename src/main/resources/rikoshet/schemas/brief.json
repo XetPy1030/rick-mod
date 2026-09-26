@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "lead": { "type": "integer" },
+    "stories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rubric": { "type": "string" },
+          "facts": { "type": "array", "items": { "type": "integer" } },
+          "angle": { "type": "string" }
+        },
+        "required": ["rubric", "facts", "angle"],
+        "additionalProperties": false
+      }
+    },
+    "note": { "type": "string" }
+  },
+  "required": ["lead", "stories", "note"],
+  "additionalProperties": false
+}

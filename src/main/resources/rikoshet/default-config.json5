@@ -38,6 +38,8 @@
       dialogue:  { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536, timeout_seconds: 15 },
       newspaper: { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096, timeout_seconds: 120 },
       pools:     { models: ["moonshotai/kimi-k3", "anthropic/claude-sonnet-5"], reasoning: "low", max_tokens: 3072, timeout_seconds: 120 },
+      // Ночная аналитика для других моделей: план номера газеты, дневник дня
+      analyst:   { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "low", max_tokens: 2048, timeout_seconds: 90 },
     },
   },
 

@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "player": { "type": "integer" },
+          "text": { "type": "string" }
+        },
+        "required": ["player", "text"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["entries"],
+  "additionalProperties": false
+}

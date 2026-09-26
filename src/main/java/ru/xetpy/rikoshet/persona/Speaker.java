@@ -54,6 +54,21 @@ public final class Speaker {
 		}
 	}
 
+	/** Последние n реплик, которые видел игрок, старые первыми. */
+	public List<String> recentSeenBy(UUID player, int n) {
+		List<String> out = new ArrayList<>();
+		synchronized (recent) {
+			var it = recent.descendingIterator();
+			while (it.hasNext() && out.size() < n) {
+				Line l = it.next();
+				if (l.recipients().contains(player)) {
+					out.addFirst(l.text());
+				}
+			}
+		}
+		return out;
+	}
+
 	/** Последняя реплика, которую видел игрок. */
 	public Line lastSeenBy(UUID player) {
 		synchronized (recent) {

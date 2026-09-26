@@ -38,6 +38,12 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 				runtime = null;
 			}
 		});
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> safe("старт", () -> {
+			RikoshetRuntime r = runtime;
+			if (r != null) {
+				r.started();
+			}
+		}));
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> safe("остановка", () -> {
 			RikoshetRuntime r = runtime;
 			if (r != null) {

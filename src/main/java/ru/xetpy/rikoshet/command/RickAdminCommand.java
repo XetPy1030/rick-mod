@@ -80,6 +80,22 @@ public final class RickAdminCommand {
 								.then(Commands.literal("dialogue")
 										.then(Commands.argument("text", StringArgumentType.greedyString())
 												.executes(c -> test(c, rt, "dialogue", StringArgumentType.getString(c, "text")))))))
+				.then(Commands.literal("news")
+						.then(Commands.literal("publish")
+								.executes(c -> news(c, rt, null, true))
+								.then(Commands.argument("date", StringArgumentType.word())
+										.executes(c -> news(c, rt, StringArgumentType.getString(c, "date"), true))))
+						.then(Commands.literal("preview")
+								.executes(c -> news(c, rt, null, false))
+								.then(Commands.argument("date", StringArgumentType.word())
+										.executes(c -> news(c, rt, StringArgumentType.getString(c, "date"), false)))))
+				.then(Commands.literal("memory")
+						.then(Commands.literal("show")
+								.then(Commands.argument("nick", StringArgumentType.word()).suggests(nicks)
+										.executes(c -> memoryShow(c, rt))))
+						.then(Commands.literal("forget")
+								.then(Commands.argument("nick", StringArgumentType.word()).suggests(nicks)
+										.executes(c -> memoryForget(c, rt)))))
 				.then(Commands.literal("chronicle")
 						.then(Commands.literal("status").executes(c -> chronicleStatus(c, rt)))
 						.then(Commands.literal("day")
@@ -216,6 +232,83 @@ public final class RickAdminCommand {
 		return 1;
 	}
 
+	// ---------- газета ----------
+
+	/** publish — выпустить и разослать; preview — собрать и показать только себе. Дата по умолчанию — вчера. */
+	private static int news(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt, String date, boolean publish) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		java.time.LocalDate day;
+		try {
+			day = date == null ? r.today().minusDays(1) : java.time.LocalDate.parse(date);
+		} catch (java.time.format.DateTimeParseException e) {
+			c.getSource().sendFailure(Component.literal("Дата — ГГГГ-ММ-ДД, например " + r.today()));
+			return 0;
+		}
+		CommandSourceStack src = c.getSource();
+		src.sendSuccess(() -> Component.literal((publish ? "Выпускаю" : "Собираю") + " газету за " + day + "… до пары минут")
+				.withStyle(ChatFormatting.GRAY), false);
+		var f = publish ? r.newspaper.publish(day) : r.newspaper.generate(day);
+		f.whenComplete((issue, err) -> r.server.execute(() -> {
+			if (err != null) {
+				src.sendFailure(Component.literal("Не вышло: " + (err.getCause() != null ? err.getCause().getMessage() : err.getMessage())));
+				return;
+			}
+			if (issue == null) {
+				src.sendFailure(Component.literal("За " + day + " писать не о чем: никто не играл или летопись выключена."));
+				return;
+			}
+			src.sendSuccess(() -> ru.xetpy.rikoshet.newspaper.IssueView.full(issue), false);
+			src.sendSuccess(() -> Component.literal(("ai".equals(issue.source()) ? "Написала редакция: " + issue.model() : "Собран без ИИ")
+					+ String.format(", $%.4f", issue.costUsd()) + (publish ? ", разослан" : ", не опубликован")).withStyle(ChatFormatting.DARK_GRAY), false);
+		}));
+		return 1;
+	}
+
+	// ---------- память ----------
+
+	private static int memoryShow(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		Target t = r == null ? null : resolve(c, r);
+		if (t == null) {
+			return 0;
+		}
+		MutableComponent out = Component.literal("Рик помнит о " + r.chronicle.whoPublic(t.uuid())).withStyle(ChatFormatting.GOLD);
+		var knowledge = r.memory.knowledge(t.uuid());
+		if (knowledge.isEmpty()) {
+			out.append(Component.literal("\nЗнаний пока нет: они появляются после ночного анализа.").withStyle(ChatFormatting.DARK_GRAY));
+		}
+		knowledge.forEach((slot, value) -> out.append(Component.literal("\n" + slot + ": ").withStyle(ChatFormatting.DARK_GRAY))
+				.append(Component.literal(value).withStyle(ChatFormatting.GRAY)));
+		String recalled = r.memory.recall(List.of(t.uuid()), java.util.Set.of("join"), 800, 0);
+		if (recalled != null) {
+			out.append(Component.literal("\nВспомнит при входе:\n").withStyle(ChatFormatting.GOLD))
+					.append(Component.literal(recalled).withStyle(ChatFormatting.GRAY));
+		}
+		c.getSource().sendSuccess(() -> out, false);
+		return 1;
+	}
+
+	private static int memoryForget(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		Target t = r == null ? null : resolve(c, r);
+		if (t == null) {
+			return 0;
+		}
+		CommandSourceStack src = c.getSource();
+		r.memory.forget(t.uuid()).whenComplete((n, err) -> r.server.execute(() -> {
+			if (err != null) {
+				src.sendFailure(Component.literal("Не стёрлось: " + err.getMessage()));
+			} else {
+				src.sendSuccess(() -> Component.literal("Рик забыл " + t.name() + ": удалено записей " + n
+						+ ". Статистика летописи осталась."), true);
+			}
+		}));
+		return 1;
+	}
+
 	// ---------- летопись ----------
 
 	private static int chronicleStatus(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
@@ -252,7 +345,7 @@ public final class RickAdminCommand {
 				src.sendFailure(Component.literal("Анализ не удался: " + err));
 				return;
 			}
-			String text = ru.xetpy.rikoshet.chronicle.analysis.DigestWriter.write(rep, List.of(), List.of());
+			String text = ru.xetpy.rikoshet.chronicle.analysis.DigestWriter.write(rep, List.of(), List.of(), r.config().newspaper().maxFacts());
 			r.log.info("[летопись] итоги {}:\n{}", day, text);
 			src.sendSuccess(() -> Component.literal(text), false);
 		}));

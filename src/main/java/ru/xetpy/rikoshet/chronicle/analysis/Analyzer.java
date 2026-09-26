@@ -33,6 +33,8 @@ public final class Analyzer {
 	static final int PER_KIND = 4;
 	/** События дешевле этого — только в сводку игрока, не в факты. */
 	static final int EVENT_FACT_SCORE = 8;
+	/** Дневник дня пишет модель по итогам — в факты того же дня он не идёт. */
+	static final String DIARY = "diary";
 
 	private Analyzer() {
 	}
@@ -227,7 +229,7 @@ public final class Analyzer {
 	/** События летописи с достаточной значимостью — сразу факты. Смерти — только заметные. */
 	static void eventFacts(DayData d, List<DayReport.Fact> out) {
 		for (ChronicleEvent e : d.events()) {
-			if (e.score() < EVENT_FACT_SCORE) {
+			if (e.score() < EVENT_FACT_SCORE || DIARY.equals(e.type())) {
 				continue;
 			}
 			out.add(new DayReport.Fact(e.type(), e.uuid() == null ? null : e.uuid().toString(), e.score(),

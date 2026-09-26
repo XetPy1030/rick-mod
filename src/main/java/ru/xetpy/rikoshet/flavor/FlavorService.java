@@ -17,6 +17,9 @@ import ru.xetpy.rikoshet.ai.AiService;
 import ru.xetpy.rikoshet.ai.PromptBuilder;
 import ru.xetpy.rikoshet.ai.PromptLibrary;
 import ru.xetpy.rikoshet.ai.TextFilter;
+import ru.xetpy.rikoshet.chronicle.ChronicleService;
+import ru.xetpy.rikoshet.chronicle.Keys;
+import ru.xetpy.rikoshet.memory.MemoryService;
 import ru.xetpy.rikoshet.core.RikoshetConfig;
 import ru.xetpy.rikoshet.integration.AuthTracker;
 import ru.xetpy.rikoshet.persona.Persona;
@@ -53,6 +56,10 @@ public final class FlavorService {
 	private static final Persona PERSONA = Persona.RICK;
 	private static final double NEARBY = 32;
 	private static final DateTimeFormatter HHMM = DateTimeFormatter.ofPattern("HH:mm");
+	/** Бюджет памяти в реплике флейвора, символов. */
+	private static final int RECALL_CHARS = 400;
+	/** События новее — это сама ситуация, а не воспоминание. */
+	private static final long FRESH_MS = 10_000;
 
 	private final Logger log;
 	private final Clock clock;
@@ -65,6 +72,8 @@ public final class FlavorService {
 	private final NoteStore notes;
 	private final Speaker speaker;
 	private final AuthTracker auth;
+	private final MemoryService memory;
+	private final ChronicleService chronicle;
 	private final SessionTracker sessions = new SessionTracker();
 	private final Map<UUID, PendingLeave> pendingLeaves = new ConcurrentHashMap<>();
 	private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -80,7 +89,7 @@ public final class FlavorService {
 
 	public FlavorService(Logger log, Clock clock, Supplier<RikoshetConfig> config, AiService ai, PromptLibrary prompts,
 			PlayerStore players, RoleStore roles, DailyStats stats, NoteStore notes, Speaker speaker, AuthTracker auth,
-			FallbackLines fallback) {
+			MemoryService memory, ChronicleService chronicle, FallbackLines fallback) {
 		this.log = log;
 		this.clock = clock;
 		this.config = config;
@@ -92,6 +101,8 @@ public final class FlavorService {
 		this.notes = notes;
 		this.speaker = speaker;
 		this.auth = auth;
+		this.memory = memory;
+		this.chronicle = chronicle;
 		this.fallback = fallback;
 	}
 
@@ -161,6 +172,18 @@ public final class FlavorService {
 		ctx.append("Рядом: ").append(nearby(player)).append('\n');
 		ctx.append(time(cfg, level, server));
 
+		List<UUID> subjects = new ArrayList<>();
+		subjects.add(uuid);
+		subjects.addAll(nearbyIds(player));
+		java.util.Set<String> tags = new java.util.HashSet<>(List.of("death", "group:" + cause.group(),
+				"biome:" + Keys.shortId(level.getBiome(player.blockPosition()).getRegisteredName()),
+				"dim:" + Keys.shortId(level.dimension().identifier().toString())));
+		if (killer.entityType != null) {
+			tags.add("killer:" + Keys.shortId(killer.entityType));
+			tags.add("killer_label:" + DeathCauses.mob(killer.entityType));
+		}
+		String recalled = memory.recall(subjects, tags, RECALL_CHARS, FRESH_MS);
+
 		Map<String, String> vars = vars(nick, role);
 		vars.put("count", Integer.toString(today));
 		if (killer.text != null && !killer.hidden) {
@@ -179,7 +202,7 @@ public final class FlavorService {
 		choices.add(new FallbackLines.Choice("death", killer.group != null ? killer.group : cause.group(), 0.7));
 		choices.add(new FallbackLines.Choice("death", "any", 1));
 
-		request(server, "death", uuid, ctx.toString(), choices, vars);
+		request(server, "death", uuid, ctx.toString(), choices, vars, recalled);
 	}
 
 	private record Killer(String text, String short_, String entityType, String group, boolean hidden) {
@@ -204,6 +227,16 @@ public final class FlavorService {
 			name = name + " по имени «" + custom.getString() + "»";
 		}
 		return new Killer(name, name, type, null, false);
+	}
+
+	private List<UUID> nearbyIds(ServerPlayer victim) {
+		List<UUID> out = new ArrayList<>();
+		for (ServerPlayer p : victim.level().players()) {
+			if (p != victim && canSee(p) && p.distanceToSqr(victim) <= NEARBY * NEARBY) {
+				out.add(p.getUUID());
+			}
+		}
+		return out;
 	}
 
 	private String nearby(ServerPlayer victim) {
@@ -257,6 +290,10 @@ public final class FlavorService {
 			if (deathsToday > 0) {
 				ctx.append("Смертей сегодня: ").append(deathsToday).append('\n');
 			}
+			String last = chronicle.lastSession(uuid);
+			if (last != null) {
+				ctx.append("В прошлый раз: ").append(last).append('\n');
+			}
 			if (days >= 3) {
 				vars.put("days", Long.toString(days));
 				choices.add(new FallbackLines.Choice("join", "back", 0.8));
@@ -265,7 +302,8 @@ public final class FlavorService {
 		choices.add(new FallbackLines.Choice("join", "any", 1));
 		ctx.append("Онлайн: ").append(online(server, uuid)).append('\n');
 		ctx.append(time(cfg, server.overworld(), server));
-		request(server, "join", uuid, ctx.toString(), choices, vars);
+		String recalled = before == null ? null : memory.recall(List.of(uuid), java.util.Set.of("join"), RECALL_CHARS, 0);
+		request(server, "join", uuid, ctx.toString(), choices, vars, recalled);
 	}
 
 	/**
@@ -323,16 +361,31 @@ public final class FlavorService {
 			choices.add(new FallbackLines.Choice("leave", "deaths", 0.6));
 		}
 		choices.add(new FallbackLines.Choice("leave", "any", 1));
-		request(server, "leave", l.uuid, ctx, choices, vars);
+		request(server, "leave", l.uuid, ctx, choices, vars, null);
 	}
 
 	// ---------- запрос и вывод ----------
 
+	/**
+	 * recalled — что вспомнила память о ситуации (docs/architecture/memory.md#вспоминание) или null.
+	 * Последние реплики, которые игрок видел, идут в контекст с просьбой не повторяться.
+	 */
 	private void request(MinecraftServer server, String task, UUID player, String context,
-			List<FallbackLines.Choice> choices, Map<String, String> vars) {
+			List<FallbackLines.Choice> choices, Map<String, String> vars, String recalled) {
 		String system = PromptBuilder.system(prompts, rosterBlock(), PERSONA.id(), task);
 		List<String> memo = notes.recent(player, PERSONA.id());
-		String user = PromptBuilder.user(memo.isEmpty() ? null : "- " + String.join("\n- ", memo), context, null, null);
+		List<String> blocks = new ArrayList<>();
+		if (!memo.isEmpty()) {
+			blocks.add("- " + String.join("\n- ", memo));
+		}
+		if (recalled != null) {
+			blocks.add(recalled);
+		}
+		List<String> said = speaker.recentSeenBy(player, 3);
+		if (!said.isEmpty()) {
+			context = context + "Твои последние реплики этому игроку — не повторяй их: «" + String.join("», «", said) + "»\n";
+		}
+		String user = PromptBuilder.user(blocks.isEmpty() ? null : String.join("\n", blocks), context, null, null);
 		ai.submit(new AiRequest("flavor", "line", system, user, task, player))
 				.whenComplete((res, err) -> server.execute(() -> deliver(server, task, player, res, err, choices, vars)));
 	}

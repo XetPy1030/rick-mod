@@ -1,6 +1,8 @@
 # Память персонажей
 
-> **Статус:** проработка · **Этап:** 2–3 · **Зависит от:** [chronicle](../design/chronicle.md), [ai-integration](ai-integration.md) · **Решение:** [ADR 0007](../adr/0007-memory-without-embeddings.md)
+> **Статус:** эпизоды, знания, сюжетные линии, вспоминание в репликах и дневник дня реализованы (этап 2); отношение персонажа — этап 3 · **Этап:** 2–3 · **Зависит от:** [chronicle](../design/chronicle.md), [ai-integration](ai-integration.md) · **Решение:** [ADR 0007](../adr/0007-memory-without-embeddings.md)
+
+Код: `ru.xetpy.rikoshet.memory` — `MemoryService` (индекс, вспоминание, консолидация), `Recall`, `Consolidator`, `Diary`, `MemoryStore`.
 
 ## Зачем
 

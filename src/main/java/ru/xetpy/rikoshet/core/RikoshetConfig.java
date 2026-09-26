@@ -100,6 +100,7 @@ public record RikoshetConfig(
 		r.put("dialogue", new AiRoute("dialogue", models("openai/gpt-6-sol", "x-ai/grok-4.7"), "low", 1536, 15));
 		r.put("newspaper", new AiRoute("newspaper", models("anthropic/claude-opus-5.5", "moonshotai/kimi-k3"), "low", 4096, 120));
 		r.put("pools", new AiRoute("pools", models("moonshotai/kimi-k3", "anthropic/claude-sonnet-5"), "low", 3072, 120));
+		r.put("analyst", new AiRoute("analyst", models("deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"), "low", 2048, 90));
 		DEFAULT_ROUTES = java.util.Collections.unmodifiableMap(r);
 	}
 

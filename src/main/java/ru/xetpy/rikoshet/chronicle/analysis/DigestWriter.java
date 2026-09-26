@@ -19,6 +19,11 @@ public final class DigestWriter {
 	 * @param headlines заголовки прошлых выпусков, свежие первыми
 	 */
 	public static String write(DayReport r, List<String> stories, List<String> headlines) {
+		return write(r, stories, headlines, Integer.MAX_VALUE);
+	}
+
+	/** То же, но фактов — не больше maxFacts (0 — без фактов). */
+	public static String write(DayReport r, List<String> stories, List<String> headlines, int maxFacts) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Выпуск за ").append(r.day()).append(", ").append(r.weekday()).append(".\n");
 		DayReport.ServerDay s = r.server();
@@ -72,10 +77,13 @@ public final class DigestWriter {
 			}
 		}
 
-		if (!r.facts().isEmpty()) {
+		if (!r.facts().isEmpty() && maxFacts > 0) {
 			sb.append("\nФакты дня (важные первыми):\n");
 			int i = 1;
 			for (DayReport.Fact f : r.facts()) {
+				if (i > maxFacts) {
+					break;
+				}
 				sb.append(i++).append(". ").append(f.text()).append('\n');
 			}
 		}

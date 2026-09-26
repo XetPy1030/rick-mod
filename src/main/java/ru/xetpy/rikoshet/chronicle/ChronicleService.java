@@ -69,6 +69,8 @@ public final class ChronicleService {
 	/** Столько неподвижных замеров подряд — AFK. */
 	static final int IDLE_SAMPLES = 4;
 	static final double NEAR = 32;
+	/** Сколько фактов сохраняют итоги дня: аналитик читает больше, чем влезает в газету. */
+	public static final int ANALYST_FACTS = 80;
 	static final Gson GSON = new Gson();
 
 	private final Logger log;
@@ -781,7 +783,8 @@ public final class ChronicleService {
 	/** Проанализировать день: снимок из БД, итог — в chronicle_day и профили, слушателям — в главном потоке. */
 	public CompletableFuture<DayReport> analyze(LocalDate day) {
 		Map<UUID, DayData.Person> people = people();
-		int maxFacts = config.get().newspaper().maxFacts();
+		// Для аналитика газеты — с запасом; редакция без брифа берёт первые max_facts
+		int maxFacts = Math.max(ANALYST_FACTS, config.get().newspaper().maxFacts());
 		return store.dayData(day, config.get().timezone(), people)
 				.thenApply(d -> Analyzer.analyze(d, maxFacts))
 				.thenApply(r -> {
@@ -992,6 +995,11 @@ public final class ChronicleService {
 		}
 		Role r = roles.get(uuid);
 		return r == null ? rec.name() : r.title() + " (" + rec.name() + ")";
+	}
+
+	/** Событие не от сбора, а от других модулей (дневник дня): в БД и слушателям. Главный поток. */
+	public void record(ChronicleEvent e) {
+		emit(e);
 	}
 
 	/** Кого летопись сейчас ведёт: ники. */

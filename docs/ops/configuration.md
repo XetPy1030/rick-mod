@@ -13,6 +13,7 @@
 | `rikoshet/secrets.json5` | `{ openrouter_api_key: "…" }`, если ключ не в переменной окружения; переменная важнее файла |
 | `rikoshet/prompts/…` | переопределения промптов: тот же путь, что в `resources/rikoshet/prompts/` мода, например `rikoshet/prompts/personas/rick.md` |
 | `rikoshet/fallback/rick.json` | переопределение заготовок Рика ([flavor](../design/flavor.md#заготовки)) |
+| `rikoshet/fallback/newspaper.json` | переопределение рекламы, погоды и пророчеств для газеты без ИИ: `{ ads: [], weather: [], prophecy: [] }` |
 
 Промпты и заготовки перечитываются по `/rickadmin reload`. Схемы ответа ИИ — только из мода: их правка без кода сломает валидатор.
 
@@ -53,6 +54,8 @@
       dialogue:  { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536, timeout_seconds: 15 },
       newspaper: { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096, timeout_seconds: 120 },
       pools:     { models: ["moonshotai/kimi-k3", "anthropic/claude-sonnet-5"], reasoning: "low", max_tokens: 3072, timeout_seconds: 120 },
+      // Ночная аналитика для других моделей: план номера газеты, дневник дня
+      analyst:   { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "low", max_tokens: 2048, timeout_seconds: 90 },
     },
   },
 
@@ -105,7 +108,9 @@
 - **`features.chronicle`** — выключение через `/rickadmin reload` закрывает сессии летописи, собранное остаётся. Включение начинает следить за теми, кто онлайн ([chronicle](../design/chronicle.md)).
 - **`chronicle.snapshot_minutes`** — окно, в пределах которого летопись знает время события («в окне 21:35–21:40 добыл 3 алмазной руды»); занятие определяется по окну. Меньше — точнее, но больше строк в БД.
 - **`chronicle.sample_seconds`** — шаг замеров времени по биомам, AFK, «рядом с кем». AFK засчитывается после 4 неподвижных замеров подряд.
-- **`newspaper.max_facts`** — сколько фактов из итогов дня попадает в газету и в `/rickadmin chronicle day`; не больше 4 на игрока.
+- **`newspaper.max_facts`** — сколько фактов получает редакция, если плана номера от аналитика нет, и сколько показывает `/rickadmin chronicle day`; не больше 4 на игрока. Аналитик читает до 80.
+- **`newspaper.hour`** — час выхода по `timezone`. Выпуск — за вчера; нужен и `features.chronicle`. Сервер был выключен в этот час — выпуск через минуту после старта.
+- **`routes.analyst`** — ночная аналитика: план номера газеты и дневник дня ([каскад](../architecture/ai-integration.md#каскад-моделей)). Не ответил — газета идёт по обычной сводке, дневника нет.
 
 ## Зарезервировано на следующие этапы
 

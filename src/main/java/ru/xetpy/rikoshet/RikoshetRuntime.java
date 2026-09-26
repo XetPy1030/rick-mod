@@ -11,6 +11,11 @@ import ru.xetpy.rikoshet.ai.AiService;
 import ru.xetpy.rikoshet.ai.PromptLibrary;
 import ru.xetpy.rikoshet.chronicle.ChronicleService;
 import ru.xetpy.rikoshet.chronicle.ChronicleStore;
+import ru.xetpy.rikoshet.chronicle.analysis.DayReport;
+import ru.xetpy.rikoshet.memory.MemoryService;
+import ru.xetpy.rikoshet.memory.MemoryStore;
+import ru.xetpy.rikoshet.newspaper.NewspaperService;
+import ru.xetpy.rikoshet.newspaper.NewspaperStore;
 import ru.xetpy.rikoshet.core.ConfigLoader;
 import ru.xetpy.rikoshet.core.LoadMonitor;
 import ru.xetpy.rikoshet.core.ModPaths;
@@ -60,6 +65,8 @@ public final class RikoshetRuntime {
 	public final AuthTracker auth;
 	public final FlavorService flavor;
 	public final ChronicleService chronicle;
+	public final MemoryService memory;
+	public final NewspaperService newspaper;
 	/** Проблемы конфига при старте: пока они есть, действуют значения по умолчанию. */
 	public final List<String> startupProblems = new ArrayList<>();
 
@@ -98,7 +105,12 @@ public final class RikoshetRuntime {
 		reports = new ReportStore(db);
 		reports.load();
 		AiLogStore aiLog = new AiLogStore(db);
-		chronicle = new ChronicleService(log, clock, this::config, this::today, new ChronicleStore(db), stats, players, roles);
+		ChronicleStore chronicleStore = new ChronicleStore(db);
+		chronicle = new ChronicleService(log, clock, this::config, this::today, chronicleStore, stats, players, roles);
+		memory = new MemoryService(log, clock, () -> config.timezone(), new MemoryStore(db), chronicleStore, chronicle::whoPublic);
+		chronicle.onEvent(memory::onEvent);
+		// Итоги дня приходят из потока БД — дальше работаем в главном
+		chronicle.onReport((day, report) -> server.execute(() -> nightly(day, report)));
 
 		prompts = new PromptLibrary(paths.dataDir().resolve("prompts"));
 		load = new LoadMonitor(config.performance());
@@ -108,8 +120,10 @@ public final class RikoshetRuntime {
 		speaker = new Speaker(log);
 		EasyAuthBridge easyAuth = EasyAuthBridge.create(log);
 		auth = new AuthTracker(easyAuth, this::onAuthenticated);
-		flavor = new FlavorService(log, clock, this::config, ai, prompts, players, roles, stats, notes, speaker, auth,
+		flavor = new FlavorService(log, clock, this::config, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle,
 				FallbackLines.load("rick", paths.dataDir().resolve("fallback"), new Random()));
+		newspaper = new NewspaperService(log, clock, this::config, this::today, ai, prompts, chronicle, memory, new NewspaperStore(db),
+				players, flavor::rosterBlock, flavor::canSee, paths.dataDir());
 		log.info("Рикошет запущен: игроков {}, ролей {}, потрачено сегодня ${}",
 				players.names().size(), roles.all().size(), String.format("%.4f", ai.budget().spentToday()));
 	}
@@ -118,15 +132,53 @@ public final class RikoshetRuntime {
 		return new RikoshetRuntime(server, log);
 	}
 
+	/** Дни, за которые дневник уже написан с этого запуска. */
+	private final java.util.Set<LocalDate> diaryDone = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+	/** Итоги дня готовы: консолидация памяти и дневник дня. Газета читает их сама в час выхода. Главный поток. */
+	private void nightly(LocalDate day, DayReport report) {
+		try {
+			memory.consolidate(day, report, today());
+		} catch (RuntimeException e) {
+			log.warn("[память] консолидация {}: {}", day, e.toString());
+		}
+		if (report.players().isEmpty() || day.isBefore(today().minusDays(1)) || !diaryDone.add(day)) {
+			return;
+		}
+		String system = ru.xetpy.rikoshet.ai.PromptBuilder.system(prompts, flavor.rosterBlock(), "editor", "diary");
+		String user = ru.xetpy.rikoshet.ai.PromptBuilder.user(null, ru.xetpy.rikoshet.memory.Diary.input(report), null, null);
+		ai.submit(new ru.xetpy.rikoshet.ai.AiRequest("analyst", "diary", system, user, "diary", null))
+				.thenAccept(res -> server.execute(() -> {
+					if (!res.ok()) {
+						diaryDone.remove(day);
+						return;
+					}
+					long now = clock.millis();
+					var entries = ru.xetpy.rikoshet.memory.Diary.parse(res.value(), report, config.content().blocklist());
+					entries.forEach((uuid, text) -> {
+						com.google.gson.JsonObject d = new com.google.gson.JsonObject();
+						d.addProperty("text", text);
+						chronicle.record(new ru.xetpy.rikoshet.chronicle.ChronicleEvent(now, day.toString(), uuid, "diary", null, 10, d));
+					});
+					log.info("[память] дневник {}: {} записей, ${}", day, entries.size(), String.format("%.4f", res.costUsd()));
+				}));
+	}
+
 	/** Игрок вошёл и ввёл пароль EasyAuth (или EasyAuth нет). */
 	private void onAuthenticated(ServerPlayer p) {
 		chronicle.track(p);
 		flavor.onJoin(p);
+		newspaper.onJoin(p);
 		int open = reports.open();
 		if (open > 0 && isAdmin(p)) {
 			p.sendSystemMessage(Component.literal("[Рикошет] ").withStyle(ChatFormatting.GOLD)
 					.append(Component.literal("Жалоб на реплики: " + open + " — /rickadmin report list").withStyle(ChatFormatting.YELLOW)));
 		}
+	}
+
+	/** Сервер запущен: расписания. */
+	public void started() {
+		newspaper.start(server);
 	}
 
 	public RikoshetConfig config() {
@@ -159,6 +211,7 @@ public final class RikoshetRuntime {
 		config = next;
 		startupProblems.clear();
 		prompts.clear();
+		newspaper.reloadExtras();
 		try {
 			flavor.setFallback(FallbackLines.load("rick", paths.dataDir().resolve("fallback"), new Random()));
 		} catch (RuntimeException e) {
@@ -200,6 +253,7 @@ public final class RikoshetRuntime {
 	}
 
 	public void stopping() {
+		newspaper.stopping();
 		chronicle.stopping(server);
 		flavor.stopping();
 		ai.shutdown();

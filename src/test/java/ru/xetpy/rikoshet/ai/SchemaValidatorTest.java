@@ -40,7 +40,9 @@ class SchemaValidatorTest {
 	void newspaper() {
 		JsonObject s = lib.schema("newspaper");
 		assertTrue(s.getAsJsonArray("required").size() >= 4);
-		assertTrue(check("newspaper", "{\"headline\":\"h\",\"articles\":[{\"title\":\"t\"}],\"ad\":\"a\",\"weather\":\"w\"}")
+		assertTrue(check("newspaper", "{\"headline\":\"h\",\"articles\":[{\"title\":\"t\"}],\"ad\":\"a\",\"weather\":\"w\",\"forecast\":\"f\"}")
 				.getFirst().contains("body"));
+		assertTrue(check("newspaper", "{\"headline\":\"h\",\"articles\":[],\"ad\":\"a\",\"weather\":\"w\"}")
+				.stream().anyMatch(e -> e.contains("forecast")), "прогноз — обязательное поле");
 	}
 }

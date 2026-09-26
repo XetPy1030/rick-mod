@@ -38,6 +38,7 @@ public final class EventText {
 			case ChronicleEvent.VISIT -> actor + " задержался у дома " + who.apply(uuid(d, "target"))
 					+ (bool(d, "owner_online") ? ", пока хозяина не было рядом" : ", пока хозяина не было на сервере");
 			case ChronicleEvent.TOTEM -> actor + " спасся тотемом бессмертия";
+			case "diary" -> "из дневника Рика: " + str(d, "text", "");
 			case "gift" -> actor + ", похоже, передал " + who.apply(uuid(d, "target")) + " "
 					+ Names.item(str(d, "item", "что-то")) + (num(d, "count") > 1 ? " ×" + num(d, "count") : "");
 			case "rescue" -> actor + " убил моба, который добивал " + who.apply(uuid(d, "target"))

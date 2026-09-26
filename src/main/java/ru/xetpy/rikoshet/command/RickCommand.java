@@ -28,6 +28,7 @@ public final class RickCommand {
 				.then(Commands.literal("on").executes(c -> optOut(c, rt, false)))
 				.then(Commands.literal("who").executes(c -> who(c, rt)))
 				.then(Commands.literal("me").executes(c -> me(c, rt)))
+				.then(Commands.literal("news").executes(c -> news(c, rt)))
 				.then(Commands.literal("report")
 						.executes(c -> report(c, rt, null))
 						.then(Commands.argument("comment", StringArgumentType.greedyString())
@@ -40,6 +41,7 @@ public final class RickCommand {
 				/rick off — Рик тебя не видит и ты его не видишь; /rick on — вернуть.
 				/rick who — кто есть кто среди тех, кто онлайн.
 				/rick me — что ты сегодня делал, по записям летописи.
+				/rick news — свежий «Межпространственный вестник».
 				/rick report [комментарий] — пожаловаться админу на последнюю реплику.""").withStyle(ChatFormatting.GRAY), false);
 		return 1;
 	}
@@ -102,6 +104,22 @@ public final class RickCommand {
 			out.append(Component.literal("\n" + line).withStyle(ChatFormatting.GRAY));
 		}
 		c.getSource().sendSuccess(() -> out, false);
+		return 1;
+	}
+
+	private static int news(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		var issue = r.newspaper.current();
+		if (!r.newspaper.enabled() || issue == null) {
+			c.getSource().sendFailure(Component.literal(r.newspaper.enabled()
+					? "Газета ещё не выходила. Первый номер — утром после первого игрового дня."
+					: "Газета на сервере выключена."));
+			return 0;
+		}
+		c.getSource().sendSuccess(() -> ru.xetpy.rikoshet.newspaper.IssueView.full(issue), false);
 		return 1;
 	}
 
