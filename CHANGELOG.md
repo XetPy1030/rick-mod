@@ -11,9 +11,11 @@
 - **Разговор по ПКМ**: всё, что пишешь в чат, — Рику; он помнит тебя и разговоры в чате, знает твою расу Origins ([characters](docs/design/characters/README.md#разговор)).
 - **«Полезность для науки»** −100…+100, шесть уровней, тон Рика по уровню; `/rick science`.
 - **Задания**: эксперимент дня на весь сервер и 14 квестов «принеси» и «набери статистику»; сдача — автоматически у Рика; награды — ванильные ресурсы и именные артефакты ([quests](docs/design/quests.md)).
-- Скрытые достижения `rikoshet:…` для главы FTB «Задания Рика».
+- **Голос Рика** в лаборатории через Simple Voice Chat: `gpt-audio-mini`, голос `ash`; расшифровка сверяется с текстом, `/rick voice off` — не слышать ([voice](docs/design/voice.md)).
+- **Глава FTB «Задания Рика»** (8 квестов, побочная — не входит в «Полный свод») и скрытые достижения `rikoshet:…` для неё.
+- NPC мода нельзя поднять Carry On.
 
-**Что включить.** Миграция 0005 применится сама. `config/polymer/auto-host.json` → `enabled: true` ([ресурспак](docs/ops/server-setup.md#ресурспак)). Флаги `citadel: true`, `quests: true` в `config/rikoshet.json5`, потом `/rickadmin reload`.
+**Что включить.** Миграция 0005 применится сама. `config/polymer/auto-host.json` → `enabled: true` ([ресурспак](docs/ops/server-setup.md#ресурспак)). Флаги `citadel: true`, `quests: true`, `voice: true` в `config/rikoshet.json5`, потом `/rickadmin reload`. Главу FTB — `build.py --deploy` в `quests-design` на остановленном сервере.
 
 ## 0.2.0 — не выложена
 

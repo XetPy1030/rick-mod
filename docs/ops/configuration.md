@@ -135,6 +135,16 @@
     max_active: 2,                 // активных квестов от Рика у игрока
     gifts_per_day: 1,              // подарков из таблицы наград в разговоре на игрока в сутки
   },
+
+  // Голос персонажей: озвучка реплик через Simple Voice Chat
+  voice: {
+    radius_blocks: 16,             // сколько слышно голос NPC
+    tts_timeout_seconds: 5,        // не успели озвучить — остаётся только текст
+    min_fidelity: 0.8,             // расшифровка совпала с текстом меньше — звук не играет
+    voices: {
+      rick: { voice: "ash", style: "Рик Санчез: хриплый пьяный старик-гений, …" },
+    },
+  },
 ```
 
 Модели выбраны на [кастинге](../architecture/ai-integration.md#кастинг-моделей). `daily_budget_usd: 2.0` — принятый дневной бюджет ([№ 16](../open-questions.md)).
@@ -160,31 +170,28 @@
 - **`features.quests`** — задания, репутация и награды Рика ([quests](../design/quests.md)). Без неё разговор в лаборатории остаётся, но заданий и подарков нет, репутация меняется только за слова.
 - **`citadel.talk_per_hour`** — сверх лимита Рик отвечает заготовкой, запросов к ИИ нет. Разговор идёт по маршруту `dialogue`.
 - **`quests.gifts_per_day`** — подарок выбирает модель из таблицы наград по уровню игрока; награды за задания выдаёт код и в лимит не входят.
+- **`features.voice`**, раздел **`voice`** — озвучка живых реплик Рика в лаборатории через Simple Voice Chat ([voice](../design/voice.md)). `voices.<персонаж>` — голос модели и манера. `min_fidelity` — доля слов расшифровки, совпавших с текстом: ниже — звук не играет, модель сымпровизировала. Маршрут `voice_out` берёт только первую модель списка.
 - **`routes.analyst`** — ночная аналитика: план номера газеты, дневник дня, имена построек ([каскад](../architecture/ai-integration.md#каскад-моделей)). Не ответил — газета идёт по обычной сводке, дневника нет.
 
 ## Зарезервировано на следующие этапы
 
-Эти ключи мод знает и не ругается на них, но пока не читает: `ai.language`, `content.profanity`, разделы `voice`, `personas`, `visits`. Маршруты `visit`, `judge`, `voice_in`, `voice_out` появятся со своими фичами:
+Эти ключи мод знает и не ругается на них, но пока не читает: `ai.language`, `content.profanity`, `voice.max_utterance_seconds`, `voice.silence_end_ms`, разделы `personas`, `visits`. Маршруты `visit`, `judge`, `voice_in` появятся со своими фичами:
 
 ```json5
 routes: {
   visit:          { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024 },
   judge:          { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096 },
   voice_in:       { models: ["google/gemini-3.8-flash@minimal"], max_tokens: 1024 },
-  voice_out:      { models: ["openai/gpt-audio-mini"] },
 },
 voice: {
-  radius_blocks: 16,             // сколько слышно голос NPC
-  max_utterance_seconds: 15,
+  max_utterance_seconds: 15,     // разговор голосом, этап 5
   silence_end_ms: 700,           // пауза, после которой фраза считается законченной
-  tts_timeout_seconds: 5,        // не успели озвучить — остаётся текст
-  voices: { rick: { voice: "ash", style: "хриплый, пьяный, говорит быстро, рыгает посреди фраз" } },
 },
 personas: { rick: { enabled: true, replies_per_minute: 4 } },
 visits: { min_minutes_between: 40, max_concurrent: 2 },
 ```
 
-Модели этих маршрутов — гипотеза до своего этапа. Имя голоса `ash` — пример: список голосов берём из документации модели на кастинге.
+Модели этих маршрутов — гипотеза до своего этапа.
 
 ## Флаги запуска
 

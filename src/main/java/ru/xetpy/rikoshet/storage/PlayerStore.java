@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class PlayerStore {
 	private final Database db;
 	private final Map<UUID, PlayerRecord> players = new ConcurrentHashMap<>();
+	/** /rick voice off: голос персонажей этому игроку не слышен. */
+	private final java.util.Set<UUID> voiceOff = ConcurrentHashMap.newKeySet();
 
 	public PlayerStore(Database db) {
 		this.db = db;
@@ -25,14 +27,18 @@ public final class PlayerStore {
 
 	public void load() throws SQLException {
 		players.clear();
+		voiceOff.clear();
 		db.call(c -> {
 			try (PreparedStatement st = c.prepareStatement(
-					"SELECT uuid, name, first_seen, last_seen, playtime_s, ai_opt_out FROM player");
+					"SELECT uuid, name, first_seen, last_seen, playtime_s, ai_opt_out, voice_opt_out FROM player");
 					ResultSet rs = st.executeQuery()) {
 				while (rs.next()) {
 					PlayerRecord p = new PlayerRecord(UUID.fromString(rs.getString(1)), rs.getString(2),
 							rs.getLong(3), rs.getLong(4), rs.getLong(5), rs.getInt(6) != 0);
 					players.put(p.uuid(), p);
+					if (rs.getInt(7) != 0) {
+						voiceOff.add(p.uuid());
+					}
 				}
 			}
 			return null;
@@ -118,6 +124,25 @@ public final class PlayerStore {
 		db.execute("player opt-out", c -> {
 			try (PreparedStatement st = c.prepareStatement("UPDATE player SET ai_opt_out = ? WHERE uuid = ?")) {
 				st.setInt(1, optOut ? 1 : 0);
+				st.setString(2, uuid.toString());
+				st.executeUpdate();
+			}
+		});
+	}
+
+	public boolean voiceOff(UUID uuid) {
+		return voiceOff.contains(uuid);
+	}
+
+	public void setVoiceOff(UUID uuid, boolean off) {
+		if (off) {
+			voiceOff.add(uuid);
+		} else {
+			voiceOff.remove(uuid);
+		}
+		db.execute("player voice", c -> {
+			try (PreparedStatement st = c.prepareStatement("UPDATE player SET voice_opt_out = ? WHERE uuid = ?")) {
+				st.setInt(1, off ? 1 : 0);
 				st.setString(2, uuid.toString());
 				st.executeUpdate();
 			}

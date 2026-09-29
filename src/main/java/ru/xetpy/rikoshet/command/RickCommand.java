@@ -31,6 +31,7 @@ public final class RickCommand {
 				.then(Commands.literal("news").executes(c -> news(c, rt)))
 				.then(CitadelCommands.player(rt))
 				.then(CitadelCommands.science(rt))
+				.then(CitadelCommands.voice(rt))
 				.then(Commands.literal("report")
 						.executes(c -> report(c, rt, null))
 						.then(Commands.argument("comment", StringArgumentType.greedyString())
@@ -46,6 +47,7 @@ public final class RickCommand {
 				/rick news — свежий «Межпространственный вестник».
 				/rick citadel — Рик откроет портал в Цитадель. Или напиши в чат «рик, забери меня».
 				/rick science — твоя «Полезность для науки» и задания Рика.
+				/rick voice off|on — не слышать голос персонажей; текст остаётся.
 				/rick report [комментарий] — пожаловаться админу на последнюю реплику.""").withStyle(ChatFormatting.GRAY), false);
 		return 1;
 	}

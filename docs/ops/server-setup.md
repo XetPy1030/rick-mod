@@ -35,6 +35,8 @@
 1. Остановить сервер. В `config/polymer/auto-host.json` поставить `"enabled": true` и русский текст в `"message"`, например «Ресурспак «Рикошета»: скины персонажей. Без него Рик будет выглядеть как Стив.».
 2. Запустить. В логе — `[Polymer] Resource pack created successfully!`, строки `[пак] … enabled false` нет.
 
+**Глава FTB «Задания Рика»** выкладывается вместе с модом 0.3.0, не раньше: её квесты закрываются достижениями мода. На остановленном сервере: `python3 build.py --deploy` в `~/common/projects/quests-design/build`, затем залить `config/ftbquests/quests/` и `world/datapacks/vplus/` ([quests](../design/quests.md#глава-ftb)).
+
 Пак обязательный (`required` ставит мод): кто откажется его скачать, не зайдёт. Клиенту он приходит при входе, до пароля EasyAuth. Пак выключен — мод при старте пишет предупреждение в лог и в `/rickadmin ai status`.
 
 ## Ключ OpenRouter

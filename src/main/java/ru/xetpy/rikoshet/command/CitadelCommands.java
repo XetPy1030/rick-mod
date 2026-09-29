@@ -82,14 +82,32 @@ final class CitadelCommands {
 		return sb.toString();
 	}
 
+	/** /rick voice off|on — не слышать голос персонажей (текст остаётся). */
+	static LiteralArgumentBuilder<CommandSourceStack> voice(Supplier<RikoshetRuntime> rt) {
+		return Commands.literal("voice")
+				.then(Commands.literal("off").executes(c -> voice(c, rt, true)))
+				.then(Commands.literal("on").executes(c -> voice(c, rt, false)));
+	}
+
+	private static int voice(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt, boolean off) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		ServerPlayer p = Cmd.player(c);
+		if (r == null || p == null) {
+			return 0;
+		}
+		r.players.setVoiceOff(p.getUUID(), off);
+		c.getSource().sendSuccess(() -> Component.literal(off ? "Голос персонажей тебе больше не слышен, текст остаётся. Вернуть — /rick voice on."
+				: "Голос персонажей снова слышен.").withStyle(ChatFormatting.GRAY), false);
+		return 1;
+	}
+
 	/** /rickadmin rep <ник> <изменение> — поправить «Полезность для науки». */
 	static LiteralArgumentBuilder<CommandSourceStack> rep(Supplier<RikoshetRuntime> rt) {
 		return Commands.literal("rep")
 				.then(Commands.argument("nick", StringArgumentType.word())
 						.then(Commands.argument("delta", IntegerArgumentType.integer(-200, 200)).executes(c -> run(c, rt, r -> {
 							String nick = StringArgumentType.getString(c, "nick");
-							UUID u = r.players.nameMap().entrySet().stream().filter(e -> e.getValue().equalsIgnoreCase(nick))
-									.map(java.util.Map.Entry::getKey).findFirst().orElse(null);
+							UUID u = r.players.byName(nick).map(ru.xetpy.rikoshet.storage.PlayerRecord::uuid).orElse(null);
 							if (u == null) {
 								return "не знаю игрока " + nick;
 							}
@@ -139,6 +157,7 @@ final class CitadelCommands {
 		r.citadel.markers().forEach((name, m) -> sb.append("\n  ").append(name).append(": ").append(m.pos().toShortString())
 				.append(", yaw ").append((int) m.yaw()));
 		sb.append("\n").append(r.talk.status());
+		sb.append("\n").append(r.voice.status());
 		var exp = r.quests.defs().experiment(r.today());
 		if (exp != null) {
 			sb.append("\nЭксперимент дня: ").append(exp.goal());

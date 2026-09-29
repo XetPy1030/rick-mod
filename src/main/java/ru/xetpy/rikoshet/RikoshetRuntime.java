@@ -97,6 +97,7 @@ public final class RikoshetRuntime {
 	public final Reputation reputation;
 	public final QuestService quests;
 	public final TalkService talk;
+	public final ru.xetpy.rikoshet.voice.VoiceService voice;
 	private volatile java.util.Map<String, java.util.Map<String, List<String>>> poolLines = java.util.Map.of();
 	/** Проблемы конфига при старте: пока они есть, действуют значения по умолчанию. */
 	public final List<String> startupProblems = new ArrayList<>();
@@ -186,6 +187,8 @@ public final class RikoshetRuntime {
 		talk = new TalkService(log, clock, this::config, this::today, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle,
 				flavor, quests, reputation);
 		chat.citadel(talk::active, this::portalRequest);
+		voice = new ru.xetpy.rikoshet.voice.VoiceService(log, clock, this::config, ai, players, server);
+		talk.voice(text -> voice.speak(npcs.current(server), "rick", text));
 		newspaper = new NewspaperService(log, clock, this::config, this::today, ai, prompts, chronicle, memory, new NewspaperStore(db),
 				players, flavor::rosterBlock, flavor::canSee, paths.dataDir());
 		batch = new BatchService(log, clock, ai, db, server);
@@ -449,6 +452,7 @@ public final class RikoshetRuntime {
 		flavor.stopping();
 		chat.stopping();
 		talk.stopping();
+		voice.stopping();
 		ai.shutdown();
 		// Время сессий засчитываем сейчас: при остановке прощаний не будет
 		for (ServerPlayer p : server.getPlayerList().getPlayers()) {

@@ -28,7 +28,8 @@ public record RikoshetConfig(
 		Newspaper newspaper,
 		Chat chat,
 		Citadel citadel,
-		Quests quests
+		Quests quests,
+		Voice voice
 ) {
 	public static final int PROTOCOL_VERSION = 1;
 
@@ -131,6 +132,19 @@ public record RikoshetConfig(
 	public record Quests(int maxActive, int giftsPerDay) {
 	}
 
+	/**
+	 * Голос персонажей (docs/design/voice.md): радиус, срок на озвучку, порог совпадения расшифровки
+	 * с текстом, голос и манера по персонажу.
+	 */
+	public record Voice(int radiusBlocks, int ttsTimeoutSeconds, double minFidelity, Map<String, VoiceSpec> voices) {
+		public VoiceSpec of(String persona) {
+			return voices.get(persona);
+		}
+	}
+
+	public record VoiceSpec(String voice, String style) {
+	}
+
 	public static final Map<String, AiRoute> DEFAULT_ROUTES;
 
 	static {
@@ -141,6 +155,7 @@ public record RikoshetConfig(
 		r.put("pools", new AiRoute("pools", models("moonshotai/kimi-k3", "anthropic/claude-sonnet-5"), "low", 3072, 120));
 		r.put("chat", new AiRoute("chat", models("openai/gpt-6-sol", "openai/gpt-6-luna"), "low", 1536, 8, 4000));
 		r.put("analyst", new AiRoute("analyst", models("deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"), "low", 2048, 90));
+		r.put("voice_out", new AiRoute("voice_out", models("openai/gpt-audio-mini"), "none", 1024, 5));
 		DEFAULT_ROUTES = java.util.Collections.unmodifiableMap(r);
 	}
 
@@ -301,11 +316,32 @@ public record RikoshetConfig(
 				qr.integer("gifts_per_day", 1, 0, 20));
 		qr.finish();
 
-		r.reserve("personas", "visits", "voice");
+		ConfigReader vr = r.section("voice");
+		int radius = vr.integer("radius_blocks", 16, 4, 64);
+		int ttsTimeout = vr.integer("tts_timeout_seconds", 5, 1, 30);
+		double minFidelity = vr.number("min_fidelity", 0.8, 0, 1);
+		Map<String, VoiceSpec> voices = new LinkedHashMap<>(DEFAULT_VOICES);
+		ConfigReader vv = vr.section("voices");
+		for (String persona : vv.keys()) {
+			ConfigReader one = vv.section(persona);
+			VoiceSpec base = DEFAULT_VOICES.get(persona);
+			voices.put(persona, new VoiceSpec(one.string("voice", base == null ? "ash" : base.voice()),
+					one.string("style", base == null ? "" : base.style())));
+			one.finish();
+		}
+		vr.reserve("max_utterance_seconds", "silence_end_ms");
+		vr.finish();
+		Voice voice = new Voice(radius, ttsTimeout, minFidelity, java.util.Collections.unmodifiableMap(voices));
+
+		r.reserve("personas", "visits");
 		r.finish();
 		return new RikoshetConfig(protocol, zone, java.util.Collections.unmodifiableMap(features), ai, flavor, content, perf, storage,
-				chronicle, newspaper, chatCfg, citadel, quests);
+				chronicle, newspaper, chatCfg, citadel, quests, voice);
 	}
+
+	/** Голоса по умолчанию: выбраны по образцам (docs/design/voice.md#образцы-2909). */
+	static final Map<String, VoiceSpec> DEFAULT_VOICES = Map.of(
+			"rick", new VoiceSpec("ash", "Рик Санчез: хриплый пьяный старик-гений, говорит быстро, раздражённо и с презрением, обрывает фразы, рыгает посреди слов"));
 
 	private static final List<String> EFFORTS = List.of("none", "minimal", "low", "medium", "high", "default");
 

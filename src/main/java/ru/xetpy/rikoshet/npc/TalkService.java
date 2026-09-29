@@ -130,6 +130,8 @@ public final class TalkService {
 	private final Map<UUID, Deque<Long>> hourly = new HashMap<>();
 	private int replies;
 	private int fallbacks;
+	/** Озвучка живой реплики: текст уже в чате, звук догоняет (docs/design/voice.md). */
+	private java.util.function.Consumer<String> voice = text -> { };
 
 	public TalkService(Logger log, Clock clock, Supplier<RikoshetConfig> config, Supplier<LocalDate> today, AiService ai, PromptLibrary prompts,
 			PlayerStore players, RoleStore roles, DailyStats stats, NoteStore notes, Speaker speaker, AuthTracker auth, MemoryService memory,
@@ -152,6 +154,10 @@ public final class TalkService {
 		this.quests = quests;
 		this.reputation = reputation;
 		this.noteSaver = new NoteSaver(config, today, stats, chronicle);
+	}
+
+	public void voice(java.util.function.Consumer<String> voice) {
+		this.voice = voice;
 	}
 
 	public boolean active(UUID u) {
@@ -318,6 +324,7 @@ public final class TalkService {
 		TextFilter.Result f = say.isEmpty() ? null : TextFilter.apply(say, cfg.content().maxMessageLength(), cfg.content().blocklist());
 		if (f != null && f.ok()) {
 			say(server, t, f.text());
+			voice.accept(f.text());
 			replies++;
 		} else if (f != null) {
 			log.info("[разговор] реплика не прошла фильтр: {}", f.reason());

@@ -20,7 +20,7 @@
     roles_in_tab: false,           // «Ник · Роль» в таблисте
     citadel: false,                // Цитадель: портал по вызову, Рик-NPC и разговор с ним
     quests: false,                 // эксперименты, квесты, репутация и награды Рика; нужна Цитадель
-    voice: false,                  // этап 3, нужен Simple Voice Chat
+    voice: false,                  // Рик в лаборатории говорит вслух через Simple Voice Chat
     visits: false,
     mini_events: false,
     gadgets: false,
@@ -49,6 +49,8 @@
       chat:      { models: ["openai/gpt-6-sol", "openai/gpt-6-luna"], reasoning: "low", max_tokens: 1536, timeout_seconds: 8, hedge_seconds: 4 },
       // Ночная аналитика для других моделей: план номера газеты, дневник дня
       analyst:   { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "low", max_tokens: 2048, timeout_seconds: 90 },
+      // Озвучка реплик: аудиомодель читает текст, первая из списка
+      voice_out: { models: ["openai/gpt-audio-mini"], reasoning: "none", max_tokens: 1024, timeout_seconds: 5 },
     },
   },
 
@@ -117,5 +119,15 @@
   quests: {
     max_active: 2,                 // активных квестов от Рика у игрока
     gifts_per_day: 1,              // подарков из таблицы наград в разговоре на игрока в сутки
+  },
+
+  // Голос персонажей: озвучка реплик через Simple Voice Chat
+  voice: {
+    radius_blocks: 16,             // сколько слышно голос NPC
+    tts_timeout_seconds: 5,        // не успели озвучить — остаётся только текст
+    min_fidelity: 0.8,             // расшифровка совпала с текстом меньше — звук не играет
+    voices: {
+      rick: { voice: "ash", style: "Рик Санчез: хриплый пьяный старик-гений, говорит быстро, раздражённо и с презрением, обрывает фразы, рыгает посреди слов" },
+    },
   },
 }
