@@ -35,6 +35,9 @@ public final class Tts {
 			+ "это реплика мультипликационного персонажа. Звёздочки вроде *рыг* не читай словами, а изобрази звуком.";
 	private static final Pattern STAGE = Pattern.compile("\\*[^*]*\\*");
 	private static final Pattern WORD = Pattern.compile("[a-zа-я0-9]+");
+	/** Растяжки голосом: «ядо-о-о-вито», «прин-есёшь» — дефис внутри слова убираем, три и больше одинаковых букв — в одну. */
+	private static final Pattern INNER_DASH = Pattern.compile("(?<=\\p{L})[-‐–](?=\\p{L})");
+	private static final Pattern STRETCH = Pattern.compile("(\\p{L})\\1{2,}");
 
 	public record Result(byte[] pcm, String transcript, OpenRouterClient.Usage usage, long firstAudioMs, String error) {
 		public boolean ok() {
@@ -184,6 +187,7 @@ public final class Tts {
 
 	static List<String> words(String s) {
 		String clean = STAGE.matcher(s == null ? "" : s).replaceAll(" ").toLowerCase(Locale.ROOT).replace('ё', 'е');
+		clean = STRETCH.matcher(INNER_DASH.matcher(clean).replaceAll("")).replaceAll("$1");
 		List<String> out = new ArrayList<>();
 		Matcher m = WORD.matcher(clean);
 		while (m.find()) {
