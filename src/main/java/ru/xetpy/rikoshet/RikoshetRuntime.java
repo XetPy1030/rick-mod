@@ -12,6 +12,18 @@ import ru.xetpy.rikoshet.ai.PromptLibrary;
 import ru.xetpy.rikoshet.builds.BuildService;
 import ru.xetpy.rikoshet.builds.BuildStore;
 import ru.xetpy.rikoshet.chat.ChatService;
+import ru.xetpy.rikoshet.citadel.Citadel;
+import ru.xetpy.rikoshet.citadel.Portals;
+import ru.xetpy.rikoshet.citadel.ReturnPoints;
+import ru.xetpy.rikoshet.npc.Npcs;
+import ru.xetpy.rikoshet.npc.TalkService;
+import ru.xetpy.rikoshet.quest.QuestDefs;
+import ru.xetpy.rikoshet.quest.QuestService;
+import ru.xetpy.rikoshet.quest.Reputation;
+import ru.xetpy.rikoshet.quest.RickAdvancements;
+import ru.xetpy.rikoshet.quest.Rewards;
+import ru.xetpy.rikoshet.pack.ResourcePack;
+import ru.xetpy.rikoshet.storage.KvStore;
 import ru.xetpy.rikoshet.ai.BatchService;
 import ru.xetpy.rikoshet.chronicle.ChronicleService;
 import ru.xetpy.rikoshet.flavor.ServerListService;
@@ -78,6 +90,13 @@ public final class RikoshetRuntime {
 	public final BatchService batch;
 	public final PoolService pools;
 	public final ServerListService serverList;
+	public final KvStore kv;
+	public final Citadel citadel;
+	public final Portals portals;
+	public final Npcs npcs;
+	public final Reputation reputation;
+	public final QuestService quests;
+	public final TalkService talk;
 	private volatile java.util.Map<String, java.util.Map<String, List<String>>> poolLines = java.util.Map.of();
 	/** Проблемы конфига при старте: пока они есть, действуют значения по умолчанию. */
 	public final List<String> startupProblems = new ArrayList<>();
@@ -116,6 +135,18 @@ public final class RikoshetRuntime {
 		notes.load();
 		reports = new ReportStore(db);
 		reports.load();
+		kv = new KvStore(db);
+		kv.load();
+		ReturnPoints returns = new ReturnPoints(db);
+		returns.load();
+		citadel = new Citadel(log, clock, kv);
+		portals = new Portals(log, clock, citadel, returns);
+		npcs = new Npcs(log, citadel);
+		portals.onArrive(p -> RickAdvancements.award(p, RickAdvancements.VISIT));
+		reputation = new Reputation(db);
+		reputation.load();
+		quests = new QuestService(log, db, QuestDefs.load(paths.dataDir(), log), Rewards.load(db, paths.dataDir(), log), reputation);
+		quests.load();
 		AiLogStore aiLog = new AiLogStore(db);
 		ChronicleStore chronicleStore = new ChronicleStore(db);
 		chronicle = new ChronicleService(log, clock, this::config, this::today, chronicleStore, stats, players, roles);
@@ -152,6 +183,9 @@ public final class RikoshetRuntime {
 		flavor = new FlavorService(log, clock, this::config, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle,
 				FallbackLines.load("rick", paths.dataDir().resolve("fallback"), new Random()));
 		chat = new ChatService(log, clock, this::config, this::today, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle, flavor);
+		talk = new TalkService(log, clock, this::config, this::today, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle,
+				flavor, quests, reputation);
+		chat.citadel(talk::active, this::portalRequest);
 		newspaper = new NewspaperService(log, clock, this::config, this::today, ai, prompts, chronicle, memory, new NewspaperStore(db),
 				players, flavor::rosterBlock, flavor::canSee, paths.dataDir());
 		batch = new BatchService(log, clock, ai, db, server);
@@ -244,6 +278,14 @@ public final class RikoshetRuntime {
 
 	/** Сервер запущен: расписания. */
 	public void started() {
+		if (config.feature("citadel")) {
+			citadel.ensure(server);
+		}
+		String pack = ResourcePack.autohostProblem(FabricLoader.getInstance().getConfigDir());
+		if (pack != null) {
+			log.warn("[пак] {}", pack);
+			startupProblems.add(pack);
+		}
 		newspaper.start(server);
 		pools.start(server);
 		serverList.start(server);
@@ -299,6 +341,7 @@ public final class RikoshetRuntime {
 		ai.reconfigure(next, secrets);
 		load.configure(next.performance());
 		chronicle.reconfigure(server, auth::isAuthenticated);
+		quests.reload(QuestDefs.load(paths.dataDir(), log), Rewards.load(db, paths.dataDir(), log));
 		return new Reload(true, warnings, List.of());
 	}
 
@@ -313,9 +356,72 @@ public final class RikoshetRuntime {
 			log.info("[нагрузка] уровень {} (MSPT {})", changed, String.format("%.1f", load.mspt()));
 		}
 		auth.poll(server);
+		// Режим игры сверяем всегда: выключили фичу, а кто-то остался в Цитадели в приключении
+		citadel.everySecond(server);
+		if (config.feature("citadel") && citadel.ensure(server)) {
+			npcs.everySecond(server);
+		}
+		if (talk.activeCount() > 0) {
+			talk.everySecond(server, npcs.current(server));
+		}
 		chronicle.everySecond(server);
 		if (config.feature("chronicle") && config.feature("builds")) {
 			builds.step(server);
+		}
+	}
+
+	/** Каждый тик: порталы. */
+	public void everyTick() {
+		if (config.feature("citadel")) {
+			portals.tick(server);
+		}
+		talk.tick(server);
+	}
+
+	/** Игрок просит портал: «рик, забери меня» или /rick citadel. Рик отвечает заготовкой. Главный поток. */
+	public void portalRequest(ServerPlayer p) {
+		if (!config.feature("citadel") || !auth.isAuthenticated(p)) {
+			return;
+		}
+		Portals.Call r = portals.call(p, config.citadel().portalSeconds(), config.citadel().portalCooldownSeconds());
+		String key = switch (r) {
+			case OPENED -> "portal";
+			case COOLDOWN -> "portal_wait";
+			case FIGHT -> "portal_fight";
+			case INSIDE -> "portal_inside";
+			case NOT_READY -> null;
+		};
+		if (key == null) {
+			p.sendSystemMessage(Component.literal("Цитадель не готова — смотри лог сервера.").withStyle(ChatFormatting.RED));
+			return;
+		}
+		sayCitadel(p, key);
+	}
+
+	private final java.util.Map<java.util.UUID, Long> lastHit = new java.util.HashMap<>();
+
+	/** ПКМ по Рику. Главный поток. */
+	public void talkToRick(ServerPlayer p, net.minecraft.world.entity.Entity rick) {
+		talk.start(p, rick);
+	}
+
+	/** Игрок ударил Рика: вреда нет, но Рик не молчит — не чаще раза в 10 с. */
+	public void hitRick(ServerPlayer p) {
+		long now = clock.millis();
+		Long last = lastHit.get(p.getUUID());
+		if (!config.feature("citadel") || players.optedOut(p.getUUID()) || last != null && now - last < 10_000) {
+			return;
+		}
+		lastHit.put(p.getUUID(), now);
+		sayCitadel(p, "hit");
+	}
+
+	private void sayCitadel(ServerPlayer p, String key) {
+		java.util.Map<String, String> vars = java.util.Map.of("player",
+				ru.xetpy.rikoshet.flavor.FlavorService.address(p.getScoreboardName(), roles.get(p.getUUID())), "nick", p.getScoreboardName());
+		String line = flavor.fallback().pick(List.of(new ru.xetpy.rikoshet.flavor.FallbackLines.Choice("citadel", key, 1)), vars);
+		if (line != null) {
+			speaker.say(server, ru.xetpy.rikoshet.persona.Persona.RICK, line, flavor::canSee, java.util.Set.of(p.getUUID()));
 		}
 	}
 
@@ -342,6 +448,7 @@ public final class RikoshetRuntime {
 		chronicle.stopping(server);
 		flavor.stopping();
 		chat.stopping();
+		talk.stopping();
 		ai.shutdown();
 		// Время сессий засчитываем сейчас: при остановке прощаний не будет
 		for (ServerPlayer p : server.getPlayerList().getPlayers()) {

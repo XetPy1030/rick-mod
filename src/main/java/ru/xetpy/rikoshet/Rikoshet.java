@@ -2,18 +2,27 @@ package ru.xetpy.rikoshet;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.xetpy.rikoshet.command.DevCommand;
 import ru.xetpy.rikoshet.command.RickAdminCommand;
+import ru.xetpy.rikoshet.citadel.Citadel;
 import ru.xetpy.rikoshet.command.RickCommand;
+import ru.xetpy.rikoshet.npc.Npcs;
+import ru.xetpy.rikoshet.pack.ResourcePack;
 
 /**
  * Точка входа. Здесь только подписка на события; всё состояние — в {@link RikoshetRuntime}.
@@ -61,9 +70,48 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			RikoshetRuntime r = runtime;
-			if (r != null && server.getTickCount() % 20 == 0) {
+			if (r == null) {
+				return;
+			}
+			safe("порталы", r::everyTick);
+			if (server.getTickCount() % 20 == 0) {
 				safe("тик", r::everySecond);
 			}
+		});
+
+		// Цитадель: урона нет, режим игры — по месту, NPC не бьются и говорят по ПКМ
+		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> Citadel.allowDamage(entity));
+		ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register((player, from, to) -> {
+			RikoshetRuntime r = runtime;
+			if (r != null) {
+				safe("смена мира", () -> r.citadel.syncMode(player));
+			}
+		});
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+			RikoshetRuntime r = runtime;
+			if (r != null) {
+				safe("возрождение", () -> r.citadel.syncMode(newPlayer));
+			}
+		});
+		UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+			if (!(player instanceof ServerPlayer sp) || !Npcs.isNpc(entity)) {
+				return InteractionResult.PASS;
+			}
+			RikoshetRuntime r = runtime;
+			if (r != null && hand == InteractionHand.MAIN_HAND && Npcs.isRick(entity)) {
+				safe("ПКМ по Рику", () -> r.talkToRick(sp, entity));
+			}
+			return InteractionResult.SUCCESS;
+		});
+		AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+			if (!(player instanceof ServerPlayer sp) || !Npcs.isNpc(entity) || sp.isCreative()) {
+				return InteractionResult.PASS;
+			}
+			RikoshetRuntime r = runtime;
+			if (r != null && Npcs.isRick(entity)) {
+				safe("удар по Рику", () -> r.hitRick(sp));
+			}
+			return InteractionResult.FAIL;
 		});
 
 		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
@@ -97,7 +145,11 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 			RikoshetRuntime r = runtime;
 			if (r != null) {
 				safe("чат", () -> r.chronicle.chat(sender, message.signedContent()));
-				safe("чат: Рик", () -> r.chat.onMessage(sender, message.signedContent()));
+				safe("чат: Рик", () -> {
+					if (!r.talk.onMessage(sender, message.signedContent())) {
+						r.chat.onMessage(sender, message.signedContent());
+					}
+				});
 			}
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -123,6 +175,7 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 				DevCommand.register(dispatcher, Rikoshet::runtime);
 			}
 		});
+		ResourcePack.init(LOG);
 		// Версия в логе — чтобы по latest.log было видно, какая сборка стоит на сервере
 		String version = FabricLoader.getInstance().getModContainer("rikoshet")
 				.map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("?");

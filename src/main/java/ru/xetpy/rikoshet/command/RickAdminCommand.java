@@ -69,6 +69,8 @@ public final class RickAdminCommand {
 		d.register(Commands.literal("rickadmin")
 				.requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
 				.then(Commands.literal("reload").executes(c -> reload(c, rt)))
+				.then(CitadelCommands.admin(rt))
+				.then(CitadelCommands.rep(rt))
 				.then(Commands.literal("ai")
 						.then(Commands.literal("status").executes(c -> status(c, rt)))
 						.then(Commands.literal("pause").executes(c -> pause(c, rt, true)))

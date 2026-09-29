@@ -30,6 +30,11 @@ public final class ChatDetector {
 	/** Что может стоять перед именем в обращении: «эй рик», «слышь, рик». */
 	private static final Set<String> LEAD = Set.of("эй", "слышь", "ну", "а", "о", "ой", "ау", "алло", "yo", "hey", "hi", "привет", "здарова");
 	private static final Pattern WORD = Pattern.compile(W + "+");
+	/** Просьба о портале в Цитадель: «забери меня», «открой портал», «тп», «хочу к тебе в лабораторию». */
+	private static final Pattern PORTAL = Pattern.compile(
+			"(?<!" + W + ")(забер" + W + "*|забира" + W + "*|портал" + W + "*|телепорт" + W + "*|тпни" + W + "*|тп|пусти" + W + "*|впусти" + W + "*)(?!" + W + ")"
+					+ "|(?<!" + W + ")(хочу|можно|пойду|возьми|тащи)" + W + "*\\s+(меня\\s+)?(к\\s+тебе|в\\s+цитадел" + W + "*|в\\s+лаборатори" + W + "*)",
+			Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
 	private ChatDetector() {
 	}
@@ -123,5 +128,10 @@ public final class ChatDetector {
 	private static boolean calledBy(String t, int end) {
 		String rest = t.substring(end).stripLeading();
 		return !rest.isEmpty() && ",!?:".indexOf(rest.charAt(0)) >= 0;
+	}
+
+	/** Игрок просит Рика забрать его в Цитадель. Проверяется только для обращений к Рику. */
+	public static boolean portalRequest(String text) {
+		return PORTAL.matcher(text).find();
 	}
 }

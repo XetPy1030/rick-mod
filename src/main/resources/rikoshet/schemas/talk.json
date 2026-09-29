@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "say": { "type": "string" },
+    "remember": { "type": "string" },
+    "remember_kind": { "type": "string", "enum": ["none", "insult", "praise", "promise", "confession", "request"] },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["change_reputation", "give_quest", "complete_quest", "give_item"] },
+          "delta": { "type": ["integer", "null"] },
+          "reason": { "type": ["string", "null"] },
+          "quest": { "type": ["string", "null"] },
+          "item": { "type": ["string", "null"] },
+          "count": { "type": ["integer", "null"] }
+        },
+        "required": ["type", "delta", "reason", "quest", "item", "count"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["say", "remember", "remember_kind", "actions"],
+  "additionalProperties": false
+}

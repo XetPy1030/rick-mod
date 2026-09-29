@@ -11,6 +11,8 @@ base {
 
 repositories {
 	mavenCentral()
+	// Polymer: ресурспак и его раздача через порт игры (docs/architecture/content-delivery.md)
+	maven { url = 'https://maven.nucleoid.xyz' }
 }
 
 loom {
@@ -36,6 +38,13 @@ dependencies {
 	// SQLite — внутрь jar мода (jar-in-jar)
 	implementation "org.xerial:sqlite-jdbc:${project.sqlite_jdbc_version}"
 	include "org.xerial:sqlite-jdbc:${project.sqlite_jdbc_version}"
+
+	// Polymer: только ресурспак и autohost — предметов и блоков на этапе 3 нет, polymer-core не нужен
+	implementation "eu.pb4:polymer-resource-pack:${project.polymer_version}"
+	implementation "eu.pb4:polymer-autohost:${project.polymer_version}"
+	include "eu.pb4:polymer-common:${project.polymer_version}"
+	include "eu.pb4:polymer-resource-pack:${project.polymer_version}"
+	include "eu.pb4:polymer-autohost:${project.polymer_version}"
 
 	testImplementation platform("org.junit:junit-bom:${project.junit_version}")
 	testImplementation 'org.junit.jupiter:junit-jupiter'

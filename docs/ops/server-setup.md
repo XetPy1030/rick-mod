@@ -21,11 +21,21 @@
 
 | Что | Куда | Примечание |
 |---|---|---|
-| `rikoshet-<версия>.jar` | `mods/` | Polymer, sgui, Fantasy, Placeholder API и SQLite — внутри jar |
+| `rikoshet-<версия>.jar` | `mods/` | SQLite и Polymer (ресурспак и autohost) — внутри jar; sgui, Fantasy, Placeholder API — со своими этапами |
+| `auto-host.json` | `config/polymer/` | Polymer создаёт сам; `enabled: true` ставим руками, см. [ресурспак](#ресурспак) |
 | `rikoshet.json5` | `config/` | создаётся при первом старте ([configuration](configuration.md)) |
 | `rikoshet.db` и файл секретов | `rikoshet/` в корне сервера | не в `config/`, см. ниже |
 
 Все остальные моды, включая Fabric API, Chunky и spark, уже стоят в сборке ([tech-stack](../architecture/tech-stack.md#серверные-утилиты)). Мод на права не нужен: хватает уровней op ([commands](commands.md#права)).
+
+## Ресурспак
+
+С этапа 3 у мода есть ресурспак: скины NPC ([content-delivery](../architecture/content-delivery.md#ресурспак)). Раздаёт его Polymer autohost через порт игры, отдельный порт не нужен. На боевом сервере autohost по умолчанию **выключен** — включается только в dev-среде. После первого старта с модом 0.3+:
+
+1. Остановить сервер. В `config/polymer/auto-host.json` поставить `"enabled": true` и русский текст в `"message"`, например «Ресурспак «Рикошета»: скины персонажей. Без него Рик будет выглядеть как Стив.».
+2. Запустить. В логе — `[Polymer] Resource pack created successfully!`, строки `[пак] … enabled false` нет.
+
+Пак обязательный (`required` ставит мод): кто откажется его скачать, не зайдёт. Клиенту он приходит при входе, до пароля EasyAuth. Пак выключен — мод при старте пишет предупреждение в лог и в `/rickadmin ai status`.
 
 ## Ключ OpenRouter
 

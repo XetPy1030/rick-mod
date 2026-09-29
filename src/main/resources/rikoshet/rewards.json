@@ -1,0 +1,26 @@
+{
+  "_comment": "Таблица наград Рика (docs/design/characters/rick.md#награды). Ничего вне этой таблицы Рик выдать не может. level — с какого уровня «Полезности для науки» доступно: subject, lab, assistant, almost_morty, genius. kind: resource — ванильные ресурсы, artifact — именная вещь с описанием. Переопределяется файлом <сервер>/rikoshet/rewards.json.",
+  "rewards": [
+    {"id": "bread", "item": "minecraft:bread", "name": "хлеб", "min": 4, "max": 8, "level": "subject", "kind": "resource"},
+    {"id": "steak", "item": "minecraft:cooked_beef", "name": "стейк", "min": 4, "max": 8, "level": "subject", "kind": "resource"},
+    {"id": "stew", "item": "farmersdelight:beef_stew", "name": "говяжье рагу", "min": 1, "max": 2, "level": "subject", "kind": "resource"},
+    {"id": "iron", "item": "minecraft:iron_ingot", "name": "железные слитки", "min": 4, "max": 8, "level": "lab", "kind": "resource"},
+    {"id": "gold", "item": "minecraft:gold_ingot", "name": "золотые слитки", "min": 3, "max": 6, "level": "lab", "kind": "resource"},
+    {"id": "emerald", "item": "minecraft:emerald", "name": "изумруды", "min": 2, "max": 5, "level": "lab", "kind": "resource"},
+    {"id": "xp", "item": "minecraft:experience_bottle", "name": "пузырьки опыта", "min": 4, "max": 8, "level": "lab", "kind": "resource"},
+    {"id": "lapis", "item": "minecraft:lapis_lazuli", "name": "лазурит", "min": 8, "max": 16, "level": "lab", "kind": "resource"},
+    {"id": "golden_apple", "item": "minecraft:golden_apple", "name": "золотое яблоко", "min": 1, "max": 2, "level": "assistant", "kind": "resource"},
+    {"id": "diamond", "item": "minecraft:diamond", "name": "алмазы", "min": 1, "max": 2, "level": "assistant", "kind": "resource"},
+    {"id": "pearls", "item": "minecraft:ender_pearl", "name": "жемчуг Края", "min": 2, "max": 4, "level": "assistant", "kind": "resource"},
+    {"id": "diamonds", "item": "minecraft:diamond", "name": "алмазы", "min": 2, "max": 4, "level": "almost_morty", "kind": "resource"},
+    {"id": "enchanted_apple", "item": "minecraft:enchanted_golden_apple", "name": "зачарованное золотое яблоко", "min": 1, "max": 1, "level": "genius", "kind": "resource"},
+    {"id": "netherite_scrap", "item": "minecraft:netherite_scrap", "name": "незеритовый лом", "min": 1, "max": 2, "level": "genius", "kind": "resource"},
+    {"id": "flask", "item": "minecraft:honey_bottle", "name": "Фляжка Рика", "min": 1, "max": 1, "level": "lab", "kind": "artifact", "lore": ["Пахнет спиртом и порталом.", "Выпьешь — не жалуйся."]},
+    {"id": "pluto_pickaxe", "item": "minecraft:iron_pickaxe", "name": "Кирка, которой я копал на Плутоне", "min": 1, "max": 1, "level": "assistant", "kind": "artifact", "lore": ["Плутон — планета. Спорить бесполезно."], "enchantments": {"minecraft:efficiency": 2, "minecraft:unbreaking": 1}},
+    {"id": "portal_boots", "item": "minecraft:iron_boots", "name": "Ботинки для прыжков в портал", "min": 1, "max": 1, "level": "assistant", "kind": "artifact", "lore": ["Приземляться всё равно больно.", "Но уже не смертельно."], "enchantments": {"minecraft:feather_falling": 3}},
+    {"id": "space_helmet", "item": "minecraft:iron_helmet", "name": "Шлем космонавта-неудачника", "min": 1, "max": 1, "level": "assistant", "kind": "artifact", "lore": ["Прежний хозяин не долетел.", "Шлем не виноват."], "enchantments": {"minecraft:protection": 2, "minecraft:respiration": 1}},
+    {"id": "meeseeks_sword", "item": "minecraft:iron_sword", "name": "Меч Мисикса", "min": 1, "max": 1, "level": "almost_morty", "kind": "artifact", "lore": ["Очень хочет помочь.", "Не держи его долго — ему больно существовать."], "enchantments": {"minecraft:sharpness": 2, "minecraft:looting": 1}},
+    {"id": "prototype_bow", "item": "minecraft:crossbow", "name": "Черновик портальной пушки", "min": 1, "max": 1, "level": "almost_morty", "kind": "artifact", "lore": ["Порталы не открывает.", "Зато стреляет. Иногда туда, куда надо."], "enchantments": {"minecraft:quick_charge": 2, "minecraft:multishot": 1}},
+    {"id": "genius_pickaxe", "item": "minecraft:diamond_pickaxe", "name": "Кирка гения второго сорта", "min": 1, "max": 1, "level": "genius", "kind": "artifact", "lore": ["Рик признал тебя.", "Сквозь зубы, но признал."], "enchantments": {"minecraft:efficiency": 4, "minecraft:fortune": 2, "minecraft:unbreaking": 3}}
+  ]
+}

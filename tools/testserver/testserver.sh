@@ -38,6 +38,11 @@ cmd_prepare() {
   if [[ -n "${PAUSE_EMPTY:-}" ]]; then
     sed -i '' "s/^pause-when-empty-seconds=.*/pause-when-empty-seconds=$PAUSE_EMPTY/" "$WORK/server.properties"
   fi
+  # Ресурспак мода раздаёт Polymer autohost; вне dev-среды он выключен, пока не включишь в конфиге
+  if [[ ! -f "$WORK/config/polymer/auto-host.json" ]]; then
+    mkdir -p "$WORK/config/polymer"
+    printf '{\n  "enabled": true\n}\n' >"$WORK/config/polymer/auto-host.json"
+  fi
   # Конфиг мода по умолчанию с включёнными флагами: FEATURES="chronicle newspaper" testserver.sh prepare
   if [[ -n "${FEATURES:-}" ]]; then
     mkdir -p "$WORK/config"

@@ -1,0 +1,13 @@
+{
+  "type": "rikoshet:citadel",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "rikoshet:citadel",
+      "features": false,
+      "lakes": false,
+      "layers": [],
+      "structure_overrides": []
+    }
+  }
+}

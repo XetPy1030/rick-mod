@@ -1,6 +1,6 @@
 # Хранилище
 
-> **Статус:** этапы 1–2 реализованы (таблицы с пометкой этапа), остальное — черновик · **Этап:** 1–2 · **Решение:** [ADR 0004](../adr/0004-storage-sqlite.md) (принято)
+> **Статус:** этапы 1–3 реализованы (таблицы с пометкой этапа), остальное — черновик · **Этап:** 1–3 · **Решение:** [ADR 0004](../adr/0004-storage-sqlite.md) (принято)
 
 ## Где и как
 
@@ -50,18 +50,28 @@
 
 | Таблица | Поля | Для чего |
 |---|---|---|
-| `reputation` | `uuid`, `scale_id`, `value` | «Полезность для науки», Федерация, Цитадель |
+| `reputation` · этап 3 | `uuid`, `scale`, `value`, `updated` | репутации: пока одна шкала `science` — «Полезность для науки», −100…+100 ([rick](../design/characters/rick.md#репутация-полезность-для-науки)); Федерация и Цитадель — этап 7 |
+| `reputation_log` · этап 3 | `id`, `ts`, `day`, `uuid`, `scale`, `delta`, `value`, `source`, `reason` | каждое изменение: на сколько, что стало, откуда (`quest`, `talk`, `admin`) и за что |
 | `persona_memory` | `uuid`, `persona_id`, `summary`, `updated_at` | сжатая память |
 | `memory_fact` · этап 2 | `id`, `subject`, `slot`, `value`, `data`, `importance`, `confidence`, `first_ts`, `updated_ts`, `until_ts`, `source` | знания-слоты об игроке, паре или сервере: стиль, немезида, лучший друг, сюжетные линии. У слота одно текущее значение (`until_ts` пуст), прежние — история ([memory](memory.md)) |
-| `dialogue_log` · этап 1 | `id`, `uuid`, `persona_id`, `role`, `text`, `ts` | сырая история; `role` — `player`, `persona` или `note` (заметка `remember` / `memory_note`). В промпт идут последние 5 заметок. На этапе 1 таблица только читается: заметки пишут диалоги (этап 3) |
+| `dialogue_log` · этапы 1, 3 | `id`, `uuid`, `persona_id`, `role`, `text`, `ts` | сырая история; `role` — `player`, `persona` или `note` (заметка `remember` / `memory_note`). С этапа 3 сюда пишутся реплики разговора в лаборатории. В промпт идут последние 5 заметок |
 
-### Квесты и экономика
+### Цитадель, квесты и награды · этап 3
+
+Миграция `0005_citadel`.
 
 | Таблица | Поля | Для чего |
 |---|---|---|
-| `quest_state` | `uuid`, `quest_id`, `state`, `progress_json`, `started_at`, `finished_at` | активные и завершённые квесты |
-| `daily_experiment` | `date`, `experiment_json` | эксперимент дня |
-| `ledger` | `id`, `uuid`, `delta`, `reason`, `ts` | журнал шмекелей (нужен и при физических монетах — для аналитики) |
+| `kv` | `key`, `value`, `updated` | мелкое состояние мода: поставлена ли лаборатория (`citadel.placed`), сдвиги точек до пересохранения (`citadel.mark.*`) |
+| `citadel_return` | `uuid`, `dim`, `x`, `y`, `z`, `yaw`, `pitch`, `ts` | откуда игрок ушёл в Цитадель: туда вернёт портал обратно, и после перезапуска тоже |
+| `quest_state` | `id`, `uuid`, `quest`, `giver`, `day`, `state`, `taken`, `finished`, `baseline`, `target`, `spec` | квесты игроков: `active`, `done`, `failed`. Эксперимент дня — `quest` = `experiment` с днём в `day`. `baseline` — значение статистики при выдаче, `spec` — условие и награда JSON-ом на момент выдачи ([quests](../design/quests.md)) |
+| `reward_log` | `id`, `ts`, `day`, `uuid`, `giver`, `source`, `reward`, `item`, `count` | всё, что мод выдал: награды квестов (`quest:<id>`) и подарки (`gift`) |
+
+### Экономика
+
+| Таблица | Поля | Для чего |
+|---|---|---|
+| `ledger` | `id`, `uuid`, `delta`, `reason`, `ts` | журнал шмекелей (нужен и при физических монетах — для аналитики); этап 4 |
 
 ### Мир и ивенты
 

@@ -60,6 +60,17 @@ public final class DevCommand {
 						.then(Commands.literal("react")
 								.then(Commands.argument("nick", StringArgumentType.word())
 										.then(Commands.argument("kind", StringArgumentType.word()).executes(c -> chatReact(c, rt))))))
+				.then(Commands.literal("citadel")
+						.then(Commands.literal("npc").executes(c -> citadelNpc(c, rt))))
+				.then(Commands.literal("talk")
+						.then(Commands.argument("nick", StringArgumentType.word())
+								.executes(c -> talk(c, rt, null))
+								.then(Commands.argument("text", StringArgumentType.greedyString())
+										.executes(c -> talk(c, rt, StringArgumentType.getString(c, "text"))))))
+				.then(Commands.literal("give")
+						.then(Commands.argument("nick", StringArgumentType.word())
+								.then(Commands.argument("count", IntegerArgumentType.integer(1, 64))
+										.then(Commands.argument("item", StringArgumentType.greedyString()).executes(c -> give(c, rt))))))
 				.then(Commands.literal("chronicle")
 						.then(Commands.literal("cycle").executes(c -> cycle(c, rt)))
 						.then(Commands.literal("analyze")
@@ -78,6 +89,76 @@ public final class DevCommand {
 								.then(Commands.argument("nick", StringArgumentType.word())
 										.then(Commands.argument("text", StringArgumentType.greedyString())
 												.executes(c -> chat(c, rt)))))));
+	}
+
+	/** Поставить Рика без игрока в Цитадели: грузит чанк и зовёт тот же код, что и раз в секунду. */
+	private static int citadelNpc(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		ServerLevel level = r.citadel.level(r.server);
+		if (level == null || !r.citadel.ensure(r.server)) {
+			c.getSource().sendFailure(Component.literal("Цитадель не готова"));
+			return 0;
+		}
+		var m = r.citadel.marker(ru.xetpy.rikoshet.citadel.Citadel.RICK);
+		level.getChunk(m.pos());
+		var rick = r.npcs.ensureRick(level, m);
+		c.getSource().sendSuccess(() -> Component.literal(rick == null ? "Рика нет" : "Рик: " + rick.getUUID() + " в " + rick.blockPosition().toShortString()), false);
+		return rick == null ? 0 : 1;
+	}
+
+	private static final Map<String, FakePlayer> HUB_FAKES = new ConcurrentHashMap<>();
+
+	/** Фейковый игрок в Цитадели, в двух блоках перед Риком. Статистика у него общая с одноимённым фейком. */
+	private static FakePlayer hubFake(RikoshetRuntime r, String nick) {
+		return HUB_FAKES.computeIfAbsent(nick, n -> {
+			ServerLevel level = r.citadel.level(r.server);
+			FakePlayer p = FakePlayer.get(level, new GameProfile(UUIDUtil.createOfflinePlayerUUID(n), n));
+			var m = r.citadel.marker(ru.xetpy.rikoshet.citadel.Citadel.RICK);
+			var at = m.feet().add(ru.xetpy.rikoshet.citadel.Portals.forwardOf(m.yaw()).scale(2));
+			p.setPos(at.x, at.y, at.z);
+			return p;
+		});
+	}
+
+	/** Разговор с Риком от фейкового игрока: без текста — ПКМ, с текстом — реплика в чат. */
+	private static int talk(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt, String text) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null || !r.citadel.ensure(r.server)) {
+			return 0;
+		}
+		ServerLevel level = r.citadel.level(r.server);
+		var m = r.citadel.marker(ru.xetpy.rikoshet.citadel.Citadel.RICK);
+		level.getChunk(m.pos());
+		var rick = r.npcs.ensureRick(level, m);
+		FakePlayer p = hubFake(r, StringArgumentType.getString(c, "nick"));
+		r.auth.devMarkAuthenticated(p);
+		if (text == null || !r.talk.active(p.getUUID())) {
+			r.talk.start(p, rick);
+		}
+		if (text != null) {
+			r.log.info("<{}> {}", p.getScoreboardName(), text);
+			r.talk.onMessage(p, text);
+		}
+		return 1;
+	}
+
+	private static int give(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null || !r.citadel.ensure(r.server)) {
+			return 0;
+		}
+		FakePlayer p = hubFake(r, StringArgumentType.getString(c, "nick"));
+		Identifier id = Identifier.tryParse(StringArgumentType.getString(c, "item").strip());
+		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
+			c.getSource().sendFailure(Component.literal("нет предмета"));
+			return 0;
+		}
+		p.getInventory().add(new net.minecraft.world.item.ItemStack(BuiltInRegistries.ITEM.getValue(id), IntegerArgumentType.getInteger(c, "count")));
+		c.getSource().sendSuccess(() -> Component.literal("выдано " + p.getScoreboardName()), false);
+		return 1;
 	}
 
 	private static FakePlayer fake(RikoshetRuntime r, String nick) {

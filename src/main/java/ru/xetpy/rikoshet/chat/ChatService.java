@@ -65,13 +65,9 @@ public final class ChatService {
 	/** Ответ Рику без «рик» обычно короткий: «ну блин», «сам такой». */
 	static final int REPLY_MAX_WORDS = 8;
 	static final int RECALL_CHARS = 400;
-	static final int NOTES_PER_DAY = 3;
-	static final int NOTE_CHARS = 160;
 	/** На прямое обращение, когда ИИ не ответил, — заготовка с таким шансом, иначе молчание. */
 	static final double BUSY_CHANCE = 0.5;
-	/** Важность заметок из чата: всё выше порога эпизода памяти. Просьбы не храним. */
-	static final Map<String, Integer> NOTE_SCORE = Map.of("insult", 8, "praise", 6, "promise", 8, "confession", 7);
-	static final Set<String> RECALL_TAGS = Set.of(ChronicleEvent.CHAT_NOTE, "kind:insult", "kind:praise", "kind:promise", "kind:confession");
+	static final Set<String> RECALL_TAGS = NoteSaver.RECALL_TAGS;
 	private static final DateTimeFormatter HHMM = DateTimeFormatter.ofPattern("HH:mm");
 
 	enum Trigger {
@@ -116,6 +112,11 @@ public final class ChatService {
 	private final ChronicleService chronicle;
 	private final FlavorService flavor;
 	private final ChatReactions reactions;
+	private final NoteSaver noteSaver;
+	/** Игрок сейчас говорит с Риком в лаборатории — чат его не слушает. */
+	private java.util.function.Predicate<UUID> talking = u -> false;
+	/** «рик, забери меня» — портал в Цитадель вместо ответа ИИ. */
+	private java.util.function.Consumer<ServerPlayer> portal = p -> { };
 	private final ChatLimits limits = new ChatLimits();
 	private final Random rnd = new Random();
 	private final Deque<ChatLine> history = new ArrayDeque<>();
@@ -153,6 +154,13 @@ public final class ChatService {
 		this.chronicle = chronicle;
 		this.flavor = flavor;
 		this.reactions = new ChatReactions(stats, memory, rnd);
+		this.noteSaver = new NoteSaver(config, today, stats, chronicle);
+	}
+
+	/** Связь с Цитаделью: кто сейчас в разговоре у манекена и как открыть портал. */
+	public void citadel(java.util.function.Predicate<UUID> talking, java.util.function.Consumer<ServerPlayer> portal) {
+		this.talking = talking;
+		this.portal = portal;
 	}
 
 	public void stopping() {
@@ -172,6 +180,9 @@ public final class ChatService {
 		if (!auth.isAuthenticated(p) || players.optedOut(u)) {
 			return; // для персонажей такого игрока нет — ни ответа, ни строки в истории
 		}
+		if (talking.test(u)) {
+			return; // говорит с Риком в лаборатории — там свой разговор
+		}
 		String text = clip(raw.strip(), LINE_CHARS);
 		if (text.isEmpty()) {
 			return;
@@ -183,6 +194,10 @@ public final class ChatService {
 		}
 		Trigger t = trigger(p, text, now, cfg);
 		if (t == null) {
+			return;
+		}
+		if ((t == Trigger.ADDRESS || t == Trigger.CONVERSATION) && ChatDetector.portalRequest(text)) {
+			portal.accept(p);
 			return;
 		}
 		ChatLimits.Settings s = settings(cfg);
@@ -386,7 +401,7 @@ public final class ChatService {
 		JsonObject v = res.value();
 		String kind = str(v, "remember_kind", "none");
 		recordMood(kind, now);
-		saveNote(u, kind, str(v, "remember", ""), now, cfg);
+		noteSaver.save(u, kind, str(v, "remember", ""), now);
 		String say = str(v, "say", "").strip();
 		if (say.isEmpty()) {
 			silent++; // модель решила, что это не ей
@@ -414,25 +429,6 @@ public final class ChatService {
 		} else {
 			conversations.put(u, new Conversation(now + cfg.chat().conversationSeconds() * 1000L, turn));
 		}
-	}
-
-	/** Обиду, похвалу, обещание или признание — в память Рика событием летописи (docs/design/chat.md#память-что-запомнить). */
-	private void saveNote(UUID u, String kind, String note, long now, RikoshetConfig cfg) {
-		Integer score = NOTE_SCORE.get(kind);
-		if (score == null || note.isBlank()) {
-			return;
-		}
-		if (stats.increment(u, "chat.note") > NOTES_PER_DAY) {
-			return;
-		}
-		TextFilter.Result f = TextFilter.apply(note.strip(), NOTE_CHARS, cfg.content().blocklist());
-		if (!f.ok()) {
-			return;
-		}
-		JsonObject d = new JsonObject();
-		d.addProperty("text", f.text());
-		d.addProperty("kind", kind);
-		chronicle.record(new ChronicleEvent(now, today.get().toString(), u, ChronicleEvent.CHAT_NOTE, kind, score, d));
 	}
 
 	private void recordMood(String kind, long now) {

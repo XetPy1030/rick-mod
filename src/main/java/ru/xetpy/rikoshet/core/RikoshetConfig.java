@@ -26,7 +26,9 @@ public record RikoshetConfig(
 		Storage storage,
 		Chronicle chronicle,
 		Newspaper newspaper,
-		Chat chat
+		Chat chat,
+		Citadel citadel,
+		Quests quests
 ) {
 	public static final int PROTOCOL_VERSION = 1;
 
@@ -44,6 +46,8 @@ public record RikoshetConfig(
 		f.put("motd_tab", false);
 		f.put("chat", false);
 		f.put("roles_in_tab", false);
+		f.put("citadel", false);
+		f.put("quests", false);
 		f.put("voice", false);
 		f.put("visits", false);
 		f.put("mini_events", false);
@@ -110,6 +114,21 @@ public record RikoshetConfig(
 			double budgetShare,
 			boolean actions
 	) {
+	}
+
+	/** Цитадель (docs/architecture/worlds.md#цитадель): портал по вызову и разговор с Риком у манекена. */
+	public record Citadel(
+			int portalSeconds,
+			int portalCooldownSeconds,
+			int talkSeconds,
+			int talkDistance,
+			int talkCooldownSeconds,
+			int talkPerHour
+	) {
+	}
+
+	/** Квесты и награды Рика (docs/design/quests.md): сколько активных, сколько подарков. */
+	public record Quests(int maxActive, int giftsPerDay) {
 	}
 
 	public static final Map<String, AiRoute> DEFAULT_ROUTES;
@@ -266,10 +285,26 @@ public record RikoshetConfig(
 				chat.bool("actions", true));
 		chat.finish();
 
+		ConfigReader cit = r.section("citadel");
+		Citadel citadel = new Citadel(
+				cit.integer("portal_seconds", 15, 3, 120),
+				cit.integer("portal_cooldown_seconds", 60, 0, 3600),
+				cit.integer("talk_seconds", 60, 10, 600),
+				cit.integer("talk_distance", 10, 3, 64),
+				cit.integer("talk_cooldown_seconds", 4, 0, 120),
+				cit.integer("talk_per_hour", 30, 1, 600));
+		cit.finish();
+
+		ConfigReader qr = r.section("quests");
+		Quests quests = new Quests(
+				qr.integer("max_active", 2, 1, 10),
+				qr.integer("gifts_per_day", 1, 0, 20));
+		qr.finish();
+
 		r.reserve("personas", "visits", "voice");
 		r.finish();
 		return new RikoshetConfig(protocol, zone, java.util.Collections.unmodifiableMap(features), ai, flavor, content, perf, storage,
-				chronicle, newspaper, chatCfg);
+				chronicle, newspaper, chatCfg, citadel, quests);
 	}
 
 	private static final List<String> EFFORTS = List.of("none", "minimal", "low", "medium", "high", "default");

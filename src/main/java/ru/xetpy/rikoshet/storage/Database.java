@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Database implements AutoCloseable {
 	/** Миграции по порядку; файлы — rikoshet/db/migrations/<имя>.sql. Номер версии = позиция + 1. */
-	static final List<String> MIGRATIONS = List.of("0001_init", "0002_chronicle", "0003_builds", "0004_pools");
+	static final List<String> MIGRATIONS = List.of("0001_init", "0002_chronicle", "0003_builds", "0004_pools", "0005_citadel");
 
 	@FunctionalInterface
 	public interface Work<T> {

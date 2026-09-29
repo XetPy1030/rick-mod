@@ -1,0 +1,5 @@
+{
+  "criteria": {
+    "done": { "trigger": "minecraft:impossible" }
+  }
+}

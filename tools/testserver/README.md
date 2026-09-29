@@ -25,7 +25,7 @@ tools/testserver/testserver.sh stop
 | `WAIT` | 2 | сколько секунд `cmd` ждёт вывод |
 | `MEM` | 4G | `-Xms` и `-Xmx` |
 | `PAUSE_EMPTY` | как в сборке (60) | `pause-when-empty-seconds` копии; `0` — для `profile` и летописи с фейковыми игроками. Для `prepare` |
-| `FEATURES` | — | флаги, которые включить: `FEATURES="chronicle newspaper"` кладёт в копию конфиг мода по умолчанию с этими флагами. Для `prepare` |
+| `FEATURES` | — | флаги, которые включить: `FEATURES="chronicle newspaper"` кладёт в копию конфиг мода по умолчанию с этими флагами. Для `prepare`. Без `FEATURES` конфиг мода из копии стирается вместе с остальным `config/`: флаги — по умолчанию |
 | `RIKOSHET_SERVER_SRC`, `RIKOSHET_TEST_DIR` | см. скрипт | откуда копировать и куда |
 
 Ключ передаём только через окружение, в файлы копии не пишем:
@@ -60,6 +60,23 @@ $T cmd "rickdev chronicle cycle"            # снимок сейчас, не ж
 $T cmd "rickadmin chronicle player dimon_228"
 $T cmd "rickdev chronicle analyze $(date +%F)"   # итоги дня — в лог
 ```
+
+## Цитадель и разговор с Риком
+
+`prepare` включает в копии Polymer autohost (`config/polymer/auto-host.json`), иначе пак не раздаётся. С `-Drikoshet.dev=true` запрос разговора целиком пишется в лог.
+
+```sh
+FEATURES="citadel quests chat chronicle" PAUSE_EMPTY=0 $T prepare
+OPENROUTER_API_KEY=… $T start
+$T cmd "rickadmin citadel status"              # точки, эксперимент дня
+$T cmd "rickdev citadel npc"                   # Рик на месте без игрока
+WAIT=10 $T cmd "rickdev talk dimon_228"        # ПКМ: Рик встречает
+WAIT=12 $T cmd "rickdev talk dimon_228 рик, есть работа?"
+$T cmd "rickdev give dimon_228 4 minecraft:honeycomb"
+WAIT=12 $T cmd "rickdev talk dimon_228 принёс"  # сдача: «[квесты] … сдал»
+```
+
+Фейковый игрок разговора стоит в Цитадели в двух блоках перед Риком. Скин, портал и режим приключения видно только живым клиентом.
 
 ## Замер нагрузки
 

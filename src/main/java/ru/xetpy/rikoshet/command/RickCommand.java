@@ -29,6 +29,8 @@ public final class RickCommand {
 				.then(Commands.literal("who").executes(c -> who(c, rt)))
 				.then(Commands.literal("me").executes(c -> me(c, rt)))
 				.then(Commands.literal("news").executes(c -> news(c, rt)))
+				.then(CitadelCommands.player(rt))
+				.then(CitadelCommands.science(rt))
 				.then(Commands.literal("report")
 						.executes(c -> report(c, rt, null))
 						.then(Commands.argument("comment", StringArgumentType.greedyString())
@@ -42,6 +44,8 @@ public final class RickCommand {
 				/rick who — кто есть кто среди тех, кто онлайн.
 				/rick me — что ты сегодня делал, по записям летописи.
 				/rick news — свежий «Межпространственный вестник».
+				/rick citadel — Рик откроет портал в Цитадель. Или напиши в чат «рик, забери меня».
+				/rick science — твоя «Полезность для науки» и задания Рика.
 				/rick report [комментарий] — пожаловаться админу на последнюю реплику.""").withStyle(ChatFormatting.GRAY), false);
 		return 1;
 	}

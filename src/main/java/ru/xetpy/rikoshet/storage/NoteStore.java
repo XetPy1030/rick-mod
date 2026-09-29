@@ -64,6 +64,21 @@ public final class NoteStore {
 		});
 	}
 
+	/** Реплика разговора в лаборатории — в сырую историю: role player или persona. Живёт dialogue_retention_days. */
+	public void line(UUID player, String persona, String role, String text, long now) {
+		db.execute("диалог", c -> {
+			try (PreparedStatement st = c.prepareStatement(
+					"INSERT INTO dialogue_log (uuid, persona_id, role, text, ts) VALUES (?, ?, ?, ?, ?)")) {
+				st.setString(1, player.toString());
+				st.setString(2, persona);
+				st.setString(3, role);
+				st.setString(4, text);
+				st.setLong(5, now);
+				st.executeUpdate();
+			}
+		});
+	}
+
 	private void push(String key, String note) {
 		Deque<String> d = notes.computeIfAbsent(key, k -> new ArrayDeque<>());
 		synchronized (d) {

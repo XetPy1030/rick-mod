@@ -67,4 +67,15 @@ class ChatDetectorTest {
 		assertFalse(ChatDetector.addressedToOther("мортис", names));
 		assertEquals(2, ChatDetector.wordCount("ну блин!!"));
 	}
+
+	@Test
+	void portalRequest() {
+		for (String yes : new String[] {"рик, забери меня", "рик открой портал", "рик тп в цитадель", "рик, телепортни", "Рик, заберёшь?",
+				"рик, хочу к тебе в лабораторию", "рик пусти в цитадель", "рик, можно в цитадель?"}) {
+			org.junit.jupiter.api.Assertions.assertTrue(ChatDetector.portalRequest(yes), yes);
+		}
+		for (String no : new String[] {"рик, как дела в цитадели?", "рик ты тупой", "рик, где алмазы", "рик, тпру", "рик, забор сломали"}) {
+			org.junit.jupiter.api.Assertions.assertFalse(ChatDetector.portalRequest(no), no);
+		}
+	}
 }
