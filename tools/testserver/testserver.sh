@@ -30,7 +30,9 @@ cmd_prepare() {
     "$SRC/" "$WORK/"
   (cd "$REPO" && ./gradlew -q build -x test)
   rm -f "$WORK"/mods/rikoshet-*.jar
-  cp "$REPO"/build/libs/rikoshet-*.jar "$WORK/mods/"
+  # Только jar текущей версии: в build/libs могут лежать старые, а два jar мода — падение на старте
+  local version; version="$(sed -n 's/^mod_version=//p' "$REPO/gradle.properties")"
+  cp "$REPO/build/libs/rikoshet-$version.jar" "$WORK/mods/"
   # Фейковые игроки /rickdev не входят в список игроков, и пустой сервер встаёт на паузу;
   # для замеров нагрузки паузу можно выключить: PAUSE_EMPTY=0 testserver.sh prepare
   if [[ -n "${PAUSE_EMPTY:-}" ]]; then

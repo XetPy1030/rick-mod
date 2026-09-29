@@ -23,3 +23,5 @@
 - Ключ OpenRouter — только через переменную окружения `OPENROUTER_API_KEY` или `rikoshet/secrets.json5` на сервере ([server-setup](docs/ops/server-setup.md#ключ-openrouter)). Никогда в git, в конфиге или в архивах сборки.
 
 Поменял поведение в коде — поправь соответствующий документ в том же коммите.
+
+Перед выкладкой — поднять `mod_version` (минорная — этап, патч — исправления) и записать изменения в [CHANGELOG](CHANGELOG.md) ([выкладка](docs/ops/server-setup.md#выкладка-и-обновление-мода)).

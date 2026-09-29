@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +123,10 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 				DevCommand.register(dispatcher, Rikoshet::runtime);
 			}
 		});
-		LOG.info("Рикошет загружен");
+		// Версия в логе — чтобы по latest.log было видно, какая сборка стоит на сервере
+		String version = FabricLoader.getInstance().getModContainer("rikoshet")
+				.map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("?");
+		LOG.info("Рикошет {} загружен", version);
 	}
 
 	private static void safe(String what, Runnable action) {
