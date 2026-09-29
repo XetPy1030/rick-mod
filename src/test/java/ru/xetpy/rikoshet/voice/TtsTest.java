@@ -4,27 +4,46 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TtsTest {
+	private static boolean ok(String text, String transcript) {
+		return Tts.match(text, transcript).ok(0.8);
+	}
+
 	@Test
 	void verbatimReadIsFullMatch() {
-		assertEquals(1.0, Tts.fidelity("Ты опять здесь? Я думал, тебя съели.", "Ты опять здесь?! Я думал — тебя съели..."), 1e-9);
+		assertEquals(1.0, Tts.match("Ты опять здесь? Я думал, тебя съели.", "Ты опять здесь?! Я думал — тебя съели...").recall(), 1e-9);
+		assertTrue(ok("Ты опять здесь? Я думал, тебя съели.", "Ты опять здесь?! Я думал — тебя съели..."));
 	}
 
 	@Test
 	void stageDirectionsAndYoAreIgnored() {
-		assertEquals(1.0, Tts.fidelity("Это не ошибка, это *рыг* эксперимент.", "Это не ошибка, это эксперимент. *рыгает*"), 1e-9);
-		assertEquals(1.0, Tts.fidelity("Всё, пьян", "все пьян"), 1e-9);
+		assertTrue(ok("Это не ошибка, это *рыг* эксперимент.", "Это не ошибка, это эксперимент. *рыгает*"));
+		assertTrue(ok("Всё, пьян", "все пьян"));
 	}
 
 	@Test
-	void improvisationFallsBelowThreshold() {
+	void nickSpokenInRussianAndCutWordsPass() {
+		// Копия сервера 29.09: ник по-русски, «оборуд…», «экспе…» — модель прочитала верно, сверка 0,72 отбросила зря
+		assertTrue(ok("kate_cat, пальцем в оборудование не тычь. Хочешь быть полезным — принеси 4 пчелиные соты для эксперимента дня. Только сегодня.",
+				"Кейт_кэт, *хрип* пальцем в оборуд... не тычь! Хочешь быть полезным – принеси 4 пчелиные соты для экспе... дня. *рюк* Только с-егодня!"));
+	}
+
+	@Test
+	void improvisationIsRejected() {
 		// С образцов 29.09: модель ответила вместо того, чтобы прочитать
-		assertTrue(Tts.fidelity("Это не ошибка, это *рыг* эксперимент. Ошибка — это ты.",
-				"Понял, сейчас постараюсь озвучить в определённом стиле.") < 0.8);
+		assertFalse(ok("Это не ошибка, это *рыг* эксперимент. Ошибка — это ты.", "Понял, сейчас постараюсь озвучить в определённом стиле."));
 		// …и дописала своё
-		assertTrue(Tts.fidelity("Уаббалаббадабдаб!", "Уаббалаббадабдаб! Правда? Ну слушай, я тебе сейчас покажу, как всё работает") < 0.8);
+		assertFalse(ok("Уаббалаббадабдаб!", "Уаббалаббадабдаб! Правда? Ну слушай, я тебе сейчас покажу, как всё работает"));
+		assertFalse(ok("Ладно… ты молодец. Не привыкай.", "Ладно… ты молодец. Не привыкай. Реально задолбало, всё, я пошёл отсюда, пока вы тут все не сдохли"));
+	}
+
+	@Test
+	void shortCutsDoNotCount() {
+		assertFalse(Tts.same("по", "пока"), "обрывок короче 4 букв — не слово");
+		assertTrue(Tts.same("экспе", "эксперимента"));
 	}
 
 	@Test

@@ -5,6 +5,9 @@ import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,13 +41,58 @@ public final class Npcs {
 	static final float HEAD_LIMIT = 60;
 
 	private final Logger log;
+	private final java.time.Clock clock;
 	private final Citadel citadel;
 	/** Рик, найденный в последний раз, пока в Цитадели есть игроки; иначе null. */
 	private Mannequin current;
+	/** Сколько ответов Рика в работе: ждём текст или звук. Больше нуля — над ним «думает…». */
+	private int thinking;
+	/** До какого момента Рик говорит вслух — над ним «♪». */
+	private long speakingUntil;
+	private int dots;
 
-	public Npcs(Logger log, Citadel citadel) {
+	public Npcs(Logger log, java.time.Clock clock, Citadel citadel) {
 		this.log = log;
+		this.clock = clock;
 		this.citadel = citadel;
+	}
+
+	/** Ответ Рика пошёл в работу (+1) или готов (−1). Главный поток. */
+	public void thinking(MinecraftServer server, int delta) {
+		thinking = Math.max(0, thinking + delta);
+		refresh(server);
+	}
+
+	/** Рик говорит вслух до этого момента. Главный поток. */
+	public void speakingUntil(MinecraftServer server, long until) {
+		speakingUntil = Math.max(speakingUntil, until);
+		refresh(server);
+	}
+
+	public boolean busy() {
+		return thinking > 0 || clock.millis() < speakingUntil;
+	}
+
+	/** Имя над Риком: «Рик», «Рик думает…» пока ждём ответ, «Рик ♪» пока звучит голос. */
+	Component name() {
+		MutableComponent n = Component.literal("Рик");
+		if (clock.millis() < speakingUntil) {
+			return n.append(Component.literal(" ♪").withStyle(ChatFormatting.GREEN));
+		}
+		if (thinking > 0) {
+			return n.append(Component.literal(" думает" + ".".repeat(dots % 3 + 1)).withStyle(ChatFormatting.GRAY));
+		}
+		return n;
+	}
+
+	private void refresh(MinecraftServer server) {
+		Mannequin rick = current(server);
+		if (rick != null) {
+			Component name = name();
+			if (!name.equals(rick.getCustomName())) {
+				rick.setCustomName(name);
+			}
+		}
 	}
 
 	public static boolean isRick(Entity e) {
@@ -73,6 +121,8 @@ public final class Npcs {
 		if (rick != null) {
 			look(level, rick, m);
 			current = rick;
+			dots++;
+			refresh(server);
 		}
 	}
 

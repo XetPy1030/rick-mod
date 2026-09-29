@@ -136,7 +136,7 @@ public record RikoshetConfig(
 	 * Голос персонажей (docs/design/voice.md): радиус, срок на озвучку, порог совпадения расшифровки
 	 * с текстом, голос и манера по персонажу.
 	 */
-	public record Voice(int radiusBlocks, int ttsTimeoutSeconds, double minFidelity, Map<String, VoiceSpec> voices) {
+	public record Voice(int radiusBlocks, int ttsTimeoutSeconds, double minFidelity, boolean syncText, Map<String, VoiceSpec> voices) {
 		public VoiceSpec of(String persona) {
 			return voices.get(persona);
 		}
@@ -320,6 +320,7 @@ public record RikoshetConfig(
 		int radius = vr.integer("radius_blocks", 16, 4, 64);
 		int ttsTimeout = vr.integer("tts_timeout_seconds", 5, 1, 30);
 		double minFidelity = vr.number("min_fidelity", 0.8, 0, 1);
+		boolean syncText = vr.bool("sync_text", true);
 		Map<String, VoiceSpec> voices = new LinkedHashMap<>(DEFAULT_VOICES);
 		ConfigReader vv = vr.section("voices");
 		for (String persona : vv.keys()) {
@@ -331,7 +332,7 @@ public record RikoshetConfig(
 		}
 		vr.reserve("max_utterance_seconds", "silence_end_ms");
 		vr.finish();
-		Voice voice = new Voice(radius, ttsTimeout, minFidelity, java.util.Collections.unmodifiableMap(voices));
+		Voice voice = new Voice(radius, ttsTimeout, minFidelity, syncText, java.util.Collections.unmodifiableMap(voices));
 
 		r.reserve("personas", "visits");
 		r.finish();

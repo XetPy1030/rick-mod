@@ -138,22 +138,48 @@ public final class Tts {
 	}
 
 	/**
-	 * Насколько расшифровка совпадает с текстом по словам: 2·НОП / (длина + длина), 0..1. Ремарки в
-	 * звёздочках не считаем — их модель изображает звуком.
+	 * Совпадение расшифровки с текстом. recall — доля слов текста, прозвучавших по порядку; extra —
+	 * сколько слов модель добавила от себя. Ремарки в звёздочках не считаем — их модель изображает
+	 * звуком; ники латиницей тоже — их она произносит по-русски («Кейт кэт»). Обрывок засчитывается,
+	 * если он начало слова: манера Рика — обрывать фразы («оборуд…»).
 	 */
-	public static double fidelity(String text, String transcript) {
-		List<String> a = words(text);
+	public record Match(double recall, int extra, int words) {
+		/** Прочитано почти всё и почти ничего не добавлено. */
+		public boolean ok(double minRecall) {
+			return recall >= minRecall && extra <= Math.max(MIN_EXTRA, (int) Math.ceil(words * EXTRA_SHARE));
+		}
+	}
+
+	static final int MIN_EXTRA = 3;
+	static final double EXTRA_SHARE = 0.25;
+	private static final Pattern LATIN = Pattern.compile("[a-z]");
+
+	public static Match match(String text, String transcript) {
+		List<String> a = words(text).stream().filter(w -> !LATIN.matcher(w).find()).toList();
 		List<String> b = words(transcript);
-		if (a.isEmpty() && b.isEmpty()) {
-			return 1;
+		if (a.isEmpty()) {
+			return new Match(1, Math.max(0, b.size() - 2), 0);
 		}
 		int[][] lcs = new int[a.size() + 1][b.size() + 1];
 		for (int i = 1; i <= a.size(); i++) {
 			for (int j = 1; j <= b.size(); j++) {
-				lcs[i][j] = a.get(i - 1).equals(b.get(j - 1)) ? lcs[i - 1][j - 1] + 1 : Math.max(lcs[i - 1][j], lcs[i][j - 1]);
+				lcs[i][j] = same(a.get(i - 1), b.get(j - 1)) ? lcs[i - 1][j - 1] + 1 : Math.max(lcs[i - 1][j], lcs[i][j - 1]);
 			}
 		}
-		return 2.0 * lcs[a.size()][b.size()] / (a.size() + b.size());
+		int m = lcs[a.size()][b.size()];
+		// Слова ника, произнесённые по-русски, — не отсебятина
+		int nick = words(text).size() - a.size();
+		return new Match((double) m / a.size(), Math.max(0, b.size() - m - nick), a.size());
+	}
+
+	/** Одно слово или обрывок: короче — начало длинного, от 4 букв. */
+	static boolean same(String x, String y) {
+		if (x.equals(y)) {
+			return true;
+		}
+		String s = x.length() <= y.length() ? x : y;
+		String l = s == x ? y : x;
+		return s.length() >= 4 && l.startsWith(s);
 	}
 
 	static List<String> words(String s) {

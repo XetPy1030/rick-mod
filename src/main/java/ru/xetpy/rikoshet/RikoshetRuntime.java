@@ -142,7 +142,7 @@ public final class RikoshetRuntime {
 		returns.load();
 		citadel = new Citadel(log, clock, kv);
 		portals = new Portals(log, clock, citadel, returns);
-		npcs = new Npcs(log, citadel);
+		npcs = new Npcs(log, clock, citadel);
 		portals.onArrive(p -> RickAdvancements.award(p, RickAdvancements.VISIT));
 		reputation = new Reputation(db);
 		reputation.load();
@@ -188,8 +188,9 @@ public final class RikoshetRuntime {
 				flavor, quests, reputation);
 		// Ответ на «забери меня» — следующей задачей: в чате он встанет после сообщения игрока
 		chat.citadel(talk::active, p -> server.schedule(server.wrapRunnable(() -> portalRequest(p))));
-		voice = new ru.xetpy.rikoshet.voice.VoiceService(log, clock, this::config, ai, players, server);
-		talk.voice(text -> voice.speak(npcs.current(server), "rick", text));
+		voice = new ru.xetpy.rikoshet.voice.VoiceService(log, clock, this::config, ai, players, server,
+				d -> npcs.thinking(server, d), until -> npcs.speakingUntil(server, until));
+		talk.voice((text, show) -> voice.speak(npcs.current(server), "rick", text, show), d -> npcs.thinking(server, d));
 		newspaper = new NewspaperService(log, clock, this::config, this::today, ai, prompts, chronicle, memory, new NewspaperStore(db),
 				players, flavor::rosterBlock, flavor::canSee, paths.dataDir());
 		batch = new BatchService(log, clock, ai, db, server);

@@ -93,6 +93,8 @@ public final class TalkService {
 		int turns;
 		int reputation;
 		boolean inFlight;
+		/** Ответ в работе: ждём текст или звук. Пока ждём — «Рик думает…», новых запросов нет. */
+		boolean waiting;
 		long lastReply;
 		final List<String> history = new ArrayList<>();
 		final List<String> pending = new ArrayList<>();
@@ -130,8 +132,10 @@ public final class TalkService {
 	private final Map<UUID, Deque<Long>> hourly = new HashMap<>();
 	private int replies;
 	private int fallbacks;
-	/** Озвучка живой реплики: текст уже в чате, звук догоняет (docs/design/voice.md). */
-	private java.util.function.Consumer<String> voice = text -> { };
+	/** Сказать живую реплику: озвучка сама решает, когда вывести текст (docs/design/voice.md). */
+	private java.util.function.BiConsumer<String, Runnable> voice = (text, show) -> show.run();
+	/** Запрос к ИИ начат (+1) или закончен (−1): над Риком «думает…». */
+	private java.util.function.IntConsumer thinking = d -> { };
 
 	public TalkService(Logger log, Clock clock, Supplier<RikoshetConfig> config, Supplier<LocalDate> today, AiService ai, PromptLibrary prompts,
 			PlayerStore players, RoleStore roles, DailyStats stats, NoteStore notes, Speaker speaker, AuthTracker auth, MemoryService memory,
@@ -156,8 +160,9 @@ public final class TalkService {
 		this.noteSaver = new NoteSaver(config, today, stats, chronicle);
 	}
 
-	public void voice(java.util.function.Consumer<String> voice) {
+	public void voice(java.util.function.BiConsumer<String, Runnable> voice, java.util.function.IntConsumer thinking) {
 		this.voice = voice;
+		this.thinking = thinking;
 	}
 
 	public boolean active(UUID u) {
@@ -226,7 +231,7 @@ public final class TalkService {
 		long now = clock.millis();
 		long cooldown = config.get().citadel().talkCooldownSeconds() * 1000L;
 		for (Talk t : List.copyOf(talks.values())) {
-			if (!t.inFlight && !t.pending.isEmpty() && now - t.pendingSince >= DEBOUNCE_MS && now - t.lastReply >= cooldown) {
+			if (!t.waiting && !t.pending.isEmpty() && now - t.pendingSince >= DEBOUNCE_MS && now - t.lastReply >= cooldown) {
 				List<String> lines = List.copyOf(t.pending);
 				t.pending.clear();
 				request(server, t, lines);
@@ -246,7 +251,10 @@ public final class TalkService {
 			Talk t = it.next();
 			ServerPlayer p = t.player;
 			boolean gone = p.isRemoved() || !Citadel.in(p) || rick == null || p.distanceToSqr(rick) > max * max;
-			boolean silent = !t.inFlight && now - t.lastActivity > cfg.citadel().talkSeconds() * 1000L;
+			boolean silent = !t.waiting && now - t.lastActivity > cfg.citadel().talkSeconds() * 1000L;
+			if (t.waiting && !gone) {
+				p.sendOverlayMessage(Component.literal("Рик думает" + ".".repeat((int) (now / 1000 % 3) + 1)).withStyle(ChatFormatting.GRAY));
+			}
 			if (gone || silent || !cfg.feature("citadel")) {
 				it.remove();
 				if (!p.isRemoved()) {
@@ -292,6 +300,8 @@ public final class TalkService {
 		}
 		t.turns++;
 		t.inFlight = true;
+		t.waiting = true;
+		thinking.accept(1);
 		String system = PromptBuilder.system(prompts, flavor.rosterBlock(), PERSONA.id(), "talk")
 				+ LineStyle.tail(rnd, flavor.roleNotes(server, u), List.of());
 		String user = PromptBuilder.user(memoryBlock(u), context(server, t, p, cfg, day, now, lines == null),
@@ -307,14 +317,17 @@ public final class TalkService {
 	private void deliver(MinecraftServer server, Talk t, ActionValidator.Scope scope, AiResult res, Throwable err) {
 		t.inFlight = false;
 		t.lastReply = clock.millis();
+		thinking.accept(-1);
 		RikoshetConfig cfg = config.get();
 		ServerPlayer p = t.player;
 		if (p.isRemoved() || players.optedOut(t.uuid)) {
+			t.waiting = false;
 			return;
 		}
 		if (err != null || res == null || !res.ok()) {
 			log.debug("[разговор] без ответа: {}", err != null ? err.toString() : res == null ? "null" : res.status() + " " + res.error());
 			fallbacks++;
+			t.waiting = false;
 			say(server, t, fallback(p, t.turns <= 1 ? "hello" : "busy_talk"));
 			return;
 		}
@@ -325,11 +338,18 @@ public final class TalkService {
 		String say = str(v, "say", "").strip();
 		TextFilter.Result f = say.isEmpty() ? null : TextFilter.apply(say, cfg.content().maxMessageLength(), cfg.content().blocklist());
 		if (f != null && f.ok()) {
-			say(server, t, f.text());
-			voice.accept(f.text());
+			String text = f.text();
+			voice.accept(text, () -> {
+				t.waiting = false;
+				t.lastReply = clock.millis();
+				say(server, t, text);
+			});
 			replies++;
-		} else if (f != null) {
-			log.info("[разговор] реплика не прошла фильтр: {}", f.reason());
+		} else {
+			t.waiting = false;
+			if (f != null) {
+				log.info("[разговор] реплика не прошла фильтр: {}", f.reason());
+			}
 		}
 		ActionValidator.Outcome o = ActionValidator.validate(v, scope, cfg.content().blocklist());
 		if (!o.rejected().isEmpty()) {
