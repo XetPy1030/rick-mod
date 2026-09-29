@@ -256,9 +256,11 @@ public final class TalkService {
 		}
 	}
 
+	/** Реплика на «пока» — следующей задачей сервера: в чате она встанет после сообщения игрока. */
 	private void end(MinecraftServer server, Talk t, String key) {
 		talks.remove(t.uuid);
-		say(server, t, fallback(t.player, key));
+		String line = fallback(t.player, key);
+		server.schedule(server.wrapRunnable(() -> say(server, t, line)));
 	}
 
 	public void stopping() {

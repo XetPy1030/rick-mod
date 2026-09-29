@@ -186,7 +186,8 @@ public final class RikoshetRuntime {
 		chat = new ChatService(log, clock, this::config, this::today, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle, flavor);
 		talk = new TalkService(log, clock, this::config, this::today, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle,
 				flavor, quests, reputation);
-		chat.citadel(talk::active, this::portalRequest);
+		// Ответ на «забери меня» — следующей задачей: в чате он встанет после сообщения игрока
+		chat.citadel(talk::active, p -> server.schedule(server.wrapRunnable(() -> portalRequest(p))));
 		voice = new ru.xetpy.rikoshet.voice.VoiceService(log, clock, this::config, ai, players, server);
 		talk.voice(text -> voice.speak(npcs.current(server), "rick", text));
 		newspaper = new NewspaperService(log, clock, this::config, this::today, ai, prompts, chronicle, memory, new NewspaperStore(db),

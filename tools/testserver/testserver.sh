@@ -25,7 +25,7 @@ cmd_prepare() {
   mkdir -p "$WORK"
   # Данные EasyAuth (хеши паролей) и логи не копируем; мир — копией, исходник не трогаем
   rsync -a --delete \
-    --exclude EasyAuth/ --exclude logs/ --exclude crash-reports/ --exclude rikoshet/ \
+    --exclude /EasyAuth/ --exclude /logs/ --exclude /crash-reports/ --exclude /rikoshet/ \
     --exclude 'mods/rikoshet-*.jar' --exclude .console --exclude .pid \
     "$SRC/" "$WORK/"
   (cd "$REPO" && ./gradlew -q build -x test)
