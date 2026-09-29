@@ -25,6 +25,10 @@ Thumbs.db
 .env
 .env.*
 secrets/
+# Локальные доступы (SFTP, тестовые ключи) — только на машине разработчика
+local-artifacts/
+*sftp*.txt
+*token*.txt
 
 # Локальный тестовый сервер
 server/

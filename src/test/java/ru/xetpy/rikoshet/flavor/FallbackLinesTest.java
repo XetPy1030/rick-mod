@@ -111,4 +111,10 @@ class FallbackLinesTest {
 		org.junit.jupiter.api.Assertions.assertEquals("Лава, Джерри.", line);
 		org.junit.jupiter.api.Assertions.assertEquals(java.util.List.of("Лава, {player}."), picked, "пул узнаёт о показе до подстановки");
 	}
+
+	@Test
+	void killerAtStartIsCapitalized() {
+		assertEquals("Зомби — один, salt115 — ноль.", FallbackLines.fill("{killer} — один, {player} — ноль.", Map.of("killer", "зомби", "player", "salt115")));
+		assertEquals("salt115, зомби передаёт привет.", FallbackLines.fill("{player}, {killer} передаёт привет.", Map.of("killer", "зомби", "player", "salt115")));
+	}
 }

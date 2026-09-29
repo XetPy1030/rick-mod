@@ -36,8 +36,9 @@
     batch_hour: 3,                 // час ночной генерации пулов по timezone
     // models: первая — основная, дальше запасные; @effort — размышления для одной модели.
     // timeout_seconds — на все попытки вместе; флейвор не успел — выводится заготовка.
+    // hedge_seconds — гонка: первая модель молчит столько — параллельно стартует вторая, берётся первый ответ.
     routes: {
-      flavor:    { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024, timeout_seconds: 5 },
+      flavor:    { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024, timeout_seconds: 5, hedge_seconds: 2.5 },
       dialogue:  { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536, timeout_seconds: 15 },
       newspaper: { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096, timeout_seconds: 120 },
       pools:     { models: ["moonshotai/kimi-k3", "anthropic/claude-sonnet-5"], reasoning: "low", max_tokens: 3072, timeout_seconds: 120 },

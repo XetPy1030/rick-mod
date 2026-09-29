@@ -70,8 +70,13 @@ class AiServiceTest {
 	}
 
 	private AiService service(int timeoutSeconds, double budget, boolean overloaded) throws Exception {
+		return service(timeoutSeconds, budget, overloaded, 0);
+	}
+
+	private AiService service(int timeoutSeconds, double budget, boolean overloaded, int hedgeMillis) throws Exception {
 		RikoshetConfig d = RikoshetConfig.defaults();
-		AiRoute flavor = new AiRoute("flavor", List.of(ModelSpec.parse("a/main", null), ModelSpec.parse("b/backup", null)), "none", 256, timeoutSeconds);
+		AiRoute flavor = new AiRoute("flavor", List.of(ModelSpec.parse("a/main", null), ModelSpec.parse("b/backup", null)), "none", 256,
+				timeoutSeconds, hedgeMillis);
 		RikoshetConfig.Ai ai = new RikoshetConfig.Ai(true, "http://127.0.0.1:" + http.getAddress().getPort() + "/api/v1",
 				budget, 2, 100, Map.of("flavor", flavor), false, 3);
 		RikoshetConfig cfg = new RikoshetConfig(d.protocolVersion(), d.timezone(), d.features(), ai, d.flavor(), d.content(), d.performance(), d.storage(),
@@ -133,6 +138,45 @@ class AiServiceTest {
 		AiResult r = call(s);
 		assertEquals(AiStatus.TIMEOUT, r.status());
 		assertTrue(r.latencyMs() < 2000, "future завершился по дедлайну: " + r.latencyMs());
+	}
+
+	@Test
+	void slowMainRacesBackup() throws Exception {
+		reply = m -> m.equals("a/main") ? new Object[] {-1500, ok("{\"say\":\"основная\"}", 0.001)} : new Object[] {200, ok("{\"say\":\"запасная\"}", 0.002)};
+		AiService s = service(5, 1, false, 200);
+		AiResult r = call(s);
+		assertEquals(AiStatus.OK, r.status());
+		assertEquals("запасная", r.value().get("say").getAsString());
+		assertTrue(r.latencyMs() < 1200, "не ждали основную: " + r.latencyMs());
+		assertEquals(List.of("a/main", "b/backup"), models);
+		Thread.sleep(1800);
+		assertEquals(List.of("ok", "lost"), log.stream().map(AiLogEntry::status).toList(), "основная дописалась как проигравшая");
+		assertEquals(0.003, s.budget().spentToday(), 1e-9, "проигравшая тоже в бюджете");
+	}
+
+	@Test
+	void fastMainNeedsNoRace() throws Exception {
+		reply = m -> new Object[] {200, ok("{\"say\":\"быстро\"}", 0.001)};
+		AiResult r = call(service(5, 1, false, 500));
+		assertEquals(AiStatus.OK, r.status());
+		assertEquals(List.of("a/main"), models);
+	}
+
+	@Test
+	void mainFailsBeforeRaceThenBackup() throws Exception {
+		reply = m -> m.equals("a/main") ? new Object[] {200, ok("не JSON", 0.001)} : new Object[] {200, ok("{\"say\":\"запасной\"}", 0.002)};
+		AiResult r = call(service(5, 1, false, 1000));
+		assertEquals(AiStatus.OK, r.status());
+		assertEquals(List.of("a/main", "b/backup"), models);
+		assertEquals(List.of("invalid", "ok"), log.stream().map(AiLogEntry::status).toList());
+	}
+
+	@Test
+	void bothSilentInRaceTimesOut() throws Exception {
+		reply = m -> new Object[] {-2500, ok("{\"say\":\"поздно\"}", 0.001)};
+		AiResult r = call(service(1, 1, false, 300));
+		assertEquals(AiStatus.TIMEOUT, r.status());
+		assertEquals(List.of("a/main", "b/backup"), models);
 	}
 
 	@Test

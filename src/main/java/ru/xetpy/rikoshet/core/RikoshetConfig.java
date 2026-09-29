@@ -99,7 +99,7 @@ public record RikoshetConfig(
 
 	static {
 		Map<String, AiRoute> r = new LinkedHashMap<>();
-		r.put("flavor", new AiRoute("flavor", models("deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"), "none", 1024, 5));
+		r.put("flavor", new AiRoute("flavor", models("deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"), "none", 1024, 5, 2500));
 		r.put("dialogue", new AiRoute("dialogue", models("openai/gpt-6-sol", "x-ai/grok-4.7"), "low", 1536, 15));
 		r.put("newspaper", new AiRoute("newspaper", models("anthropic/claude-opus-5.5", "moonshotai/kimi-k3"), "low", 4096, 120));
 		r.put("pools", new AiRoute("pools", models("moonshotai/kimi-k3", "anthropic/claude-sonnet-5"), "low", 3072, 120));
@@ -178,8 +178,13 @@ public record RikoshetConfig(
 			checkEffort(reasoning, "ai.routes." + name + ".reasoning", errors);
 			int maxTokens = one.integer("max_tokens", base == null ? 1024 : base.maxTokens(), 16, 32768);
 			int timeout = one.integer("timeout_seconds", base == null ? defTimeout : base.timeoutSeconds(), 1, 600);
+			double hedge = one.number("hedge_seconds", base == null ? 0 : base.hedgeMillis() / 1000.0, 0, 600);
+			if (hedge > 0 && hedge >= timeout) {
+				errors.add("ai.routes." + name + ".hedge_seconds: должно быть меньше timeout_seconds, гонка выключена");
+				hedge = 0;
+			}
 			one.finish();
-			routes.put(name, new AiRoute(name, List.copyOf(models), reasoning, maxTokens, timeout));
+			routes.put(name, new AiRoute(name, List.copyOf(models), reasoning, maxTokens, timeout, (int) Math.round(hedge * 1000)));
 		}
 		ar.finish();
 		Ai ai = new Ai(aiEnabled, stripSlash(baseUrl), budget, maxConcurrent, rpm, java.util.Collections.unmodifiableMap(routes),

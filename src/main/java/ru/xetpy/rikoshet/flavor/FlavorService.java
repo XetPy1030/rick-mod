@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import ru.xetpy.rikoshet.ai.AiRequest;
 import ru.xetpy.rikoshet.ai.AiResult;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -60,6 +62,8 @@ public final class FlavorService {
 	private static final int RECALL_CHARS = 400;
 	/** События новее — это сама ситуация, а не воспоминание. */
 	private static final long FRESH_MS = 10_000;
+	/** Столько ждёт комментарий к смерти: вдруг тем же взрывом убило ещё кого-то рядом. */
+	private static final long GROUP_MS = 300;
 
 	private final Logger log;
 	private final Clock clock;
@@ -76,6 +80,9 @@ public final class FlavorService {
 	private final ChronicleService chronicle;
 	private final SessionTracker sessions = new SessionTracker();
 	private final Map<UUID, PendingLeave> pendingLeaves = new ConcurrentHashMap<>();
+	/** Смерти, ждущие GROUP_MS. Только главный поток. */
+	private final List<DeathNote> pendingDeaths = new ArrayList<>();
+	private final Random rnd = new Random();
 	private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor(r -> {
 		Thread t = new Thread(r, "rikoshet-timer");
 		t.setDaemon(true);
@@ -143,9 +150,7 @@ public final class FlavorService {
 		if (!auth.isAuthenticated(player) || players.optedOut(uuid)) {
 			return;
 		}
-		if (!sessions.tryComment(uuid, now, cfg.flavor().deathCooldownSeconds() * 1000L)) {
-			return;
-		}
+		boolean comment = sessions.tryComment(uuid, now, cfg.flavor().deathCooldownSeconds() * 1000L);
 
 		MinecraftServer server = player.level().getServer();
 		String nick = player.getScoreboardName();
@@ -153,32 +158,26 @@ public final class FlavorService {
 		Killer killer = killer(player, source);
 		boolean creeper = "minecraft:creeper".equals(killer.entityType);
 
-		StringBuilder ctx = new StringBuilder("Событие: смерть\n");
-		ctx.append("Игрок: ").append(Roster.describe(nick, role)).append('\n');
-		ctx.append("Причина: ").append(cause.text());
+		StringBuilder own = new StringBuilder();
+		own.append("Игрок: ").append(Roster.describe(nick, role)).append('\n');
+		own.append("Причина: ").append(cause.text());
 		if (killer.text != null) {
-			ctx.append(", убийца: ").append(killer.text);
+			own.append(", убийца: ").append(killer.text);
 		}
-		ctx.append('\n');
+		own.append('\n');
 		if (!killer.hidden) {
-			ctx.append("Сообщение игры: ").append(source.getLocalizedDeathMessage(player).getString()).append('\n');
+			own.append("Сообщение игры: ").append(source.getLocalizedDeathMessage(player).getString()).append('\n');
+		}
+		ItemStack hand = player.getMainHandItem();
+		own.append("В руке: ").append(hand.isEmpty() ? "пусто" : BuiltInRegistries.ITEM.getKey(hand.getItem()).toString()).append('\n');
+		own.append("Смертей сегодня: ").append(today).append('\n');
+		if (series >= 2) {
+			own.append("Серия: ").append(series).append(" смертей за ").append(cfg.flavor().seriesWindowMinutes()).append(" минут\n");
 		}
 		ServerLevel level = player.level();
-		ctx.append("Где: ").append(dimension(level.dimension())).append(", биом ")
-				.append(level.getBiome(player.blockPosition()).getRegisteredName())
-				.append(", высота Y ").append(player.blockPosition().getY()).append('\n');
-		ItemStack hand = player.getMainHandItem();
-		ctx.append("В руке: ").append(hand.isEmpty() ? "пусто" : BuiltInRegistries.ITEM.getKey(hand.getItem()).toString()).append('\n');
-		ctx.append("Смертей сегодня: ").append(today).append('\n');
-		if (series >= 2) {
-			ctx.append("Серия: ").append(series).append(" смертей за ").append(cfg.flavor().seriesWindowMinutes()).append(" минут\n");
-		}
-		ctx.append("Рядом: ").append(nearby(player)).append('\n');
-		ctx.append(time(cfg, level, server));
+		String where = "Где: " + dimension(level.dimension()) + ", биом " + level.getBiome(player.blockPosition()).getRegisteredName()
+				+ ", высота Y " + player.blockPosition().getY() + '\n';
 
-		List<UUID> subjects = new ArrayList<>();
-		subjects.add(uuid);
-		subjects.addAll(nearbyIds(player));
 		java.util.Set<String> tags = new java.util.HashSet<>(List.of("death", "group:" + cause.group(),
 				"biome:" + Keys.shortId(level.getBiome(player.blockPosition()).getRegisteredName()),
 				"dim:" + Keys.shortId(level.dimension().identifier().toString())));
@@ -186,7 +185,6 @@ public final class FlavorService {
 			tags.add("killer:" + Keys.shortId(killer.entityType));
 			tags.add("killer_label:" + DeathCauses.mob(killer.entityType));
 		}
-		String recalled = memory.recall(subjects, tags, RECALL_CHARS, FRESH_MS);
 
 		Map<String, String> vars = vars(nick, role);
 		vars.put("count", Integer.toString(today));
@@ -206,7 +204,76 @@ public final class FlavorService {
 		choices.add(new FallbackLines.Choice("death", killer.group != null ? killer.group : cause.group(), 0.7));
 		choices.add(new FallbackLines.Choice("death", "any", 1));
 
-		request(server, "death", uuid, ctx.toString(), choices, vars, recalled);
+		if (pendingDeaths.isEmpty()) {
+			timer.schedule(() -> server.execute(() -> flushDeaths(server)), GROUP_MS, TimeUnit.MILLISECONDS);
+		}
+		pendingDeaths.add(new DeathNote(uuid, own.toString(), level.dimension(), player.position(), where, nearby(player),
+				tags, vars, choices, comment, time(cfg, level, server)));
+	}
+
+	/** Смерть, которая ждёт GROUP_MS: вдруг тем же взрывом убило кого-то ещё. */
+	private record DeathNote(UUID uuid, String own, ResourceKey<Level> dim, Vec3 pos, String where, Map<UUID, String> nearby,
+			java.util.Set<String> tags, Map<String, String> vars, List<FallbackLines.Choice> choices, boolean comment, String time) {
+	}
+
+	/**
+	 * Смерти одного окна: рядом друг с другом — одна реплика на всех (крипер взорвал двоих —
+	 * не две реплики подряд, и вторая не пишет, что первый «стоял и смотрел»). Главный поток.
+	 */
+	private void flushDeaths(MinecraftServer server) {
+		List<DeathNote> all = new ArrayList<>(pendingDeaths);
+		pendingDeaths.clear();
+		if (stopping) {
+			return;
+		}
+		List<List<DeathNote>> groups = new ArrayList<>();
+		for (DeathNote d : all) {
+			List<DeathNote> home = null;
+			for (List<DeathNote> g : groups) {
+				DeathNote head = g.getFirst();
+				if (head.dim().equals(d.dim()) && head.pos().distanceToSqr(d.pos()) <= NEARBY * NEARBY) {
+					home = g;
+					break;
+				}
+			}
+			if (home == null) {
+				home = new ArrayList<>();
+				groups.add(home);
+			}
+			home.add(d);
+		}
+		for (List<DeathNote> g : groups) {
+			DeathNote first = g.stream().filter(DeathNote::comment).findFirst().orElse(null);
+			if (first == null) {
+				continue; // все в кулдауне
+			}
+			java.util.Set<UUID> dead = new java.util.HashSet<>();
+			g.forEach(d -> dead.add(d.uuid()));
+			Map<UUID, String> near = new java.util.LinkedHashMap<>();
+			g.forEach(d -> d.nearby().forEach(near::putIfAbsent));
+			dead.forEach(near::remove);
+			StringBuilder ctx = new StringBuilder();
+			if (g.size() == 1) {
+				ctx.append("Событие: смерть\n").append(first.own());
+			} else {
+				ctx.append("Событие: смерть нескольких игроков сразу, реплика одна на всех\n");
+				for (DeathNote d : g) {
+					ctx.append('\n').append(d.own());
+				}
+				ctx.append('\n');
+			}
+			ctx.append(first.where());
+			ctx.append("Рядом: ").append(near.isEmpty() ? "никого" : String.join(", ", near.values())).append('\n');
+			ctx.append(first.time());
+
+			List<UUID> subjects = new ArrayList<>(List.of(first.uuid()));
+			g.stream().map(DeathNote::uuid).filter(u -> !subjects.contains(u)).forEach(subjects::add);
+			subjects.addAll(near.keySet());
+			java.util.Set<String> tags = new java.util.HashSet<>();
+			g.forEach(d -> tags.addAll(d.tags()));
+			String recalled = memory.recall(subjects, tags, RECALL_CHARS, FRESH_MS);
+			request(server, "death", first.uuid(), ctx.toString(), first.choices(), first.vars(), recalled);
+		}
 	}
 
 	private record Killer(String text, String short_, String entityType, String group, boolean hidden) {
@@ -233,25 +300,15 @@ public final class FlavorService {
 		return new Killer(name, name, type, null, false);
 	}
 
-	private List<UUID> nearbyIds(ServerPlayer victim) {
-		List<UUID> out = new ArrayList<>();
-		for (ServerPlayer p : victim.level().players()) {
-			if (p != victim && canSee(p) && p.distanceToSqr(victim) <= NEARBY * NEARBY) {
-				out.add(p.getUUID());
-			}
-		}
-		return out;
-	}
-
-	private String nearby(ServerPlayer victim) {
-		List<String> out = new ArrayList<>();
+	private Map<UUID, String> nearby(ServerPlayer victim) {
+		Map<UUID, String> out = new java.util.LinkedHashMap<>();
 		for (ServerPlayer p : victim.level().players()) {
 			if (p == victim || !canSee(p) || p.distanceToSqr(victim) > NEARBY * NEARBY) {
 				continue;
 			}
-			out.add(Roster.describe(p.getScoreboardName(), roles.get(p.getUUID())));
+			out.put(p.getUUID(), Roster.describe(p.getScoreboardName(), roles.get(p.getUUID())));
 		}
-		return out.isEmpty() ? "никого" : String.join(", ", out);
+		return out;
 	}
 
 	// ---------- вход и выход ----------
@@ -376,7 +433,7 @@ public final class FlavorService {
 	 */
 	private void request(MinecraftServer server, String task, UUID player, String context,
 			List<FallbackLines.Choice> choices, Map<String, String> vars, String recalled) {
-		String system = PromptBuilder.system(prompts, rosterBlock(), PERSONA.id(), task);
+		String system = PromptBuilder.system(prompts, rosterBlock(), PERSONA.id(), task) + LineStyle.tail(rnd, roleNotes(server, player));
 		List<String> memo = notes.recent(player, PERSONA.id());
 		List<String> blocks = new ArrayList<>();
 		if (!memo.isEmpty()) {
@@ -399,6 +456,9 @@ public final class FlavorService {
 		RikoshetConfig cfg = config.get();
 		if (stopping || !cfg.feature("rick") || players.optedOut(player)) {
 			return;
+		}
+		if ("leave".equals(task) && server.getPlayerList().getPlayer(player) != null) {
+			return; // вернулся, пока писалось прощание: «Timed out» и тут же перезаход
 		}
 		String text = null;
 		String why;
@@ -423,6 +483,28 @@ public final class FlavorService {
 		if (text != null) {
 			speaker.say(server, PERSONA, text, this::canSee);
 		}
+	}
+
+	/** Заметки о ролях того, о ком реплика, и всех онлайн: из них LineStyle берёт коронные фразы. */
+	private List<String> roleNotes(MinecraftServer server, UUID subject) {
+		List<String> out = new ArrayList<>();
+		java.util.Set<UUID> seen = new java.util.HashSet<>();
+		if (subject != null) {
+			seen.add(subject);
+			Role r = roles.get(subject);
+			if (r != null) {
+				out.add(r.note());
+			}
+		}
+		for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+			if (seen.add(p.getUUID()) && canSee(p)) {
+				Role r = roles.get(p.getUUID());
+				if (r != null) {
+					out.add(r.note());
+				}
+			}
+		}
+		return out;
 	}
 
 	public String rosterBlock() {

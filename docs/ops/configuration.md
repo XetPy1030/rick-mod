@@ -54,7 +54,7 @@
     batch: true,                   // ночные пулы — пакетом Batch API (вдвое дешевле); false — живыми запросами
     batch_hour: 3,                 // час ночной генерации пулов по timezone
     routes: {
-      flavor:    { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024, timeout_seconds: 5 },
+      flavor:    { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "none", max_tokens: 1024, timeout_seconds: 5, hedge_seconds: 2.5 },
       dialogue:  { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536, timeout_seconds: 15 },
       newspaper: { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096, timeout_seconds: 120 },
       pools:     { models: ["moonshotai/kimi-k3", "anthropic/claude-sonnet-5"], reasoning: "low", max_tokens: 3072, timeout_seconds: 120 },
@@ -106,6 +106,7 @@
 - **`routes.<маршрут>.models`** — первая модель основная, дальше запасные; их по очереди перебирает мод, а не OpenRouter ([ai-integration](../architecture/ai-integration.md#запасные-модели-и-отказы)). Суффикс `@effort` задаёт размышления одной модели: `"google/gemini-3.8-flash@minimal"`.
 - **`reasoning`** — `none`, `minimal`, `low`, `medium`, `high` или `default`; при `default` параметр в запрос не пишется.
 - **`routes.<маршрут>.timeout_seconds`** — срок на все попытки вместе, а не на одну. Флейвор за 5 с не успел — выводится заготовка.
+- **`routes.<маршрут>.hedge_seconds`** — гонка моделей: первая молчит столько секунд — вторая стартует параллельно, выводится первый годный ответ ([ai-integration](../architecture/ai-integration.md#запасные-модели-и-отказы)). 0 — выключено; должно быть меньше `timeout_seconds`. Не указано — значение маршрута по умолчанию: у флейвора 2,5 с, у остальных 0. Поэтому старый конфиг с маршрутом `flavor` без этого ключа гонку получает.
 - **`daily_budget_usd`** — считается по фактической стоимости из ответа OpenRouter за сутки в `timezone`. После перезапуска расход восстанавливается из `ai_log`.
 - **`leave_delay_seconds`** — 0–300. Прощание планируется по таймеру, а не по тикам, поэтому приходит и тогда, когда пустой сервер стоит на паузе (`pause-when-empty-seconds`).
 - **`storage.path`** — `/rickadmin reload` его не меняет, только перезапуск.

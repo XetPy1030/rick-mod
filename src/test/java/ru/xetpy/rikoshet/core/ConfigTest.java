@@ -39,6 +39,24 @@ class ConfigTest {
 	}
 
 	@Test
+	void hedgeSeconds() {
+		List<String> w = new ArrayList<>();
+		List<String> e = new ArrayList<>();
+		// Конфиг с живого сервера: маршрут флейвора без ключа — гонка по умолчанию
+		RikoshetConfig old = RikoshetConfig.read(Json5.parse("""
+				{ ai: { routes: { flavor: { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], timeout_seconds: 5 } } } }
+				""").getAsJsonObject(), w, e);
+		assertEquals(2500, old.ai().route("flavor").hedgeMillis());
+		assertEquals(0, old.ai().route("dialogue").hedgeMillis());
+		RikoshetConfig set = RikoshetConfig.read(Json5.parse("{ ai: { routes: { dialogue: { hedge_seconds: 1.5 } } } }").getAsJsonObject(), w, e);
+		assertEquals(1500, set.ai().route("dialogue").hedgeMillis());
+		assertEquals(List.of(), e);
+		RikoshetConfig bad = RikoshetConfig.read(Json5.parse("{ ai: { routes: { flavor: { hedge_seconds: 5 } } } }").getAsJsonObject(), w, e);
+		assertEquals(0, bad.ai().route("flavor").hedgeMillis());
+		assertEquals(1, e.size(), e.toString());
+	}
+
+	@Test
 	void errorsAndWarnings() {
 		List<String> w = new ArrayList<>();
 		List<String> e = new ArrayList<>();

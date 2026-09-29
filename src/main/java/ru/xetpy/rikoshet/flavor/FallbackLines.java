@@ -141,6 +141,10 @@ public final class FallbackLines {
 			m.appendReplacement(sb, Matcher.quoteReplacement(vars.getOrDefault(m.group(1), "")));
 		}
 		m.appendTail(sb);
+		// «{killer} — один…»: моб в начале реплики — с большой буквы. Ники не трогаем: salt115 — это имя
+		if (line.startsWith("{killer}") && !sb.isEmpty()) {
+			sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+		}
 		return sb.toString();
 	}
 

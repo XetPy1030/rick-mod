@@ -13,10 +13,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -46,6 +51,8 @@ public final class AiService {
 	private final RateLimiter limiter;
 	private final AiStats stats = new AiStats();
 	private final ThreadPoolExecutor pool;
+	/** Попытки гонки: поток пула ждёт обе, сам запрос не делает. */
+	private final ExecutorService racers = Executors.newCachedThreadPool(daemonThreads("rikoshet-ai-race-"));
 
 	private volatile RikoshetConfig config;
 	private volatile Secrets secrets;
@@ -68,7 +75,7 @@ public final class AiService {
 		this.budget = new Budget(clock, config.timezone(), config.ai().dailyBudgetUsd());
 		this.limiter = new RateLimiter(config.ai().requestsPerMinute(), System::nanoTime);
 		int n = config.ai().maxConcurrent();
-		this.pool = new ThreadPoolExecutor(n, n, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(64), daemonThreads());
+		this.pool = new ThreadPoolExecutor(n, n, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(64), daemonThreads("rikoshet-ai-"));
 		this.pool.allowCoreThreadTimeOut(true);
 		this.client = new OpenRouterClient(config.ai().baseUrl(), this::key);
 	}
@@ -161,6 +168,13 @@ public final class AiService {
 		return null;
 	}
 
+	/** Одна попытка к одной модели — уже записанная в ai_log и бюджет. */
+	private record Step(String status, ResponseParser.Parsed parsed, OpenRouterClient.Attempt attempt, String model, String error) {
+		boolean ok() {
+			return "ok".equals(status);
+		}
+	}
+
 	private AiResult run(AiRequest req, AiRoute route, long deadline, CompletableFuture<AiResult> future) {
 		long t0 = System.nanoTime();
 		JsonObject schema = prompts.schema(req.schema());
@@ -168,70 +182,159 @@ public final class AiService {
 		if (order.size() == 1) {
 			order.add(order.getFirst()); // одна модель — один повтор
 		}
-		int attempts = 0;
-		double cost = 0;
-		String lastModel = null;
-		String lastError = null;
-		boolean allRefused = true;
+		AtomicBoolean won = new AtomicBoolean();
+		List<Step> steps = new ArrayList<>();
+		int next = 0;
 		boolean timedOut = false;
-		for (ModelSpec model : order) {
+		if (route.hedgeMillis() > 0 && route.models().size() >= 2) {
+			next = race(req, route, order, schema, deadline, future, won, steps);
+			Step last = steps.isEmpty() ? null : steps.getLast();
+			if (last != null && last.ok()) {
+				return result(AiStatus.OK, last.parsed().value(), last.model(), steps, t0, null);
+			}
+			if (last != null && last.attempt().keyProblem()) {
+				return result(AiStatus.PAUSED, null, last.model(), steps, t0, blockReason);
+			}
+			timedOut = last == null || last.attempt().timedOut() || remaining(deadline) < MIN_ATTEMPT_MS;
+			if (next == 1 && last != null && last.attempt().retryable() && !last.attempt().timedOut()) {
+				sleepQuietly(RETRY_PAUSE_MS);
+			}
+		}
+		for (int i = next; i < order.size(); i++) {
 			long remainingMs = (deadline - System.nanoTime()) / 1_000_000;
 			if (future.isDone() || remainingMs < MIN_ATTEMPT_MS) {
 				timedOut = true;
 				break;
 			}
 			if (!budget.canSpend()) {
-				return result(AiStatus.BUDGET, null, lastModel, cost, t0, attempts, "бюджет кончился во время запроса");
+				return result(AiStatus.BUDGET, null, lastModel(steps), steps, t0, "бюджет кончился во время запроса");
 			}
-			JsonObject body = OpenRouterClient.body(model, route, req.system(), req.user(), req.schema(), schema);
-			OpenRouterClient.Attempt a = client.send(body, Duration.ofMillis(remainingMs));
-			attempts++;
-			cost += a.usage().cost();
-			budget.add(a.usage().cost());
-			stats.attempt(req.route(), a.usage());
-			lastModel = a.model() != null ? a.model() : model.id();
-
-			String status;
-			ResponseParser.Parsed parsed = null;
-			if (a.keyProblem()) {
-				status = "error";
-				blockKey(a);
-			} else if (a.refusal() != null || "content_filter".equals(a.finishReason())) {
-				status = "refused";
-			} else if (a.answered()) {
-				parsed = ResponseParser.parse(a.content(), schema);
-				status = parsed.ok() ? "ok" : "invalid";
-			} else {
-				status = a.timedOut() ? "timeout" : "error";
+			Step s = attempt(req, route, order.get(i), schema, deadline, future, won);
+			steps.add(s);
+			if (s.ok()) {
+				return result(AiStatus.OK, s.parsed().value(), s.model(), steps, t0, null);
 			}
-			if (future.isDone()) {
-				status = "late";
+			if ("late".equals(s.status())) {
+				return result(AiStatus.TIMEOUT, null, s.model(), steps, t0, "ответ после дедлайна");
 			}
-			String error = a.error() != null ? a.error()
-					: parsed != null && !parsed.ok() ? String.join("; ", parsed.errors())
-					: "refused".equals(status) ? "finish_reason " + a.finishReason() : null;
-			writeLog(req, route, lastModel, status, a, error);
-
-			if ("ok".equals(status)) {
-				return result(AiStatus.OK, parsed.value(), lastModel, cost, t0, attempts, null);
+			if (s.attempt().keyProblem()) {
+				return result(AiStatus.PAUSED, null, s.model(), steps, t0, blockReason);
 			}
-			if ("late".equals(status)) {
-				return result(AiStatus.TIMEOUT, null, lastModel, cost, t0, attempts, "ответ после дедлайна");
-			}
-			if (a.keyProblem()) {
-				return result(AiStatus.PAUSED, null, lastModel, cost, t0, attempts, blockReason);
-			}
-			allRefused &= "refused".equals(status);
-			timedOut = a.timedOut();
-			lastError = model + ": " + error;
-			if (a.retryable() && !a.timedOut()) {
+			timedOut = s.attempt().timedOut();
+			if (s.attempt().retryable() && !s.attempt().timedOut()) {
 				sleepQuietly(RETRY_PAUSE_MS);
 			}
 		}
+		String lastError = steps.isEmpty() ? null : steps.getLast().model() + ": " + steps.getLast().error();
 		if (timedOut) {
-			return result(AiStatus.TIMEOUT, null, lastModel, cost, t0, attempts, lastError);
+			return result(AiStatus.TIMEOUT, null, lastModel(steps), steps, t0, lastError);
 		}
-		return result(allRefused && attempts > 0 ? AiStatus.REFUSED : AiStatus.FAILED, null, lastModel, cost, t0, attempts, lastError);
+		boolean allRefused = !steps.isEmpty() && steps.stream().allMatch(s -> "refused".equals(s.status()));
+		return result(allRefused ? AiStatus.REFUSED : AiStatus.FAILED, null, lastModel(steps), steps, t0, lastError);
+	}
+
+	/**
+	 * Гонка первых двух моделей маршрута. Первая молчит hedgeMillis — вторая стартует параллельно,
+	 * берётся первый годный ответ; ответ проигравшей пишется в ai_log как lost. Первая успела
+	 * до старта гонки, но без годного ответа — возвращает 1: вторая пойдёт обычной запасной.
+	 * Шаги кладёт в steps, последний — итог гонки. Возвращает индекс следующей модели.
+	 */
+	private int race(AiRequest req, AiRoute route, List<ModelSpec> order, JsonObject schema, long deadline,
+			CompletableFuture<AiResult> future, AtomicBoolean won, List<Step> steps) {
+		CompletableFuture<Step> first = CompletableFuture.supplyAsync(
+				() -> attempt(req, route, order.get(0), schema, deadline, future, won), racers);
+		Step s = await(first, Math.min(route.hedgeMillis(), remaining(deadline)));
+		if (s != null) {
+			steps.add(s);
+			return 1;
+		}
+		if (remaining(deadline) < MIN_ATTEMPT_MS || !budget.canSpend()) {
+			Step only = await(first, remaining(deadline));
+			if (only != null) {
+				steps.add(only);
+			}
+			return order.size();
+		}
+		CompletableFuture<Step> second = CompletableFuture.supplyAsync(
+				() -> attempt(req, route, order.get(1), schema, deadline, future, won), racers);
+		Step a = await(CompletableFuture.anyOf(first, second).thenApply(Step.class::cast), remaining(deadline));
+		if (a == null) {
+			return order.size(); // обе молчат до дедлайна
+		}
+		if (a.ok()) {
+			steps.add(a);
+			return order.size();
+		}
+		CompletableFuture<Step> other = first.isDone() && first.join() == a ? second : first;
+		Step b = await(other, remaining(deadline));
+		steps.add(a);
+		if (b != null) {
+			steps.add(b);
+		}
+		return order.size();
+	}
+
+	private static long remaining(long deadline) {
+		return Math.max(0, (deadline - System.nanoTime()) / 1_000_000);
+	}
+
+	/** Результат future за ms миллисекунд или null. */
+	private static <T> T await(CompletableFuture<T> f, long ms) {
+		try {
+			return f.get(ms, TimeUnit.MILLISECONDS);
+		} catch (TimeoutException e) {
+			return null;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return null;
+		} catch (ExecutionException e) {
+			return null;
+		}
+	}
+
+	private Step attempt(AiRequest req, AiRoute route, ModelSpec model, JsonObject schema, long deadline,
+			CompletableFuture<AiResult> future, AtomicBoolean won) {
+		JsonObject body = OpenRouterClient.body(model, route, req.system(), req.user(), req.schema(), schema);
+		OpenRouterClient.Attempt a = client.send(body, Duration.ofMillis(Math.max(MIN_ATTEMPT_MS, remaining(deadline))));
+		budget.add(a.usage().cost());
+		stats.attempt(req.route(), a.usage());
+		String used = a.model() != null ? a.model() : model.id();
+
+		String status;
+		ResponseParser.Parsed parsed = null;
+		if (a.keyProblem()) {
+			status = "error";
+			blockKey(a);
+		} else if (a.refusal() != null || "content_filter".equals(a.finishReason())) {
+			status = "refused";
+		} else if (a.answered()) {
+			parsed = ResponseParser.parse(a.content(), schema);
+			status = parsed.ok() ? "ok" : "invalid";
+		} else {
+			status = a.timedOut() ? "timeout" : "error";
+		}
+		boolean done = future.isDone();
+		if ("ok".equals(status)) {
+			// Годный ответ после чужой победы в гонке — lost; после дедлайна — late
+			if (!won.compareAndSet(false, true)) {
+				status = "lost";
+			} else if (done) {
+				status = "late";
+			}
+		} else if (won.get()) {
+			status = "lost";
+		} else if (done) {
+			status = "late";
+		}
+		String error = a.error() != null ? a.error()
+				: parsed != null && !parsed.ok() ? String.join("; ", parsed.errors())
+				: "refused".equals(status) ? "finish_reason " + a.finishReason() : null;
+		writeLog(req, route, used, status, a, error);
+		return new Step(status, parsed, a, used, error);
+	}
+
+	private static String lastModel(List<Step> steps) {
+		return steps.isEmpty() ? null : steps.getLast().model();
 	}
 
 	private void blockKey(OpenRouterClient.Attempt a) {
@@ -260,13 +363,14 @@ public final class AiService {
 		} catch (RuntimeException e) {
 			log.warn("[ИИ] ai_log не записан: {}", e.toString());
 		}
-		if (!"ok".equals(status)) {
+		if (!"ok".equals(status) && !"lost".equals(status)) {
 			log.info("[ИИ] {} {} {}: {}", route.name(), model, status, error);
 		}
 	}
 
-	private static AiResult result(AiStatus s, JsonObject value, String model, double cost, long t0, int attempts, String error) {
-		return new AiResult(s, value, model, cost, (System.nanoTime() - t0) / 1_000_000, attempts, error);
+	private static AiResult result(AiStatus s, JsonObject value, String model, List<Step> steps, long t0, String error) {
+		double cost = steps.stream().mapToDouble(x -> x.attempt().usage().cost()).sum();
+		return new AiResult(s, value, model, cost, (System.nanoTime() - t0) / 1_000_000, steps.size(), error);
 	}
 
 	private static void sleepQuietly(long ms) {
@@ -371,6 +475,7 @@ public final class AiService {
 
 	public void shutdown() {
 		pool.shutdownNow();
+		racers.shutdownNow();
 		try {
 			pool.awaitTermination(2, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
@@ -378,10 +483,10 @@ public final class AiService {
 		}
 	}
 
-	private static ThreadFactory daemonThreads() {
+	private static ThreadFactory daemonThreads(String prefix) {
 		AtomicInteger n = new AtomicInteger();
 		return r -> {
-			Thread t = new Thread(r, "rikoshet-ai-" + n.incrementAndGet());
+			Thread t = new Thread(r, prefix + n.incrementAndGet());
 			t.setDaemon(true);
 			return t;
 		};
