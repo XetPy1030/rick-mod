@@ -25,7 +25,8 @@ import java.util.function.Predicate;
 public final class Speaker {
 	private static final int RECENT = 30;
 
-	public record Line(long ts, Persona persona, String text, Set<UUID> recipients) {
+	/** about — о ком реплика: окно «ответа Рику» в чате считается от неё. */
+	public record Line(long ts, Persona persona, String text, Set<UUID> recipients, Set<UUID> about) {
 	}
 
 	private final Logger log;
@@ -37,6 +38,11 @@ public final class Speaker {
 
 	/** Только из главного потока. */
 	public void say(MinecraftServer server, Persona persona, String text, Predicate<ServerPlayer> canSee) {
+		say(server, persona, text, canSee, Set.of());
+	}
+
+	/** Только из главного потока. about — о ком реплика (смерть, вход, ответ в чате). */
+	public void say(MinecraftServer server, Persona persona, String text, Predicate<ServerPlayer> canSee, Set<UUID> about) {
 		Component msg = format(persona, text);
 		Set<UUID> got = new HashSet<>();
 		for (ServerPlayer p : server.getPlayerList().getPlayers()) {
@@ -47,7 +53,7 @@ public final class Speaker {
 		}
 		log.info("[{}] {}", persona.displayName(), text);
 		synchronized (recent) {
-			recent.addLast(new Line(System.currentTimeMillis(), persona, text, Set.copyOf(got)));
+			recent.addLast(new Line(System.currentTimeMillis(), persona, text, Set.copyOf(got), Set.copyOf(about)));
 			while (recent.size() > RECENT) {
 				recent.removeFirst();
 			}
@@ -63,6 +69,33 @@ public final class Speaker {
 				Line l = it.next();
 				if (l.recipients().contains(player)) {
 					out.addFirst(l.text());
+				}
+			}
+		}
+		return out;
+	}
+
+	/** Когда персонаж последний раз говорил об игроке; 0 — не говорил. */
+	public long lastAbout(UUID player) {
+		synchronized (recent) {
+			var it = recent.descendingIterator();
+			while (it.hasNext()) {
+				Line l = it.next();
+				if (l.about().contains(player)) {
+					return l.ts();
+				}
+			}
+		}
+		return 0;
+	}
+
+	/** Реплики не старше since, старые первыми. */
+	public List<Line> since(long since) {
+		List<Line> out = new ArrayList<>();
+		synchronized (recent) {
+			for (Line l : recent) {
+				if (l.ts() >= since) {
+					out.add(l);
 				}
 			}
 		}

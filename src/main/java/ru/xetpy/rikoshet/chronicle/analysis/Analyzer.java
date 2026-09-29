@@ -230,7 +230,8 @@ public final class Analyzer {
 	/** События летописи с достаточной значимостью — сразу факты. Смерти — только заметные. */
 	static void eventFacts(DayData d, List<DayReport.Fact> out) {
 		for (ChronicleEvent e : d.events()) {
-			if (e.score() < EVENT_FACT_SCORE || DIARY.equals(e.type())) {
+			// Дневник и заметки из чата — память Рика, не факты дня: слова из чата в газету не идут
+			if (e.score() < EVENT_FACT_SCORE || DIARY.equals(e.type()) || ChronicleEvent.CHAT_NOTE.equals(e.type())) {
 				continue;
 			}
 			out.add(new DayReport.Fact(e.type(), e.uuid() == null ? null : e.uuid().toString(), e.score(),

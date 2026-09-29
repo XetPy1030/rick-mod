@@ -39,6 +39,7 @@ public final class EventText {
 					+ (bool(d, "owner_online") ? ", пока хозяина не было рядом" : ", пока хозяина не было на сервере");
 			case ChronicleEvent.TOTEM -> actor + " спасся тотемом бессмертия";
 			case "diary" -> "из дневника Рика: " + str(d, "text", "");
+			case ChronicleEvent.CHAT_NOTE -> "из чата: " + str(d, "text", "");
 			case "build_loss" -> "постройка " + (d.has("name") ? "«" + str(d, "name", "") + "» " : "") + actor + " (" + str(d, "where", "?")
 					+ ") потеряла " + num(d, "percent") + "% рукотворных блоков";
 			case "gift" -> actor + ", похоже, передал " + who.apply(uuid(d, "target")) + " "

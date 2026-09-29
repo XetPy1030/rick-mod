@@ -51,6 +51,15 @@ public final class DevCommand {
 								.then(Commands.argument("type", StringArgumentType.greedyString()).executes(c -> death(c, rt)))))
 				.then(Commands.literal("leave")
 						.then(Commands.argument("nick", StringArgumentType.word()).executes(c -> leave(c, rt))))
+				.then(Commands.literal("chat")
+						.then(Commands.literal("test")
+								.then(Commands.argument("text", StringArgumentType.greedyString()).executes(c -> chatTest(c, rt))))
+						.then(Commands.literal("say")
+								.then(Commands.argument("nick", StringArgumentType.word())
+										.then(Commands.argument("text", StringArgumentType.greedyString()).executes(c -> chatSay(c, rt)))))
+						.then(Commands.literal("react")
+								.then(Commands.argument("nick", StringArgumentType.word())
+										.then(Commands.argument("kind", StringArgumentType.word()).executes(c -> chatReact(c, rt))))))
 				.then(Commands.literal("chronicle")
 						.then(Commands.literal("cycle").executes(c -> cycle(c, rt)))
 						.then(Commands.literal("analyze")
@@ -218,6 +227,49 @@ public final class DevCommand {
 			return 0;
 		}
 		r.chronicle.chat(p, StringArgumentType.getString(c, "text"));
+		return 1;
+	}
+
+	private static int chatTest(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		String text = StringArgumentType.getString(c, "text");
+		c.getSource().sendSuccess(() -> Component.literal("«" + text + "» → " + r.chat.classify(text)), false);
+		return 1;
+	}
+
+	/** Реакция чата на фейковом игроке: burp, glow или gift — без шанса и лимитов. */
+	private static int chatReact(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		FakePlayer p = FAKES.get(StringArgumentType.getString(c, "nick"));
+		if (r == null || p == null) {
+			return 0;
+		}
+		String aside = r.chat.devReact(p, StringArgumentType.getString(c, "kind"));
+		var effects = p.getActiveEffects().stream().map(e -> e.getEffect().getRegisteredName() + " " + e.getDuration()).toList();
+		c.getSource().sendSuccess(() -> Component.literal("реакция: " + aside + "; эффекты: " + effects
+				+ "; в инвентаре: " + p.getInventory().getItem(0).getHoverName().getString()), false);
+		return 1;
+	}
+
+	/** Сообщение в чат от фейкового игрока (сначала /rickdev join): летопись и Рик видят его как настоящее. */
+	private static int chatSay(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		String nick = StringArgumentType.getString(c, "nick");
+		FakePlayer p = FAKES.get(nick);
+		if (r == null) {
+			return 0;
+		}
+		if (p == null) {
+			c.getSource().sendFailure(Component.literal("нет фейкового игрока " + nick + ": сначала /rickdev join " + nick));
+			return 0;
+		}
+		String text = StringArgumentType.getString(c, "text");
+		r.chronicle.chat(p, text);
+		r.chat.onMessage(p, text);
+		r.log.info("<{}> {}", nick, text);
 		return 1;
 	}
 

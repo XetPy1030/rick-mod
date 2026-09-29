@@ -27,4 +27,6 @@ public record ChronicleEvent(long ts, String day, UUID uuid, String type, String
 	public static final String VISIT = "visit";
 	/** Сработал тотем бессмертия. */
 	public static final String TOTEM = "totem";
+	/** Заметка Рика из чата: обозвал, похвалил, пообещал (docs/design/chat.md#память-что-запомнить). В газету не идёт. */
+	public static final String CHAT_NOTE = "chat_note";
 }

@@ -96,6 +96,7 @@ public final class Rikoshet implements DedicatedServerModInitializer {
 			RikoshetRuntime r = runtime;
 			if (r != null) {
 				safe("чат", () -> r.chronicle.chat(sender, message.signedContent()));
+				safe("чат: Рик", () -> r.chat.onMessage(sender, message.signedContent()));
 			}
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

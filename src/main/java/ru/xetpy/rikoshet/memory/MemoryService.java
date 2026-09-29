@@ -319,6 +319,12 @@ public final class MemoryService {
 		}
 	}
 
+	/** Когда слот последний раз менялся; 0 — слота нет. */
+	public long slotUpdated(UUID subject, String slot) {
+		MemoryStore.Row r = get(subject.toString(), slot);
+		return r == null ? 0 : r.updatedTs();
+	}
+
 	/** Смены слотов, найденные при консолидации этого дня (для газеты). */
 	public List<String> changesFor(LocalDate day) {
 		return day.equals(changesDay) ? changes : List.of();

@@ -11,6 +11,7 @@ import ru.xetpy.rikoshet.ai.AiService;
 import ru.xetpy.rikoshet.ai.PromptLibrary;
 import ru.xetpy.rikoshet.builds.BuildService;
 import ru.xetpy.rikoshet.builds.BuildStore;
+import ru.xetpy.rikoshet.chat.ChatService;
 import ru.xetpy.rikoshet.ai.BatchService;
 import ru.xetpy.rikoshet.chronicle.ChronicleService;
 import ru.xetpy.rikoshet.flavor.ServerListService;
@@ -69,6 +70,7 @@ public final class RikoshetRuntime {
 	public final Speaker speaker;
 	public final AuthTracker auth;
 	public final FlavorService flavor;
+	public final ChatService chat;
 	public final ChronicleService chronicle;
 	public final MemoryService memory;
 	public final NewspaperService newspaper;
@@ -149,6 +151,7 @@ public final class RikoshetRuntime {
 		auth = new AuthTracker(easyAuth, this::onAuthenticated);
 		flavor = new FlavorService(log, clock, this::config, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle,
 				FallbackLines.load("rick", paths.dataDir().resolve("fallback"), new Random()));
+		chat = new ChatService(log, clock, this::config, this::today, ai, prompts, players, roles, stats, notes, speaker, auth, memory, chronicle, flavor);
 		newspaper = new NewspaperService(log, clock, this::config, this::today, ai, prompts, chronicle, memory, new NewspaperStore(db),
 				players, flavor::rosterBlock, flavor::canSee, paths.dataDir());
 		batch = new BatchService(log, clock, ai, db, server);
@@ -338,6 +341,7 @@ public final class RikoshetRuntime {
 		newspaper.stopping();
 		chronicle.stopping(server);
 		flavor.stopping();
+		chat.stopping();
 		ai.shutdown();
 		// Время сессий засчитываем сейчас: при остановке прощаний не будет
 		for (ServerPlayer p : server.getPlayerList().getPlayers()) {

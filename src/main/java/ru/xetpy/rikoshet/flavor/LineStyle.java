@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * из 32, а фразочка из заметки о роли — почти в каждой реплике этому игроку. Поэтому кубик
  * бросает мод и дописывает решение в хвост системного промпта: там указания, а не данные.
  */
-final class LineStyle {
+public final class LineStyle {
 	/** Доля реплик, где *рыг* разрешён. Модель им пользуется почти всегда, когда можно. */
 	static final double BURP = 0.35;
 	/** Доля реплик, где коронные фразы ролей запрещены явно. Общий запрет DeepSeek не понимает. */
@@ -30,8 +30,13 @@ final class LineStyle {
 	}
 
 	/** Хвост системного промпта или пустая строка. notes — заметки о ролях тех, о ком реплика и кто онлайн. */
-	static String tail(Random rnd, Collection<String> notes) {
-		List<String> lines = new ArrayList<>();
+	public static String tail(Random rnd, Collection<String> notes) {
+		return tail(rnd, notes, List.of());
+	}
+
+	/** extra — строки, которые идут в хвост всегда: «это последний ответ в разговоре». */
+	public static String tail(Random rnd, Collection<String> notes, List<String> extra) {
+		List<String> lines = new ArrayList<>(extra);
 		if (rnd.nextDouble() >= BURP) {
 			lines.add("- Без *рыг* и других звуков.");
 		}

@@ -80,6 +80,8 @@ public final class RickAdminCommand {
 								.then(Commands.literal("dialogue")
 										.then(Commands.argument("text", StringArgumentType.greedyString())
 												.executes(c -> test(c, rt, "dialogue", StringArgumentType.getString(c, "text")))))))
+				.then(Commands.literal("chat")
+						.then(Commands.literal("status").executes(c -> chatStatus(c, rt))))
 				.then(Commands.literal("pool")
 						.then(Commands.literal("status").executes(c -> poolStatus(c, rt)))
 						.then(Commands.literal("regen")
@@ -247,6 +249,17 @@ public final class RickAdminCommand {
 	}
 
 	// ---------- пулы ----------
+
+	private static int chatStatus(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		MutableComponent out = Component.literal("Рик в чате").withStyle(ChatFormatting.GOLD);
+		r.chat.status().forEach(l -> out.append(Component.literal("\n" + l).withStyle(ChatFormatting.GRAY)));
+		c.getSource().sendSuccess(() -> out, false);
+		return 1;
+	}
 
 	private static int poolStatus(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
 		RikoshetRuntime r = Cmd.runtime(c, rt);

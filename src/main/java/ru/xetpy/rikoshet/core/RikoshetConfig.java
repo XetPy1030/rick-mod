@@ -25,7 +25,8 @@ public record RikoshetConfig(
 		Performance performance,
 		Storage storage,
 		Chronicle chronicle,
-		Newspaper newspaper
+		Newspaper newspaper,
+		Chat chat
 ) {
 	public static final int PROTOCOL_VERSION = 1;
 
@@ -41,6 +42,7 @@ public record RikoshetConfig(
 		f.put("builds", false);
 		f.put("newspaper", false);
 		f.put("motd_tab", false);
+		f.put("chat", false);
 		f.put("roles_in_tab", false);
 		f.put("voice", false);
 		f.put("visits", false);
@@ -95,6 +97,21 @@ public record RikoshetConfig(
 	public record Newspaper(int hour, int maxFacts) {
 	}
 
+	/** Рик в чате (docs/design/chat.md): лимиты, окна, шансы. */
+	public record Chat(
+			int replyCooldownSeconds,
+			int repliesPerHour,
+			int serverPerMinute,
+			int replyWindowSeconds,
+			int conversationSeconds,
+			int conversationTurns,
+			double mentionChance,
+			int ignoreMinutes,
+			double budgetShare,
+			boolean actions
+	) {
+	}
+
 	public static final Map<String, AiRoute> DEFAULT_ROUTES;
 
 	static {
@@ -103,6 +120,7 @@ public record RikoshetConfig(
 		r.put("dialogue", new AiRoute("dialogue", models("openai/gpt-6-sol", "x-ai/grok-4.7"), "low", 1536, 15));
 		r.put("newspaper", new AiRoute("newspaper", models("anthropic/claude-opus-5.5", "moonshotai/kimi-k3"), "low", 4096, 120));
 		r.put("pools", new AiRoute("pools", models("moonshotai/kimi-k3", "anthropic/claude-sonnet-5"), "low", 3072, 120));
+		r.put("chat", new AiRoute("chat", models("openai/gpt-6-sol", "openai/gpt-6-luna"), "low", 1536, 8, 4000));
 		r.put("analyst", new AiRoute("analyst", models("deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"), "low", 2048, 90));
 		DEFAULT_ROUTES = java.util.Collections.unmodifiableMap(r);
 	}
@@ -234,10 +252,24 @@ public record RikoshetConfig(
 				nr.integer("max_facts", 25, 5, 60));
 		nr.finish();
 
+		ConfigReader chat = r.section("chat");
+		Chat chatCfg = new Chat(
+				chat.integer("reply_cooldown_seconds", 15, 0, 600),
+				chat.integer("replies_per_hour", 12, 1, 600),
+				chat.integer("server_per_minute", 6, 1, 60),
+				chat.integer("reply_window_seconds", 30, 0, 600),
+				chat.integer("conversation_seconds", 45, 0, 600),
+				chat.integer("conversation_turns", 4, 1, 20),
+				chat.number("mention_chance", 0.4, 0, 1),
+				chat.integer("ignore_minutes", 10, 0, 1440),
+				chat.number("budget_share", 0.5, 0, 1),
+				chat.bool("actions", true));
+		chat.finish();
+
 		r.reserve("personas", "visits", "voice");
 		r.finish();
 		return new RikoshetConfig(protocol, zone, java.util.Collections.unmodifiableMap(features), ai, flavor, content, perf, storage,
-				chronicle, newspaper);
+				chronicle, newspaper, chatCfg);
 	}
 
 	private static final List<String> EFFORTS = List.of("none", "minimal", "low", "medium", "high", "default");

@@ -272,7 +272,7 @@ public final class FlavorService {
 			java.util.Set<String> tags = new java.util.HashSet<>();
 			g.forEach(d -> tags.addAll(d.tags()));
 			String recalled = memory.recall(subjects, tags, RECALL_CHARS, FRESH_MS);
-			request(server, "death", first.uuid(), ctx.toString(), first.choices(), first.vars(), recalled);
+			request(server, "death", first.uuid(), dead, ctx.toString(), first.choices(), first.vars(), recalled);
 		}
 	}
 
@@ -433,6 +433,12 @@ public final class FlavorService {
 	 */
 	private void request(MinecraftServer server, String task, UUID player, String context,
 			List<FallbackLines.Choice> choices, Map<String, String> vars, String recalled) {
+		request(server, task, player, java.util.Set.of(player), context, choices, vars, recalled);
+	}
+
+	/** about — о ком реплика (все погибшие в групповой смерти): от неё считается окно ответа в чате. */
+	private void request(MinecraftServer server, String task, UUID player, java.util.Set<UUID> about, String context,
+			List<FallbackLines.Choice> choices, Map<String, String> vars, String recalled) {
 		String system = PromptBuilder.system(prompts, rosterBlock(), PERSONA.id(), task) + LineStyle.tail(rnd, roleNotes(server, player));
 		List<String> memo = notes.recent(player, PERSONA.id());
 		List<String> blocks = new ArrayList<>();
@@ -448,10 +454,10 @@ public final class FlavorService {
 		}
 		String user = PromptBuilder.user(blocks.isEmpty() ? null : String.join("\n", blocks), context, null, null);
 		ai.submit(new AiRequest("flavor", "line", system, user, task, player))
-				.whenComplete((res, err) -> server.execute(() -> deliver(server, task, player, res, err, choices, vars)));
+				.whenComplete((res, err) -> server.execute(() -> deliver(server, task, player, about, res, err, choices, vars)));
 	}
 
-	private void deliver(MinecraftServer server, String task, UUID player, AiResult res, Throwable err,
+	private void deliver(MinecraftServer server, String task, UUID player, java.util.Set<UUID> about, AiResult res, Throwable err,
 			List<FallbackLines.Choice> choices, Map<String, String> vars) {
 		RikoshetConfig cfg = config.get();
 		if (stopping || !cfg.feature("rick") || players.optedOut(player)) {
@@ -481,12 +487,12 @@ public final class FlavorService {
 			}
 		}
 		if (text != null) {
-			speaker.say(server, PERSONA, text, this::canSee);
+			speaker.say(server, PERSONA, text, this::canSee, about);
 		}
 	}
 
 	/** Заметки о ролях того, о ком реплика, и всех онлайн: из них LineStyle берёт коронные фразы. */
-	private List<String> roleNotes(MinecraftServer server, UUID subject) {
+	public List<String> roleNotes(MinecraftServer server, UUID subject) {
 		List<String> out = new ArrayList<>();
 		java.util.Set<UUID> seen = new java.util.HashSet<>();
 		if (subject != null) {
@@ -539,7 +545,7 @@ public final class FlavorService {
 	}
 
 	/** Как Рик обращается к игроку: по роли, без роли — по нику. */
-	static String address(String nick, Role role) {
+	public static String address(String nick, Role role) {
 		return role == null ? nick : role.title();
 	}
 

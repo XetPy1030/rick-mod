@@ -35,6 +35,7 @@
     builds: false,                 // анализ построек: где строят, что построено; нужна летопись
     newspaper: false,              // утренняя газета, нужна летопись
     motd_tab: false,               // MOTD и шапка таблиста с новостями других вселенных
+    chat: false,                   // Рик отвечает, когда к нему обращаются в чате
     roles_in_tab: false,           // «Ник · Роль» в таблисте
     voice: false,                  // этап 3, нужен Simple Voice Chat
     visits: false,
@@ -58,6 +59,8 @@
       dialogue:  { models: ["openai/gpt-6-sol", "x-ai/grok-4.7"], reasoning: "low", max_tokens: 1536, timeout_seconds: 15 },
       newspaper: { models: ["anthropic/claude-opus-5.5", "moonshotai/kimi-k3"], reasoning: "low", max_tokens: 4096, timeout_seconds: 120 },
       pools:     { models: ["moonshotai/kimi-k3", "anthropic/claude-sonnet-5"], reasoning: "low", max_tokens: 3072, timeout_seconds: 120 },
+      // Рик в чате: ответы на обращения и короткий разговор
+      chat:      { models: ["openai/gpt-6-sol", "openai/gpt-6-luna"], reasoning: "low", max_tokens: 1536, timeout_seconds: 8, hedge_seconds: 4 },
       // Ночная аналитика для других моделей: план номера газеты, дневник дня
       analyst:   { models: ["deepseek/deepseek-v4.1-flash", "openai/gpt-6-luna"], reasoning: "low", max_tokens: 2048, timeout_seconds: 90 },
     },
@@ -97,6 +100,20 @@
     max_facts: 25,                 // сколько фактов дня получает редакция
   },
 }
+
+  // Рик в чате (docs/design/chat.md)
+  chat: {
+    reply_cooldown_seconds: 15,    // ответов одному игроку не чаще
+    replies_per_hour: 12,          // одному игроку в час; сверх — «надоел» и игнор
+    server_per_minute: 6,          // ответов на весь сервер в минуту
+    reply_window_seconds: 30,      // сообщение без «рик» после реплики Рика об игроке — ответ Рику
+    conversation_seconds: 45,      // после ответа Рика игрок может продолжать без «рик»
+    conversation_turns: 4,         // обменов в разговоре, потом Рик заканчивает сам
+    mention_chance: 0.4,           // «что с риком» — шанс, что Рик ответит
+    ignore_minutes: 10,            // игнор после «надоел»
+    budget_share: 0.5,             // израсходована такая доля дневного бюджета — чат молчит
+    actions: true,                 // редкие реакции: отрыжка, метка, подарок
+  },
 ```
 
 Модели выбраны на [кастинге](../architecture/ai-integration.md#кастинг-моделей). `daily_budget_usd: 2.0` — принятый дневной бюджет ([№ 16](../open-questions.md)).
@@ -117,6 +134,7 @@
 - **`chronicle.sample_seconds`** — шаг замеров времени по биомам, AFK, «рядом с кем». AFK засчитывается после 4 неподвижных замеров подряд.
 - **`newspaper.max_facts`** — сколько фактов получает редакция, если плана номера от аналитика нет, и сколько показывает `/rickadmin chronicle day`; не больше 4 на игрока. Аналитик читает до 80.
 - **`newspaper.hour`** — час выхода по `timezone`. Выпуск — за вчера; нужен и `features.chronicle`. Сервер был выключен в этот час — выпуск через минуту после старта.
+- **`features.chat`**, раздел **`chat`** — Рик в чате ([chat](../design/chat.md)). Сообщения за паузу `reply_cooldown_seconds` копятся и получают один ответ. `budget_share` считается от `daily_budget_usd`: чат молчит, чтобы хватило на смерти и газету. `actions: false` выключает реакции в мире, ответы остаются.
 - **`routes.analyst`** — ночная аналитика: план номера газеты, дневник дня, имена построек ([каскад](../architecture/ai-integration.md#каскад-моделей)). Не ответил — газета идёт по обычной сводке, дневника нет.
 
 ## Зарезервировано на следующие этапы

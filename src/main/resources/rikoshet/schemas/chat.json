@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "say": { "type": "string" },
+    "remember": { "type": "string" },
+    "remember_kind": { "type": "string", "enum": ["none", "insult", "praise", "promise", "confession", "request"] }
+  },
+  "required": ["say", "remember", "remember_kind"],
+  "additionalProperties": false
+}
