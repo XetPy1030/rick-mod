@@ -1,6 +1,6 @@
 # Gradle
 .gradle/
-build/
+/build/
 out/
 
 # Fabric Loom (dev-запуски клиента и сервера)

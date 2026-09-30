@@ -1,10 +1,14 @@
-"""Минимальная запись и чтение NBT (gzip, big-endian) — для структур Цитадели без внешних библиотек.
+"""Минимальная запись и чтение NBT (big-endian) без внешних библиотек: структуры, схематики, регионы.
 
 Типы Python → NBT: Byte/Short/Int/Long/Float/Double — обёртки ниже, str → String,
-dict → Compound, list → List (тип по первому элементу), bytes → ByteArray.
+dict → Compound, list → List (тип по первому элементу), bytes → ByteArray, IntArray/LongArray.
+При чтении IntArray и LongArray приходят массивами numpy — в схематиках и регионах они большие.
 """
 import gzip
 import struct
+import zlib
+
+import numpy as np
 
 
 class Byte(int):
@@ -35,6 +39,10 @@ class IntArray(list):
     pass
 
 
+class LongArray(list):
+    pass
+
+
 END, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BYTE_ARRAY, STRING, LIST, COMPOUND, INT_ARRAY, LONG_ARRAY = range(13)
 
 
@@ -51,6 +59,8 @@ def _tag(v):
         return DOUBLE
     if isinstance(v, IntArray):
         return INT_ARRAY
+    if isinstance(v, LongArray):
+        return LONG_ARRAY
     if isinstance(v, int):
         return INT
     if isinstance(v, float):
@@ -90,6 +100,8 @@ def _payload(t, v):
         return struct.pack(">i", len(v)) + v
     if t == INT_ARRAY:
         return struct.pack(">i", len(v)) + b"".join(struct.pack(">i", x) for x in v)
+    if t == LONG_ARRAY:
+        return struct.pack(">i", len(v)) + b"".join(struct.pack(">q", x) for x in v)
     if t == LIST:
         et = _tag(v[0]) if v else END
         return struct.pack(">bi", et, len(v)) + b"".join(_payload(et, x) for x in v)
@@ -110,8 +122,17 @@ def write(path, root):
 
 
 def read(path):
-    with gzip.open(path, "rb") as f:
-        data = f.read()
+    """Файл NBT: сжатый gzip (структуры, .schem, .litematic) или нет."""
+    with open(path, "rb") as f:
+        return read_bytes(f.read())
+
+
+def read_bytes(data):
+    """NBT из байтов: gzip, zlib (чанки регионов) или без сжатия."""
+    if data[:2] == b"\x1f\x8b":
+        data = gzip.decompress(data)
+    elif data[:1] == b"\x78":
+        data = zlib.decompress(data)
     pos = [0]
 
     def take(fmt):
@@ -159,10 +180,14 @@ def read(path):
                 out[k] = payload(xt)
         if t == INT_ARRAY:
             n = take(">i")
-            return [take(">i") for _ in range(n)]
+            a = np.frombuffer(data, ">i4", n, pos[0]).astype(np.int32)
+            pos[0] += 4 * n
+            return a
         if t == LONG_ARRAY:
             n = take(">i")
-            return [take(">q") for _ in range(n)]
+            a = np.frombuffer(data, ">i8", n, pos[0]).astype(np.int64)
+            pos[0] += 8 * n
+            return a
         raise ValueError(t)
 
     t = take(">b")

@@ -1,0 +1,85 @@
+{
+  "_": "Разметка образцов (docs/architecture/visual-pipeline.md#темы-типы-стили). Оси, подписи стилей по материалам, слова в id, зоны Цитадели. Правится руками; ручные метки — в labels.json, они главнее автоматики. Шаблоны материалов — fnmatch по семейству (kinds.family); без «ns:» — minecraft.",
+
+  "axes": {
+    "type": {"house": "дом", "tower": "башня", "castle": "замок, крепость", "temple": "храм, святилище", "hall": "зал, дворец", "shop": "лавка, таверна, рынок", "workshop": "мастерская, механизм", "farm": "ферма", "storage": "склад", "bridge": "мост", "wall": "стена, ворота", "plaza": "площадь, сад", "street": "улица, квартал", "ship": "корабль, транспорт", "statue": "статуя, органика", "dungeon": "подземелье, склеп", "ruin": "руины", "portal": "портал", "tech": "установка, машина", "decor": "малая форма", "interior": "интерьер"},
+    "style": {"medieval": "средневековье", "fantasy": "фэнтези", "organic": "органика, эльфийское", "oriental": "восток", "nordic": "север", "rustic": "деревня", "desert": "пустыня", "gothic": "готика", "neoclassical": "неоклассика", "modern": "модерн", "futuristic": "футуризм", "scifi": "sci-fi, хай-тек", "cyberpunk": "киберпанк", "steampunk": "стимпанк", "industrial": "индустриальный", "ruined": "руины, запустение", "nether": "Незер", "end": "Энд", "ocean": "океан"},
+    "scale": {"detail": "деталь", "room": "комната", "building": "здание", "complex": "комплекс", "district": "квартал"},
+    "env": {"ground": "на земле", "underground": "под землёй", "floating": "в воздухе", "water": "в воде", "nether": "Незер", "end": "Энд"}
+  },
+
+  "styles": {
+    "medieval": {"stone_brick": 1.0, "cobblestone": 0.9, "mossy_cobblestone": 0.5, "mossy_stone_brick": 0.5, "spruce": 0.5, "oak": 0.5, "dark_oak": 0.3, "stone": 0.3, "andesite": 0.3, "hay": 0.2, "white_wool": 0.2, "lantern": 0.2, "tuff": 0.2},
+    "fantasy": {"amethyst": 1.0, "prismarine": 0.4, "calcite": 0.4, "*_terracotta": 0.3, "purple_*": 0.5, "blue_*": 0.3, "cyan_*": 0.3, "magenta_*": 0.3, "crying_obsidian": 0.5, "glowstone": 0.3, "birch": 0.3, "shroomlight": 0.4},
+    "organic": {"moss": 0.8, "mud_brick": 0.3, "mangrove": 0.6, "azalea": 0.6, "*_leaves": 0.4, "birch": 0.4, "dripstone": 0.5, "*mushroom*": 0.8, "bamboo": 0.3},
+    "oriental": {"bamboo": 1.0, "bamboo_mosaic": 1.0, "cherry": 1.0, "dark_oak": 0.5, "red_*": 0.8, "deepslate_tile": 0.4, "lantern": 0.5, "jungle": 0.3, "mangrove": 0.4},
+    "nordic": {"spruce": 1.0, "dark_oak": 0.5, "cobblestone": 0.5, "deepslate": 0.4, "cobbled_deepslate": 0.4, "stone_brick": 0.2, "white_wool": 0.2},
+    "rustic": {"oak": 1.0, "cobblestone": 0.6, "birch": 0.5, "acacia": 0.4, "hay": 0.6, "white_terracotta": 0.4, "glass": 0.2, "dirt_path": 0.3},
+    "desert": {"sandstone": 1.0, "red_sandstone": 0.8, "terracotta": 0.6, "orange_terracotta": 0.6, "yellow_terracotta": 0.5, "acacia": 0.4, "mud_brick": 0.4},
+    "gothic": {"deepslate_brick": 1.0, "deepslate_tile": 1.0, "polished_deepslate": 0.8, "cobbled_deepslate": 0.6, "blackstone": 0.5, "polished_blackstone*": 0.5, "dark_oak": 0.4, "black_stained_glass": 0.6, "gray_stained_glass": 0.5, "candle": 0.4, "soul_*": 0.4},
+    "neoclassical": {"quartz": 1.0, "calcite": 0.6, "diorite": 0.5, "polished_diorite": 0.6, "stone": 0.4, "white_concrete": 0.3, "gold": 0.4, "sandstone": 0.2},
+    "modern": {"white_concrete": 0.8, "light_gray_concrete": 0.8, "gray_concrete": 0.6, "black_concrete": 0.4, "glass": 0.8, "light_gray_stained_glass": 0.5, "gray_stained_glass": 0.4, "stone": 0.5, "polished_andesite": 0.5, "quartz": 0.4, "birch": 0.3, "iron": 0.3},
+    "futuristic": {"white_concrete": 1.0, "glass": 0.6, "light_blue_stained_glass": 1.0, "cyan_stained_glass": 0.8, "white_stained_glass": 0.6, "sea_lantern": 0.8, "end_rod": 0.8, "quartz": 0.6, "calcite": 0.5, "light_blue_concrete": 0.6, "cyan_concrete": 0.5, "iron": 0.3},
+    "scifi": {"iron": 1.0, "copper": 1.0, "tuff": 0.6, "tuff_brick": 0.6, "polished_tuff": 0.6, "polished_andesite": 0.5, "gray_concrete": 0.6, "light_gray_concrete": 0.4, "black_concrete": 0.5, "polished_deepslate": 0.4, "sea_lantern": 0.6, "redstone_lamp": 0.6, "end_rod": 0.6, "tinted_glass": 0.6, "observer": 0.5, "lightning_rod": 0.6, "iron_chain": 0.4, "heavy_core": 0.5},
+    "cyberpunk": {"black_concrete": 0.8, "gray_concrete": 0.4, "magenta_*": 1.0, "pink_*": 0.9, "purple_*": 0.8, "cyan_*": 0.7, "lime_*": 0.8, "*_stained_glass": 0.5, "polished_blackstone*": 0.4, "shroomlight": 0.3, "glowstone": 0.3, "verdant_froglight": 0.5, "pearlescent_froglight": 0.5},
+    "steampunk": {"copper": 1.0, "gold": 0.6, "dark_oak": 0.6, "spruce": 0.4, "brick": 0.7, "iron_chain": 0.5, "barrel": 0.4, "polished_blackstone*": 0.3, "lantern": 0.4, "iron": 0.3, "mud_brick": 0.3},
+    "industrial": {"iron": 1.0, "iron_chain": 0.8, "gray_concrete": 0.8, "stone": 0.5, "polished_andesite": 0.6, "brick": 0.4, "hopper": 0.5, "cobbled_deepslate": 0.4, "anvil": 0.3, "smoker": 0.3, "blast_furnace": 0.4},
+    "ruined": {"mossy_cobblestone": 1.0, "mossy_stone_brick": 1.0, "cracked_*": 1.0, "cobweb": 0.6, "infested_*": 0.4, "gravel": 0.2},
+    "nether": {"nether_brick": 1.0, "red_nether_brick": 1.0, "blackstone": 0.8, "polished_blackstone*": 1.0, "crimson": 1.0, "warped": 1.0, "basalt": 0.6, "polished_basalt": 0.8, "gilded_blackstone": 0.8, "betternether:*": 1.0},
+    "end": {"purpur": 1.0, "end_stone_brick": 1.0, "end_rod": 0.4, "obsidian": 0.3, "betterend:*": 1.0},
+    "ocean": {"prismarine": 1.0, "prismarine_brick": 1.0, "dark_prismarine": 1.0, "sea_lantern": 0.4}
+  },
+
+  "type_words": {
+    "house": ["house", "home", "cottage", "hut", "cabin", "manor", "residence", "villa", "igloo", "tent"],
+    "tower": ["tower", "lighthouse", "spire", "watchtower", "minaret"],
+    "castle": ["castle", "fort", "fortress", "keep", "citadel", "bastion", "stronghold", "outpost", "barracks"],
+    "temple": ["temple", "church", "cathedral", "chapel", "shrine", "monastery", "pyramid", "altar", "sanctuary"],
+    "hall": ["hall", "palace", "library", "mansion", "throne", "museum", "arena", "colosseum", "treasure"],
+    "shop": ["shop", "store", "market", "tavern", "inn", "bar", "stall", "bakery", "trader", "merchant"],
+    "workshop": ["forge", "smith", "workshop", "mill", "factory", "mine", "lab", "armorer", "fletcher", "mason", "toolsmith", "weaponsmith", "cartographer", "butcher", "tannery", "fisher", "shepherd"],
+    "farm": ["farm", "barn", "stable", "animal_pen", "garden"],
+    "bridge": ["bridge"],
+    "wall": ["wall", "gate", "gatehouse"],
+    "plaza": ["plaza", "square", "meeting_point", "fountain", "town_center", "center"],
+    "street": ["street", "road", "streets"],
+    "ship": ["ship", "boat", "airship", "shipwreck", "galleon", "submarine"],
+    "statue": ["statue", "monument"],
+    "dungeon": ["dungeon", "crypt", "tomb", "catacomb", "vault", "trial_chambers", "ancient_city", "prison", "cell"],
+    "ruin": ["ruin", "ruins", "ruined", "abandoned", "remnant"],
+    "portal": ["portal", "gateway"],
+    "decor": ["well", "lamp", "bench", "decoration", "decor", "pillar", "lamppost", "fossil"]
+  },
+
+  "style_words": {
+    "desert": ["desert", "sand"],
+    "nordic": ["snowy", "taiga", "nordic", "viking", "igloo"],
+    "rustic": ["plains", "savanna", "village", "meadow"],
+    "oriental": ["japanese", "chinese", "oriental", "pagoda", "samurai", "cherry", "bamboo"],
+    "medieval": ["medieval", "castle", "knight", "outpost", "pillager", "illager", "keep"],
+    "gothic": ["gothic", "ancient_city", "crypt", "vampire", "mansion"],
+    "ruined": ["ruin", "ruined", "abandoned", "trail_ruins"],
+    "nether": ["nether", "bastion", "fortress", "crimson", "warped", "betternether"],
+    "end": ["end_city", "end_", "betterend", "chorus"],
+    "ocean": ["ocean", "monument", "shipwreck", "underwater", "coral"],
+    "industrial": ["trial_chambers", "industrial", "refinery"],
+    "steampunk": ["steampunk", "airship", "clockwork"],
+    "fantasy": ["fantasy", "wizard", "mage", "elven", "fairy", "enchanted"],
+    "futuristic": ["future", "futuristic"],
+    "scifi": ["scifi", "sci_fi", "space", "spaceship"]
+  },
+
+  "zones": {
+    "lab": {"ru": "Лаборатория Рика", "styles": {"scifi": 1.0, "industrial": 0.8, "steampunk": 0.6, "modern": 0.5}, "types": {"workshop": 1.0, "interior": 1.0, "tech": 0.8, "house": 0.4}, "interior": true},
+    "plaza": {"ru": "Площадь Цитадели", "styles": {"futuristic": 1.0, "scifi": 0.8, "modern": 0.6, "neoclassical": 0.5}, "types": {"plaza": 1.0, "street": 0.8, "hall": 0.4}},
+    "council": {"ru": "Зал Совета Риков", "styles": {"futuristic": 1.0, "neoclassical": 0.8, "scifi": 0.8, "gothic": 0.4}, "types": {"hall": 1.0, "temple": 0.7}, "interior": true},
+    "bar": {"ru": "Бар", "styles": {"cyberpunk": 1.0, "industrial": 0.7, "steampunk": 0.7, "modern": 0.5}, "types": {"shop": 1.0, "interior": 0.8, "house": 0.3}, "interior": true},
+    "arcade": {"ru": "Аркады", "styles": {"cyberpunk": 1.0, "futuristic": 0.8}, "types": {"shop": 1.0, "hall": 0.7, "interior": 0.7}, "interior": true},
+    "market": {"ru": "Лавки торговца", "styles": {"cyberpunk": 1.0, "oriental": 0.6, "steampunk": 0.5, "desert": 0.4}, "types": {"shop": 1.0, "street": 0.8}},
+    "slums": {"ru": "Нижние ярусы", "styles": {"cyberpunk": 1.0, "industrial": 1.0, "ruined": 0.6}, "types": {"street": 1.0, "house": 0.6, "workshop": 0.6}},
+    "docks": {"ru": "Доки кораблей", "styles": {"scifi": 1.0, "industrial": 0.9, "steampunk": 0.7}, "types": {"ship": 1.0, "tech": 0.8, "workshop": 0.6, "bridge": 0.5}},
+    "portal": {"ru": "Портальная зона", "styles": {"scifi": 1.0, "futuristic": 0.9, "end": 0.6, "fantasy": 0.4}, "types": {"portal": 1.0, "tech": 0.8, "plaza": 0.6, "temple": 0.4}},
+    "garage": {"ru": "Гараж Смитов", "styles": {"modern": 1.0, "rustic": 0.6, "industrial": 0.5}, "types": {"house": 1.0, "workshop": 0.8, "interior": 0.8}, "interior": true},
+    "skyline": {"ru": "Задник: модули Цитадели", "styles": {"futuristic": 1.0, "scifi": 1.0}, "types": {"tower": 1.0, "hall": 0.6, "tech": 0.8, "ship": 0.6}}
+  }
+}

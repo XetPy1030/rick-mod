@@ -1,0 +1,536 @@
+{
+  "_": "Источники образцов (docs/architecture/visual-pipeline.md#библиотека-образцов-toolsrefs). Скачанное и вырезанное — в run/refs/, вне git. Только для изучения: в мод, git и префабы чужие постройки не попадают. Рейтинг — на дату проверки. Порядок записей — порядок `refs.py scan all`. Записи modrinth:* пишет `refs.py modrinth`.",
+  "budget_gb": 40,
+  "checked": "2026-09-29",
+  "sources": [
+    {
+      "id": "hermitcraft10",
+      "kind": "world",
+      "url": "https://r2.hermitcraft.com/hermitcraft10.zip",
+      "title": "Hermitcraft, сезон 10",
+      "mc": "1.21.8",
+      "size_gb": 1.23,
+      "why": "выживание команды известных строителей YouTube: базы, район магазинов, мегапроекты; в End — постройки у главного острова",
+      "styles": [
+        "mixed",
+        "survival"
+      ],
+      "rating": "самый известный SMP-сервер YouTube, миры выкладываются официально после сезона",
+      "terms": "свободная загрузка с hermitcraft.com, условий на странице нет — только изучение, без распространения"
+    },
+    {
+      "id": "uncensored_library",
+      "kind": "world",
+      "url": "https://archive.org/download/the-uncensored-library-v-2/The%20Uncensored%20Library%20V2.zip",
+      "page": "https://www.uncensoredlibrary.com",
+      "title": "The Uncensored Library V2 (Blockworks для «Репортёров без границ»)",
+      "mc": "1.14",
+      "size_gb": 0.1,
+      "why": "профессиональная неоклассика: купол, колоннады, залы — монументальный интерьер",
+      "styles": [
+        "neoclassical",
+        "monumental",
+        "interior"
+      ],
+      "rating": "официальный проект RSF, премии за рекламу; CurseForge — 15,8 тыс. скачиваний",
+      "terms": "свободная загрузка с сайта проекта; копия на archive.org — только изучение"
+    },
+    {
+      "id": "greenfield",
+      "kind": "world",
+      "url": "mediafire:https://www.mediafire.com/file/ejf7bvjxyzwrkmt/Greenfield_v0.5.4.zip/file",
+      "page": "https://www.greenfieldmc.net/downloads",
+      "title": "Greenfield 0.5.4",
+      "mc": "1.14",
+      "size_gb": 1.21,
+      "why": "город в натуральную величину: небоскрёбы, фасады, улицы — современный стиль, масштаб и ритм окон; MediaFire режет запросы по частям — архив качается целиком и удаляется после скана",
+      "styles": [
+        "modern",
+        "city"
+      ],
+      "rating": "один из самых известных городских проектов Minecraft, есть статья в Википедии",
+      "terms": "свободная загрузка с сайта проекта — только изучение",
+      "fetch": "full"
+    },
+    {
+      "id": "hermitcraft9",
+      "kind": "world",
+      "url": "https://download.hermitcraft.com/hermitcraft9.zip",
+      "title": "Hermitcraft, сезон 9",
+      "mc": "1.19–1.20",
+      "size_gb": 2.1,
+      "why": "то же, другой состав построек; медь, глубинный сланец, мангровые, вишня — палитры новых версий",
+      "styles": [
+        "mixed",
+        "survival"
+      ],
+      "rating": "см. hermitcraft10",
+      "terms": "см. hermitcraft10"
+    },
+    {
+      "id": "hermitcraft8",
+      "kind": "world",
+      "url": "https://download.hermitcraft.com/hermitcraft8.zip",
+      "title": "Hermitcraft, сезон 8",
+      "mc": "1.17–1.18",
+      "size_gb": 1.18,
+      "why": "первые постройки на медном и аметистовом — ближе всего к хай-теку",
+      "styles": [
+        "mixed",
+        "survival"
+      ],
+      "rating": "см. hermitcraft10",
+      "terms": "см. hermitcraft10"
+    },
+    {
+      "id": "empires2",
+      "kind": "world",
+      "url": "https://archive.org/download/empires-s-2-final/EmpiresS2_FINAL.zip",
+      "title": "Empires SMP, сезон 2",
+      "mc": "1.19–1.20",
+      "size_gb": 3.55,
+      "why": "у каждого игрока своя империя в своём стиле: фэнтези, восток, стимпанк, подземелья",
+      "styles": [
+        "fantasy",
+        "mixed",
+        "survival"
+      ],
+      "rating": "официальная загрузка от fWhip (июль 2023), копия на archive.org",
+      "terms": "выложено автором сервера для скачивания — только изучение"
+    },
+    {
+      "id": "hermitcraft7",
+      "kind": "world",
+      "url": "https://download.hermitcraft.com/hermitcraft7.zip",
+      "title": "Hermitcraft, сезон 7",
+      "mc": "1.16",
+      "size_gb": 1.95,
+      "why": "незерские палитры 1.16: чернокамень, багровое и искажённое дерево",
+      "styles": [
+        "mixed",
+        "survival"
+      ],
+      "rating": "см. hermitcraft10",
+      "terms": "см. hermitcraft10"
+    },
+    {
+      "id": "hermitcraft6",
+      "kind": "world",
+      "url": "https://download.hermitcraft.com/hermitcraft6.zip",
+      "title": "Hermitcraft, сезон 6",
+      "mc": "1.13–1.14",
+      "size_gb": 2.07,
+      "why": "первый сезон с плоскими id: коралл, ламинария, бочки; другой состав строителей",
+      "styles": [
+        "mixed",
+        "survival"
+      ],
+      "rating": "см. hermitcraft10",
+      "terms": "см. hermitcraft10"
+    },
+    {
+      "id": "dream_smp",
+      "kind": "world",
+      "url": "https://archive.org/download/dsmp_20241113/dsmp.zip",
+      "title": "Dream SMP",
+      "mc": "1.16–1.20",
+      "size_gb": 16.4,
+      "why": "знаменитые постройки сюжетного сервера; качество разное — последним в очереди",
+      "styles": [
+        "mixed",
+        "survival"
+      ],
+      "rating": "официальная публикация Dream 12.11.2024; CurseForge — 48 тыс. скачиваний урезанной копии",
+      "terms": "опубликовано владельцем — только изучение"
+    },
+    {
+      "id": "nova_celes",
+      "kind": "manual",
+      "page": "https://www.planetminecraft.com/project/nova-celes-city-the-futuristic-town-cit-du-swagg-download/",
+      "title": "Nova Celes City — футуристический город",
+      "styles": [
+        "futuristic",
+        "city"
+      ],
+      "rating": "Planet Minecraft: 99 тыс. скачиваний, 20 тыс. в избранном",
+      "why": "футуризм с зеленью — ближе всего к Цитадели по духу"
+    },
+    {
+      "id": "cyberpunk_2048",
+      "kind": "inbox",
+      "page": "https://www.planetminecraft.com/project/cyberpunk-futuristic-city-scene-concept/",
+      "title": "2048 Cyberpunk Futuristic City",
+      "styles": [
+        "futuristic",
+        "cyberpunk",
+        "city"
+      ],
+      "why": "летающие машины, неон, трубы, мосты — детали хай-тека",
+      "file": "5-2048-cyberpunk-futuristic-city-1-12-by-megaminerdl.zip"
+    },
+    {
+      "id": "cyberpunk_13",
+      "kind": "inbox",
+      "page": "https://www.planetminecraft.com/project/cyberpunk-sci-fi-futuristic-city-map/",
+      "title": "Cyberpunk Sci-Fi Futuristic City",
+      "styles": [
+        "futuristic",
+        "cyberpunk",
+        "city"
+      ],
+      "why": "башни с мостами и вывесками",
+      "file": "13-cyberpunk-scifi-futuristic-city-large-1-12-by-megaminerdl.zip"
+    },
+    {
+      "id": "trinity_starship",
+      "kind": "manual",
+      "page": "https://www.planetminecraft.com/project/sci-fi-build-the-trinity-starship-interior/",
+      "title": "The Trinity Starship (+Interior)",
+      "styles": [
+        "sci-fi",
+        "spaceship",
+        "interior"
+      ],
+      "why": "интерьер корабля — коридоры, пульты, отсеки: образец для лаборатории-хай-тек"
+    },
+    {
+      "id": "scifi_spaceship_119",
+      "kind": "manual",
+      "page": "https://www.planetminecraft.com/project/sci-fi-spaceship-1-19-schematic/",
+      "title": "Sci-fi Spaceship 1.19",
+      "styles": [
+        "sci-fi",
+        "spaceship",
+        "interior"
+      ],
+      "why": "космооперный корабль с отделанным интерьером"
+    },
+    {
+      "id": "future_city",
+      "kind": "inbox",
+      "page": "https://www.minecraftmaps.com/13204-future-city",
+      "title": "Future City",
+      "styles": [
+        "futuristic",
+        "city",
+        "sci-fi"
+      ],
+      "why": "в описании — купол, цитадель, крейсеры, небесный поезд",
+      "file": "future-city-v5.5.zip"
+    },
+    {
+      "id": "modrinth:yungs-better-dungeons",
+      "kind": "jar",
+      "modrinth": "yungs-better-dungeons",
+      "title": "YUNG's Better Dungeons",
+      "why": "A complete redesign of Minecraft's dungeons!",
+      "rating": "Modrinth: 21 897 707 скачиваний  3 034 подписчиков",
+      "downloads": 21897707,
+      "license": "LGPL-3.0-only",
+      "mc": "26.1.2",
+      "styles": []
+    },
+    {
+      "id": "modrinth:dungeons-and-taverns",
+      "kind": "jar",
+      "modrinth": "dungeons-and-taverns",
+      "title": "Dungeons and Taverns",
+      "why": "A Structure Datapack adding dungeons, taverns and other structures to find while you explore the world.",
+      "rating": "Modrinth: 21 333 260 скачиваний  8 809 подписчиков",
+      "downloads": 21333260,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:towns-and-towers",
+      "kind": "jar",
+      "modrinth": "towns-and-towers",
+      "title": "Towns and Towers",
+      "why": "Spice up your world with new villages, pillager outposts, and even new ships!",
+      "rating": "Modrinth: 17 758 485 скачиваний  4 905 подписчиков",
+      "downloads": 17758485,
+      "license": "CC-BY-NC-SA-4.0",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:repurposed-structures-fabric",
+      "kind": "jar",
+      "modrinth": "repurposed-structures-fabric",
+      "title": "Repurposed Structures - Fabric",
+      "why": "Adds more variations of vanilla structures and features such as a Jungle Fortress!",
+      "rating": "Modrinth: 14 114 031 скачиваний  1 154 подписчиков",
+      "downloads": 14114031,
+      "license": "LGPL-3.0-only",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:when-dungeons-arise",
+      "kind": "jar",
+      "modrinth": "when-dungeons-arise",
+      "title": "When Dungeons Arise",
+      "why": "Adds various elegant -and likely hostile- roguelike dungeons and structures that generate on your worlds!",
+      "rating": "Modrinth: 10 963 824 скачиваний  2 036 подписчиков",
+      "downloads": 10963824,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "1.21.1",
+      "styles": []
+    },
+    {
+      "id": "modrinth:ct-overhaul-village",
+      "kind": "jar",
+      "modrinth": "ct-overhaul-village",
+      "title": "ChoiceTheorem's Overhauled Village",
+      "why": "Enhances and creates new villages and pillager outposts, that perfectly fit into your Minecraft world.",
+      "rating": "Modrinth: 10 564 708 скачиваний  3 236 подписчиков",
+      "downloads": 10564708,
+      "license": "CC-BY-NC-ND-4.0",
+      "mc": "26.2",
+      "styles": []
+    },
+    {
+      "id": "modrinth:mes-moogs-end-structures",
+      "kind": "jar",
+      "modrinth": "mes-moogs-end-structures",
+      "title": "MES - Moog's End Structures",
+      "why": "Lots of Vanilla styled structrues to fill up the end dimension with life!",
+      "rating": "Modrinth: 10 420 867 скачиваний  1 194 подписчиков",
+      "downloads": 10420867,
+      "license": "LGPL-3.0-only",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:incendium",
+      "kind": "jar",
+      "modrinth": "incendium",
+      "title": "Incendium Legacy",
+      "why": "A nether biome overhaul combined with challenging structures to conquer, unique weapons to obtain, and tricky mobs to defeat.",
+      "rating": "Modrinth: 10 142 826 скачиваний  3 046 подписчиков",
+      "downloads": 10142826,
+      "license": "LicenseRef-Stardust-Labs-License",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:explorify",
+      "kind": "jar",
+      "modrinth": "explorify",
+      "title": "Explorify",
+      "why": "A simplistic, vanilla-friendly collection of new structures.",
+      "rating": "Modrinth: 9 364 651 скачиваний  3 193 подписчиков",
+      "downloads": 9364651,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "26.2",
+      "styles": []
+    },
+    {
+      "id": "modrinth:villages-and-pillages",
+      "kind": "jar",
+      "modrinth": "villages-and-pillages",
+      "title": "Villages&Pillages",
+      "why": "Structure mod that brings an exciting twist to Minecraft by introducing hostile and unfriendly pillages, providing a thrilling contrast to the peaceful villages.",
+      "rating": "Modrinth: 8 651 698 скачиваний  868 подписчиков",
+      "downloads": 8651698,
+      "license": "LicenseRef-CC-BY-NC-ND-4.0",
+      "mc": "1.21.4",
+      "styles": []
+    },
+    {
+      "id": "modrinth:moogs-voyager-structures",
+      "kind": "jar",
+      "modrinth": "moogs-voyager-structures",
+      "title": "MVS - Moog's Voyager Structures",
+      "why": "adds 130+ vanilla style structures to your world to bring it alive, using vanilla blocks. Includes dungeons and enemies to fight!",
+      "rating": "Modrinth: 8 324 682 скачиваний  1 568 подписчиков",
+      "downloads": 8324682,
+      "license": "MIT",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:adorabuild-structures",
+      "kind": "jar",
+      "modrinth": "adorabuild-structures",
+      "title": "AdoraBuild: Structures",
+      "why": "Adds over 100 new structures to enhance the world exploration",
+      "rating": "Modrinth: 7 823 291 скачиваний  458 подписчиков",
+      "downloads": 7823291,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "26.2",
+      "styles": []
+    },
+    {
+      "id": "modrinth:better-archeology",
+      "kind": "jar",
+      "modrinth": "better-archeology",
+      "title": "Better Archeology",
+      "why": "Discover artifacts & fossils by encountering new structures that'll enhance your adventure and exploration!",
+      "rating": "Modrinth: 7 114 670 скачиваний  2 169 подписчиков",
+      "downloads": 7114670,
+      "license": "MIT",
+      "mc": "26.2",
+      "styles": []
+    },
+    {
+      "id": "modrinth:bygone-nether",
+      "kind": "jar",
+      "modrinth": "bygone-nether",
+      "title": "Bygone Nether",
+      "why": "Explore new structures unique to each Nether biome, as well as the new mobs that inhabit them.",
+      "rating": "Modrinth: 6 902 958 скачиваний  240 подписчиков",
+      "downloads": 6902958,
+      "license": "MIT",
+      "mc": "1.20.1",
+      "styles": []
+    },
+    {
+      "id": "modrinth:formations-nether",
+      "kind": "jar",
+      "modrinth": "formations-nether",
+      "title": "Formations Nether",
+      "why": "Formations Nether adds plenty of new structures to the nether!",
+      "rating": "Modrinth: 6 330 530 скачиваний  517 подписчиков",
+      "downloads": 6330530,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:explorations",
+      "kind": "jar",
+      "modrinth": "explorations",
+      "title": "Explorations",
+      "why": "adds more vanilla style structures to the game",
+      "rating": "Modrinth: 6 153 251 скачиваний  362 подписчиков",
+      "downloads": 6153251,
+      "license": "CC-BY-NC-ND-4.0",
+      "mc": "26.2",
+      "styles": []
+    },
+    {
+      "id": "modrinth:formations-overworld",
+      "kind": "jar",
+      "modrinth": "formations-overworld",
+      "title": "Formations Overworld",
+      "why": "Formations Overworld adds plenty of new structures to the overworld!",
+      "rating": "Modrinth: 5 956 774 скачиваний  469 подписчиков",
+      "downloads": 5956774,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:ribbits",
+      "kind": "jar",
+      "modrinth": "ribbits",
+      "title": "Ribbits",
+      "why": "Swamp villages and musical frogs!",
+      "rating": "Modrinth: 5 814 195 скачиваний  2 625 подписчиков",
+      "downloads": 5814195,
+      "license": "LGPL-3.0-only",
+      "mc": "1.21.1",
+      "styles": []
+    },
+    {
+      "id": "modrinth:the-graveyard-fabric",
+      "kind": "jar",
+      "modrinth": "the-graveyard-fabric",
+      "title": "The Graveyard (FABRIC)",
+      "why": "A mod that adds structures, mobs, bosses and blocks themed aroung the graveyard.",
+      "rating": "Modrinth: 5 458 263 скачиваний  623 подписчиков",
+      "downloads": 5458263,
+      "license": "LGPL-3.0-only",
+      "mc": "1.20.4",
+      "styles": []
+    },
+    {
+      "id": "modrinth:lukis-grand-capitals",
+      "kind": "jar",
+      "modrinth": "lukis-grand-capitals",
+      "title": "Luki's Grand Capitals",
+      "why": "Rebuilt vanilla villages and illager structures to breathe new life into your world!",
+      "rating": "Modrinth: 5 408 977 скачиваний  1 860 подписчиков",
+      "downloads": 5408977,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "1.21.11",
+      "styles": []
+    },
+    {
+      "id": "modrinth:promenade",
+      "kind": "jar",
+      "modrinth": "promenade",
+      "title": "Promenade",
+      "why": "Fancy and simplistic biomes and structures! (includes capybaras)",
+      "rating": "Modrinth: 5 381 568 скачиваний  1 084 подписчиков",
+      "downloads": 5381568,
+      "license": "LicenseRef-Polyform-Shield-1.0.0",
+      "mc": "26.2",
+      "styles": []
+    },
+    {
+      "id": "modrinth:additional-structures",
+      "kind": "jar",
+      "modrinth": "additional-structures",
+      "title": "Additional Structures",
+      "why": "Adds >200 new structures that integrate perfectly into your world!",
+      "rating": "Modrinth: 5 154 086 скачиваний  992 подписчиков",
+      "downloads": 5154086,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "1.21.11",
+      "styles": []
+    },
+    {
+      "id": "modrinth:dungeons-and-taverns-ancient-city-overhaul",
+      "kind": "jar",
+      "modrinth": "dungeons-and-taverns-ancient-city-overhaul",
+      "title": "Dungeons and Taverns Ancient City Overhaul",
+      "why": "Standalone Splinter version of Dungeons and Taverns Ancient City Overhaul",
+      "rating": "Modrinth: 4 293 120 скачиваний  946 подписчиков",
+      "downloads": 4293120,
+      "license": "LicenseRef-All-Rights-Reserved",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "modrinth:mns-moogs-nether-structures",
+      "kind": "jar",
+      "modrinth": "mns-moogs-nether-structures",
+      "title": "MNS - Moog's Nether Structures",
+      "why": "loads of structures made with vanilla blocks and entities bringing life to your world! Discover loot, enemies, & more along the way!",
+      "rating": "Modrinth: 4 291 888 скачиваний  539 подписчиков",
+      "downloads": 4291888,
+      "license": "LGPL-3.0-only",
+      "mc": "26.3",
+      "styles": []
+    },
+    {
+      "id": "terracitee",
+      "kind": "inbox",
+      "file": "TerraCitee.rar",
+      "title": "TerraCitee",
+      "mc": "1.12.2",
+      "styles": [
+        "modern",
+        "city"
+      ],
+      "why": "город 1.12 — проверка чтения старых миров с числовыми id",
+      "rating": "скачан владельцем вручную",
+      "segment": "city"
+    },
+    {
+      "id": "spaceship_nbt",
+      "kind": "inbox",
+      "file": "spaceship.nbt",
+      "title": "Космический корабль (структура)",
+      "styles": [
+        "sci-fi",
+        "spaceship"
+      ],
+      "why": "корабль для доков и лаборатории",
+      "rating": "скачан владельцем вручную"
+    }
+  ]
+}

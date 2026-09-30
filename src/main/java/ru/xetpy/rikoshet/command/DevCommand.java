@@ -20,6 +20,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import ru.xetpy.rikoshet.RikoshetRuntime;
+import ru.xetpy.rikoshet.visual.RegistryDump;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,6 +63,8 @@ public final class DevCommand {
 										.then(Commands.argument("kind", StringArgumentType.word()).executes(c -> chatReact(c, rt))))))
 				.then(Commands.literal("citadel")
 						.then(Commands.literal("npc").executes(c -> citadelNpc(c, rt))))
+				.then(Commands.literal("dump")
+						.then(Commands.literal("registry").executes(c -> dumpRegistry(c, rt))))
 				.then(Commands.literal("talk")
 						.then(Commands.argument("nick", StringArgumentType.word())
 								.executes(c -> talk(c, rt, null))
@@ -89,6 +92,24 @@ public final class DevCommand {
 								.then(Commands.argument("nick", StringArgumentType.word())
 										.then(Commands.argument("text", StringArgumentType.greedyString())
 												.executes(c -> chat(c, rt)))))));
+	}
+
+	/** Дамп реестров для tools/mc: rikoshet/dump/registry.json в папке сервера. */
+	private static int dumpRegistry(CommandContext<CommandSourceStack> c, Supplier<RikoshetRuntime> rt) {
+		RikoshetRuntime r = Cmd.runtime(c, rt);
+		if (r == null) {
+			return 0;
+		}
+		try {
+			var res = RegistryDump.write(r.server, r.paths.dataDir().resolve("dump/registry.json"));
+			c.getSource().sendSuccess(() -> Component.literal("дамп: " + res.blocks() + " блоков (" + res.states() + " состояний), "
+					+ res.items() + " предметов, " + res.structures() + " структур → " + res.file()), false);
+			return 1;
+		} catch (Exception e) {
+			r.log.warn("[дамп] не записался", e);
+			c.getSource().sendFailure(Component.literal("дамп не записался: " + e));
+			return 0;
+		}
 	}
 
 	/** Поставить Рика без игрока в Цитадели: грузит чанк и зовёт тот же код, что и раз в секунду. */

@@ -10,3 +10,5 @@ python3 tools/skins/rick.py    # нужен Pillow
 - `rick.py` — Рик, простая версия этапа 3. Детальная — этап 3.5.
 
 Новый персонаж — новый скрипт `<id>.py`, вызывающий `Skin().save("<id>")`.
+
+Посмотреть скин со всех сторон, развёрткой и с расстояния — `python3 tools/render.py src/main/resources/assets/rikoshet/textures/entity/npc/<id>.png` → `run/visual/skins/<id>.png` ([tools/mc](../mc/README.md)).

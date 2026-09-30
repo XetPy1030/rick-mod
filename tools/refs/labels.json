@@ -1,0 +1,3181 @@
+{
+ "cyberpunk_13:overworld_-102_10_-22": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "киберпанк-башня"
+ },
+ "cyberpunk_13:overworld_-114_14_-58": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "киберпанк-башня"
+ },
+ "cyberpunk_13:overworld_-122_2_-146": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "киберпанк-башня"
+ },
+ "cyberpunk_13:overworld_-134_10_-46": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "бирюзовая башня с трубами-гирляндами"
+ },
+ "cyberpunk_13:overworld_-142_6_-166": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 5,
+  "note": "каркас башни: синие окна, лианы, трубы"
+ },
+ "cyberpunk_13:overworld_-146_6_-146": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 5,
+  "note": "две башни с неоновой розовой отделкой и трубами"
+ },
+ "cyberpunk_13:overworld_-170_6_-46": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "киберпанк-башня"
+ },
+ "cyberpunk_13:overworld_-174_6_-126": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "киберпанк-башня"
+ },
+ "cyberpunk_2048:overworld_-52_0_-48": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk"
+  ],
+  "zones": [
+   "slums",
+   "skyline",
+   "bar"
+  ],
+  "rating": 5,
+  "note": "высотка 2048: зелёные окна, трубы, вывески, надстройки"
+ },
+ "dream_smp:overworld_-127_1_-2522": {
+  "reject": true
+ },
+ "dream_smp:overworld_-262_13_-17": {
+  "rating": 2
+ },
+ "dream_smp:overworld_-290_58_-910": {
+  "rating": 2
+ },
+ "dream_smp:overworld_-326_77_-77": {
+  "type": [
+   "interior",
+   "shop"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "bar",
+   "arcade"
+  ],
+  "rating": 3,
+  "note": "тёмное здание, интерьер как у казино"
+ },
+ "dream_smp:overworld_-354_77_43": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 3,
+  "note": "высотка со светящимися окнами"
+ },
+ "dream_smp:overworld_-422_73_-73": {
+  "type": [
+   "hall",
+   "castle"
+  ],
+  "style": [
+   "neoclassical",
+   "futuristic"
+  ],
+  "zones": [
+   "council",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "белый дворец с синими окнами"
+ },
+ "dream_smp:overworld_146_49_-537": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3,
+  "note": "высокая серая башня"
+ },
+ "dream_smp:overworld_170_13_-629": {
+  "type": [
+   "hall",
+   "interior"
+  ],
+  "style": [
+   "neoclassical",
+   "futuristic"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 3,
+  "note": "белый зал с синей отделкой"
+ },
+ "dream_smp:overworld_190_65_-365": {
+  "rating": 2
+ },
+ "dream_smp:overworld_190_69_-749": {
+  "type": [
+   "tower",
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3,
+  "note": "красно-белая гостиница"
+ },
+ "dream_smp:overworld_202_65_-293": {
+  "rating": 2
+ },
+ "dream_smp:overworld_206_73_-453": {
+  "rating": 2
+ },
+ "dream_smp:overworld_222_77_-757": {
+  "rating": 2
+ },
+ "dream_smp:overworld_226_14_422": {
+  "rating": 2
+ },
+ "dream_smp:overworld_226_45_-873": {
+  "rating": 2
+ },
+ "dream_smp:overworld_238_53_-673": {
+  "rating": 2
+ },
+ "dream_smp:overworld_26_65_-309": {
+  "rating": 2
+ },
+ "dream_smp:overworld_282_49_-465": {
+  "rating": 2
+ },
+ "dream_smp:overworld_334_61_-409": {
+  "rating": 2
+ },
+ "dream_smp:overworld_386_41_-537": {
+  "rating": 2
+ },
+ "dream_smp:overworld_432_64_-274": {
+  "reject": true
+ },
+ "dream_smp:overworld_458_61_-537": {
+  "rating": 2
+ },
+ "dream_smp:overworld_66_49_-481": {
+  "rating": 2
+ },
+ "dream_smp:overworld_768_6_-608": {
+  "reject": true
+ },
+ "empires2:overworld_-114_46_-606": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_-118_38_-502": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "steampunk"
+  ],
+  "zones": [
+   "slums",
+   "market"
+  ],
+  "rating": 4,
+  "note": "плотный город: терракота, медь, трубы"
+ },
+ "empires2:overworld_-2_54_-554": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_-405_82_158": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "medieval",
+   "modern"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_-50_78_-38": {
+  "type": [
+   "street",
+   "tower"
+  ],
+  "style": [
+   "fantasy"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 4,
+  "note": "круглые башни с цветными кольцами"
+ },
+ "empires2:overworld_2398_58_-2800": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_258_156_-218": {
+  "type": [
+   "castle",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "neoclassical"
+  ],
+  "zones": [
+   "skyline",
+   "council",
+   "plaza"
+  ],
+  "rating": 5,
+  "note": "летающий белый дворец с золотом и бирюзой, вокруг парящие островки — модуль Цитадели"
+ },
+ "empires2:overworld_2740_55_1698": {
+  "type": [
+   "street",
+   "shop"
+  ],
+  "style": [
+   "fantasy"
+  ],
+  "zones": [
+   "market",
+   "docks"
+  ],
+  "rating": 4,
+  "note": "гавань с маяком, пёстрые дома"
+ },
+ "empires2:overworld_2864_65_1335": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_2914_61_1535": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_2922_45_1311": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_2958_65_1375": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_2962_81_1463": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_2970_93_1507": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_2994_73_1419": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_2994_85_1571": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_3026_89_1603": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "fantasy",
+   "gothic"
+  ],
+  "rating": 3,
+  "note": "тёмная башня с бирюзовыми кольцами"
+ },
+ "empires2:overworld_3054_77_1439": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_3058_61_1347": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_3074_65_1217": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "rustic",
+   "neoclassical"
+  ],
+  "rating": 3,
+  "note": "двор под терракотовой черепицей"
+ },
+ "empires2:overworld_3102_89_1475": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_3134_109_1411": {
+  "type": [
+   "tower",
+   "temple"
+  ],
+  "style": [
+   "oriental"
+  ],
+  "rating": 4,
+  "note": "пагода с золотой крышей"
+ },
+ "empires2:overworld_3138_93_1459": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "empires2:overworld_654_50_350": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "fantasy",
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "future_city:overworld_-1038_102_194": {
+  "type": [
+   "tech",
+   "plaza"
+  ],
+  "style": [
+   "scifi"
+  ],
+  "zones": [
+   "docks",
+   "portal"
+  ],
+  "rating": 5,
+  "note": "парящая посадочная площадка с жёлтой разметкой"
+ },
+ "future_city:overworld_-126_46_-354": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4
+ },
+ "future_city:overworld_-218_58_-510": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4,
+  "note": "закрученная башня"
+ },
+ "future_city:overworld_-382_58_-694": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "чёрная и белая башни-близнецы с садом"
+ },
+ "future_city:overworld_-502_66_210": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "rating": 3
+ },
+ "future_city:overworld_-510_66_74": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 3
+ },
+ "future_city:overworld_-518_62_122": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4
+ },
+ "future_city:overworld_-518_62_150": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "future_city:overworld_-530_50_854": {
+  "type": [
+   "hall",
+   "statue"
+  ],
+  "style": [
+   "futuristic",
+   "scifi"
+  ],
+  "zones": [
+   "council",
+   "skyline",
+   "portal"
+  ],
+  "rating": 5,
+  "note": "купол в решётчатой клетке"
+ },
+ "future_city:overworld_-554_62_-442": {
+  "type": [
+   "tech",
+   "workshop"
+  ],
+  "style": [
+   "scifi",
+   "industrial"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 4
+ },
+ "future_city:overworld_-562_194_1246": {
+  "type": [
+   "tech"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4,
+  "note": "парящий модуль"
+ },
+ "future_city:overworld_-622_206_1246": {
+  "type": [
+   "tech"
+  ],
+  "style": [
+   "futuristic",
+   "scifi"
+  ],
+  "zones": [
+   "skyline",
+   "docks"
+  ],
+  "rating": 4,
+  "note": "парящая станция на высоте 206"
+ },
+ "future_city:overworld_-634_194_1246": {
+  "type": [
+   "tech"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4,
+  "note": "парящий модуль с цилиндром"
+ },
+ "future_city:overworld_-638_62_-442": {
+  "type": [
+   "tech",
+   "workshop"
+  ],
+  "style": [
+   "scifi",
+   "industrial"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 4,
+  "note": "портальный кран над водой — космопорт"
+ },
+ "future_city:overworld_-710_58_-442": {
+  "type": [
+   "tech",
+   "workshop"
+  ],
+  "style": [
+   "scifi",
+   "industrial"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 4
+ },
+ "future_city:overworld_102_58_170": {
+  "type": [
+   "plaza"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "future_city:overworld_1114_58_-338": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4,
+  "note": "стеклянный цилиндр с вертолётной площадкой"
+ },
+ "future_city:overworld_166_62_-1066": {
+  "type": [
+   "plaza",
+   "hall"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "plaza",
+   "council"
+  ],
+  "rating": 4,
+  "note": "белая площадь с колоннами и лестницами"
+ },
+ "future_city:overworld_206_66_-1046": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "plaza",
+   "arcade",
+   "docks"
+  ],
+  "rating": 4,
+  "note": "ангар-стадион с арочной крышей"
+ },
+ "future_city:overworld_490_58_-538": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "future_city:overworld_702_222_-466": {
+  "type": [
+   "ship"
+  ],
+  "style": [
+   "scifi"
+  ],
+  "zones": [
+   "docks",
+   "skyline"
+  ],
+  "rating": 5,
+  "note": "летающий крейсер на высоте 222"
+ },
+ "future_city:overworld_78_74_218": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4
+ },
+ "future_city:overworld_834_186_-686": {
+  "type": [
+   "ship"
+  ],
+  "style": [
+   "scifi"
+  ],
+  "zones": [
+   "docks",
+   "skyline"
+  ],
+  "rating": 5,
+  "note": "истребитель в полёте"
+ },
+ "future_city:overworld_929_171_240": {
+  "type": [
+   "tech",
+   "hall"
+  ],
+  "style": [
+   "futuristic",
+   "scifi"
+  ],
+  "zones": [
+   "skyline",
+   "docks",
+   "plaza"
+  ],
+  "rating": 5,
+  "note": "парящая станция-ангар на высоте 171"
+ },
+ "greenfield:overworld_-1378_66_-246": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_-1646_66_-1210": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_-1766_66_-1210": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_-2226_58_-142": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 4,
+  "note": "торговый ряд с парковкой"
+ },
+ "greenfield:overworld_-2402_66_-818": {
+  "type": [
+   "storage"
+  ],
+  "style": [
+   "industrial",
+   "modern"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_-2410_66_-1090": {
+  "type": [
+   "storage"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2
+ },
+ "greenfield:overworld_-2574_66_-74": {
+  "type": [
+   "shop",
+   "interior"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3,
+  "note": "комнаты сверху, разметка пола"
+ },
+ "greenfield:overworld_-2622_66_-74": {
+  "type": [
+   "shop",
+   "interior"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_-2786_66_-1214": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_-2942_67_-1214": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_-3342_66_-1214": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_-566_66_782": {
+  "type": [
+   "storage"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 2
+ },
+ "greenfield:overworld_-610_66_-1110": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_-618_66_-1118": {
+  "type": [
+   "interior",
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "lab",
+   "garage"
+  ],
+  "rating": 4,
+  "note": "разрез многоэтажного дома: комнаты, лестница"
+ },
+ "greenfield:overworld_-638_74_-1098": {
+  "type": [
+   "interior"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "lab"
+  ],
+  "rating": 3,
+  "note": "разрез здания с этажами"
+ },
+ "greenfield:overworld_-6_58_-1286": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "plaza"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_-774_66_-2522": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_-802_66_-2354": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_1010_58_-658": {
+  "type": [
+   "tower",
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "skyline",
+   "slums"
+  ],
+  "rating": 4,
+  "note": "жилая высотка, балконы"
+ },
+ "greenfield:overworld_1846_70_-634": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern",
+   "industrial"
+  ],
+  "rating": 3,
+  "note": "длинный вокзал или цех"
+ },
+ "greenfield:overworld_1898_66_158": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_198_46_-470": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "skyline",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "стеклянная башня с садами"
+ },
+ "greenfield:overworld_2374_62_-706": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_2458_66_54": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_2534_66_-722": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "garage",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "офисы со стеклом и парковкой"
+ },
+ "greenfield:overworld_2658_66_-46": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_2726_66_1358": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3,
+  "note": "кирпичные террасы"
+ },
+ "greenfield:overworld_3130_66_-1622": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 2
+ },
+ "greenfield:overworld_3138_70_-1986": {
+  "type": [
+   "hall",
+   "plaza"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "plaza",
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "стадион под белым навесом"
+ },
+ "greenfield:overworld_3338_74_-1878": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3,
+  "note": "навес вокзала или стадиона"
+ },
+ "greenfield:overworld_3946_66_1242": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_4074_70_-954": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 2
+ },
+ "greenfield:overworld_4166_70_-550": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 4,
+  "note": "рынок под волнистой крышей"
+ },
+ "greenfield:overworld_422_66_-666": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "skyline",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "высотка на подиуме, пёстрый первый этаж"
+ },
+ "greenfield:overworld_4310_70_-930": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП с основанием"
+ },
+ "greenfield:overworld_4650_78_1470": {
+  "type": [
+   "hall",
+   "interior"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_4818_70_-1334": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "slums"
+  ],
+  "rating": 4,
+  "note": "длинный жилой блок, ритм окон"
+ },
+ "greenfield:overworld_4822_70_-1178": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_4990_70_-1266": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_5078_74_-2046": {
+  "type": [
+   "interior"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "garage"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_5234_70_-1982": {
+  "type": [
+   "hall",
+   "interior"
+  ],
+  "style": [
+   "modern",
+   "industrial"
+  ],
+  "zones": [
+   "lab"
+  ],
+  "rating": 3,
+  "note": "этажи-цеха под зелёной крышей"
+ },
+ "greenfield:overworld_5344_72_-1439": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2,
+  "note": "опора ЛЭП"
+ },
+ "greenfield:overworld_70_66_-38": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3,
+  "note": "вилла с черепицей"
+ },
+ "greenfield:overworld_790_54_-182": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "greenfield:overworld_798_58_446": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "slums"
+  ],
+  "rating": 3,
+  "note": "белый дом с балконами"
+ },
+ "greenfield:overworld_94_62_630": {
+  "type": [
+   "house",
+   "tower"
+  ],
+  "style": [
+   "modern",
+   "futuristic"
+  ],
+  "zones": [
+   "skyline",
+   "plaza"
+  ],
+  "rating": 5,
+  "note": "изогнутый фасад, бассейн на крыше — плавные формы"
+ },
+ "hermitcraft10:nether_-130_127_-102": {
+  "type": [
+   "ruin"
+  ],
+  "style": [
+   "neoclassical",
+   "ruined"
+  ],
+  "rating": 3,
+  "note": "белые колонны на крыше Незера"
+ },
+ "hermitcraft10:overworld_-1057_61_-3504": {
+  "type": [
+   "bridge"
+  ],
+  "style": [
+   "industrial",
+   "steampunk"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 3,
+  "note": "призмариновый мост и золотые трубы"
+ },
+ "hermitcraft10:overworld_-160_82_-270": {
+  "type": [
+   "castle"
+  ],
+  "style": [
+   "medieval",
+   "gothic"
+  ],
+  "rating": 3
+ },
+ "hermitcraft10:overworld_-232_62_-206": {
+  "type": [
+   "ruin"
+  ],
+  "style": [
+   "organic",
+   "ruined"
+  ],
+  "rating": 3
+ },
+ "hermitcraft10:overworld_-325_112_694": {
+  "type": [
+   "hall",
+   "plaza"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "arcade",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "стадион-арена ярусами"
+ },
+ "hermitcraft10:overworld_-348_46_302": {
+  "type": [
+   "hall",
+   "plaza"
+  ],
+  "style": [
+   "medieval"
+  ],
+  "rating": 3,
+  "note": "круглая арена"
+ },
+ "hermitcraft10:overworld_-364_66_-186": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern",
+   "futuristic"
+  ],
+  "zones": [
+   "plaza"
+  ],
+  "rating": 3
+ },
+ "hermitcraft10:overworld_-368_62_-226": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "futuristic",
+   "modern"
+  ],
+  "zones": [
+   "plaza",
+   "council"
+  ],
+  "rating": 4,
+  "note": "белое здание террасами, зелень на крыше"
+ },
+ "hermitcraft10:overworld_-385_108_698": {
+  "type": [
+   "statue"
+  ],
+  "style": [
+   "organic"
+  ],
+  "rating": 3,
+  "note": "волны из терракоты и меди"
+ },
+ "hermitcraft10:overworld_-428_58_-382": {
+  "type": [
+   "tower",
+   "tech"
+  ],
+  "style": [
+   "futuristic",
+   "scifi"
+  ],
+  "zones": [
+   "skyline",
+   "docks"
+  ],
+  "rating": 4,
+  "note": "белые диски на оранжевых опорах — как посадочные площадки"
+ },
+ "hermitcraft10:overworld_-484_54_-134": {
+  "type": [
+   "hall",
+   "interior"
+  ],
+  "style": [
+   "neoclassical",
+   "futuristic"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 4,
+  "note": "белый зал без крыши, колонны, золотой центр — как зал совета"
+ },
+ "hermitcraft10:overworld_-488_62_-538": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "market",
+   "slums"
+  ],
+  "rating": 4,
+  "note": "пёстрые фасады квартала"
+ },
+ "hermitcraft10:overworld_-492_62_-262": {
+  "type": [
+   "interior",
+   "workshop"
+  ],
+  "style": [
+   "modern",
+   "industrial"
+  ],
+  "zones": [
+   "lab",
+   "garage"
+  ],
+  "rating": 4,
+  "note": "комнаты-мастерские, серое и белое"
+ },
+ "hermitcraft10:overworld_-532_-58_-374": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 3,
+  "note": "шахта-небоскрёб в разрезе"
+ },
+ "hermitcraft10:overworld_-560_54_-130": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "rustic",
+   "steampunk"
+  ],
+  "rating": 3
+ },
+ "hermitcraft10:overworld_-588_50_-390": {
+  "type": [
+   "hall",
+   "storage"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "zones": [
+   "docks",
+   "lab"
+  ],
+  "rating": 4,
+  "note": "цех-склад с жёлтой разметкой"
+ },
+ "hermitcraft10:overworld_-712_94_438": {
+  "type": [
+   "workshop",
+   "interior"
+  ],
+  "style": [
+   "industrial",
+   "scifi"
+  ],
+  "zones": [
+   "lab"
+  ],
+  "rating": 3,
+  "note": "длинная база в пещере, медь"
+ },
+ "hermitcraft10:overworld_-724_70_-82": {
+  "type": [
+   "tower",
+   "workshop"
+  ],
+  "style": [
+   "steampunk"
+  ],
+  "zones": [
+   "lab",
+   "docks"
+  ],
+  "rating": 4,
+  "note": "медь, ель, сланец"
+ },
+ "hermitcraft10:overworld_-808_74_-478": {
+  "rating": 2
+ },
+ "hermitcraft10:overworld_-824_66_-682": {
+  "type": [
+   "shop",
+   "street"
+  ],
+  "style": [
+   "steampunk",
+   "fantasy"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 4,
+  "note": "ряд пёстрых лавок вдоль дороги"
+ },
+ "hermitcraft10:overworld_-8_54_294": {
+  "type": [
+   "plaza"
+  ],
+  "style": [
+   "organic"
+  ],
+  "rating": 3,
+  "note": "тропический остров с яхтой"
+ },
+ "hermitcraft10:overworld_-8_62_114": {
+  "type": [
+   "shop",
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "гостиница с рекламным щитом, городской квартал"
+ },
+ "hermitcraft10:overworld_108_54_90": {
+  "type": [
+   "statue"
+  ],
+  "style": [
+   "fantasy"
+  ],
+  "zones": [
+   "arcade"
+  ],
+  "rating": 4,
+  "note": "гигантский граммофон — абсурдный масштаб, дух сериала"
+ },
+ "hermitcraft10:overworld_108_58_254": {
+  "rating": 2
+ },
+ "hermitcraft10:overworld_1134_22_-854": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "scifi",
+   "industrial"
+  ],
+  "zones": [
+   "lab",
+   "docks"
+  ],
+  "rating": 4,
+  "note": "окисленная медь на тёмных опорах"
+ },
+ "hermitcraft10:overworld_152_58_302": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "gothic"
+  ],
+  "rating": 3,
+  "note": "розово-фиолетовая башня рядом с церковью"
+ },
+ "hermitcraft10:overworld_1650_58_-1866": {
+  "type": [
+   "workshop",
+   "tech"
+  ],
+  "style": [
+   "industrial",
+   "scifi"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 4,
+  "note": "порт: медные краны, бетон, снег"
+ },
+ "hermitcraft10:overworld_244_74_454": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "gothic",
+   "nether"
+  ],
+  "rating": 3
+ },
+ "hermitcraft10:overworld_252_54_178": {
+  "type": [
+   "hall",
+   "statue"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline",
+   "council",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "стеклянная сфера-купол"
+ },
+ "hermitcraft10:overworld_388_62_398": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "steampunk",
+   "scifi"
+  ],
+  "rating": 3,
+  "note": "башня из окисленной меди и стекла"
+ },
+ "hermitcraft10:overworld_406_59_-2250": {
+  "reject": true
+ },
+ "hermitcraft10:overworld_56_66_78": {
+  "type": [
+   "hall",
+   "temple"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 4,
+  "note": "серый музей с колоннадой"
+ },
+ "hermitcraft6:overworld_-113_46_-806": {
+  "type": [
+   "ruin"
+  ],
+  "style": [
+   "ruined"
+  ],
+  "rating": 2
+ },
+ "hermitcraft6:overworld_-149_62_-454": {
+  "type": [
+   "tower",
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "skyline",
+   "slums"
+  ],
+  "rating": 4,
+  "note": "белые высотки с цветными окнами"
+ },
+ "hermitcraft6:overworld_-189_54_-1170": {
+  "type": [
+   "storage",
+   "workshop"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 3,
+  "note": "цеха"
+ },
+ "hermitcraft6:overworld_-41_0_338": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "ocean"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_-554_52_-1574": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "rustic",
+   "nordic"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_-573_58_-746": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "modern",
+   "steampunk"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 4,
+  "note": "викторианский квартал у воды"
+ },
+ "hermitcraft6:overworld_-586_48_-1534": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "modern",
+   "futuristic"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_-5_54_-1290": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_-629_18_-730": {
+  "type": [
+   "interior"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "zones": [
+   "lab"
+  ],
+  "rating": 3,
+  "note": "база под бетонной плитой"
+ },
+ "hermitcraft6:overworld_147_2_158": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "ocean",
+   "futuristic"
+  ],
+  "zones": [
+   "council",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "подводный стеклянный купол с призмариновой крышей"
+ },
+ "hermitcraft6:overworld_2000_103_110": {
+  "type": [
+   "statue"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "rating": 3,
+  "note": "каменный лик в скале"
+ },
+ "hermitcraft6:overworld_47_18_-958": {
+  "type": [
+   "interior",
+   "workshop"
+  ],
+  "style": [
+   "scifi",
+   "modern"
+  ],
+  "zones": [
+   "lab"
+  ],
+  "rating": 4,
+  "note": "подземная база в разрезе: стекло, техника"
+ },
+ "hermitcraft6:overworld_7570_55_-730": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 4,
+  "note": "пародийный IKEA — синий с жёлтым, дух сериала"
+ },
+ "hermitcraft6:overworld_7658_45_-1494": {
+  "rating": 2
+ },
+ "hermitcraft6:overworld_7674_39_-562": {
+  "rating": 2
+ },
+ "hermitcraft6:overworld_7746_59_-526": {
+  "type": [
+   "house",
+   "street"
+  ],
+  "style": [
+   "nordic"
+  ],
+  "rating": 3,
+  "note": "длинные дома викингов"
+ },
+ "hermitcraft6:overworld_7786_61_-1618": {
+  "type": [
+   "castle"
+  ],
+  "style": [
+   "fantasy",
+   "medieval"
+  ],
+  "rating": 4,
+  "note": "замок с красными шпилями"
+ },
+ "hermitcraft6:overworld_7894_59_-422": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_7966_67_-1054": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "fantasy"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_7982_63_-478": {
+  "type": [
+   "street",
+   "shop"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_7990_59_-526": {
+  "type": [
+   "shop",
+   "interior"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "пёстрые лавки в разрезе"
+ },
+ "hermitcraft6:overworld_8002_59_-706": {
+  "type": [
+   "storage"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 3
+ },
+ "hermitcraft6:overworld_8022_63_-326": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "market",
+   "garage"
+  ],
+  "rating": 4,
+  "note": "белое здание с вывеской и бассейном"
+ },
+ "hermitcraft6:overworld_99_18_-974": {
+  "type": [
+   "interior",
+   "workshop"
+  ],
+  "style": [
+   "modern",
+   "scifi"
+  ],
+  "zones": [
+   "lab"
+  ],
+  "rating": 4,
+  "note": "подземный бункер в разрезе: колонны, стекло"
+ },
+ "hermitcraft7:overworld_-1074_46_544": {
+  "type": [
+   "statue"
+  ],
+  "style": [
+   "organic"
+  ],
+  "rating": 4,
+  "note": "гигантское дерево"
+ },
+ "hermitcraft7:overworld_-1262_70_698": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "fantasy",
+   "organic"
+  ],
+  "rating": 3,
+  "note": "дом на дереве"
+ },
+ "hermitcraft7:overworld_-1392_59_-2551": {
+  "type": [
+   "farm"
+  ],
+  "rating": 2
+ },
+ "hermitcraft7:overworld_-1706_1_-480": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic",
+   "modern"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4,
+  "note": "цилиндрическая высотка"
+ },
+ "hermitcraft7:overworld_-272_56_352": {
+  "type": [
+   "plaza"
+  ],
+  "style": [
+   "organic",
+   "fantasy"
+  ],
+  "rating": 3,
+  "note": "сад гигантских грибов"
+ },
+ "hermitcraft7:overworld_-286_70_-338": {
+  "type": [
+   "plaza",
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "arcade",
+   "plaza"
+  ],
+  "rating": 3,
+  "note": "квадратная арена с розовой отделкой"
+ },
+ "hermitcraft7:overworld_-350_71_-1008": {
+  "rating": 2
+ },
+ "hermitcraft7:overworld_-4432_16_1568": {
+  "rating": 2
+ },
+ "hermitcraft7:overworld_-82_58_-222": {
+  "type": [
+   "street",
+   "shop"
+  ],
+  "style": [
+   "futuristic",
+   "neoclassical"
+  ],
+  "zones": [
+   "plaza",
+   "market"
+  ],
+  "rating": 4,
+  "note": "банк с колоннами рядом с бирюзовой стеклянной башней"
+ },
+ "hermitcraft7:overworld_-906_56_-590": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "hermitcraft7:overworld_-917_64_-378": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "rustic"
+  ],
+  "rating": 3,
+  "note": "вилла под черепицей"
+ },
+ "hermitcraft7:overworld_-98_50_-50": {
+  "type": [
+   "house",
+   "hall"
+  ],
+  "style": [
+   "gothic",
+   "medieval"
+  ],
+  "rating": 4,
+  "note": "особняк из тёмного дерева"
+ },
+ "hermitcraft7:overworld_1099_55_-890": {
+  "rating": 2
+ },
+ "hermitcraft7:overworld_130_46_86": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "fantasy"
+  ],
+  "rating": 3
+ },
+ "hermitcraft7:overworld_174_62_-1334": {
+  "type": [
+   "street",
+   "tower"
+  ],
+  "style": [
+   "cyberpunk",
+   "modern"
+  ],
+  "zones": [
+   "slums",
+   "bar",
+   "arcade",
+   "market"
+  ],
+  "rating": 5,
+  "note": "тёмный квартал с неоновым розовым и фиолетовым — готовый киберпанк"
+ },
+ "hermitcraft7:overworld_2_54_578": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "hermitcraft7:overworld_374_66_-912": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "futuristic",
+   "modern"
+  ],
+  "zones": [
+   "council",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "крестовая крыша со стеклянным куполом в центре"
+ },
+ "hermitcraft7:overworld_390_6_-531": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "modern",
+   "cyberpunk"
+  ],
+  "zones": [
+   "slums"
+  ],
+  "rating": 4,
+  "note": "городские блоки, оранжевое с чёрным"
+ },
+ "hermitcraft7:overworld_4450_82_-4862": {
+  "type": [
+   "ship"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 3,
+  "note": "белая постройка вдоль скалы, похожа на корабль"
+ },
+ "hermitcraft7:overworld_4522_54_-4998": {
+  "rating": 2
+ },
+ "hermitcraft7:overworld_4610_34_-4970": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "hermitcraft7:overworld_58_62_-170": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "desert"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 3,
+  "note": "лавка с полосатым навесом"
+ },
+ "hermitcraft7:overworld_602_84_526": {
+  "type": [
+   "interior",
+   "shop"
+  ],
+  "style": [
+   "modern",
+   "cyberpunk"
+  ],
+  "zones": [
+   "arcade",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "разрез жёлтого здания с пёстрым интерьером"
+ },
+ "hermitcraft7:overworld_892_96_-528": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline",
+   "lab"
+  ],
+  "rating": 4,
+  "note": "стеклянная башня-оранжерея"
+ },
+ "hermitcraft8:overworld_-352_2_-342": {
+  "reject": true
+ },
+ "hermitcraft8:overworld_1730_30_1462": {
+  "type": [
+   "tech",
+   "interior"
+  ],
+  "style": [
+   "scifi",
+   "futuristic"
+  ],
+  "zones": [
+   "lab",
+   "docks",
+   "portal"
+  ],
+  "rating": 4,
+  "note": "белая станция с радиальной «тарелкой» — готовый sci-fi"
+ },
+ "hermitcraft8:overworld_1732_32_600": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "modern",
+   "futuristic"
+  ],
+  "rating": 3,
+  "note": "стеклянная башня на скале"
+ },
+ "hermitcraft8:overworld_1793_64_-106": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "modern"
+  ],
+  "rating": 3
+ },
+ "hermitcraft8:overworld_678_54_-702": {
+  "type": [
+   "plaza"
+  ],
+  "style": [
+   "modern",
+   "industrial"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 3,
+  "note": "взлётная полоса с разметкой"
+ },
+ "hermitcraft9:end_-32_42_432": {
+  "type": [
+   "bridge",
+   "tech"
+  ],
+  "style": [
+   "scifi"
+  ],
+  "zones": [
+   "portal",
+   "docks"
+  ],
+  "rating": 3,
+  "note": "бирюзовый крест-переход в Энде"
+ },
+ "hermitcraft9:nether_-170_75_170": {
+  "type": [
+   "portal",
+   "hall"
+  ],
+  "style": [
+   "nether"
+  ],
+  "zones": [
+   "portal"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-1334_74_2198": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "neoclassical",
+   "desert"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-1374_70_2306": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "rustic"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-1374_74_2178": {
+  "type": [
+   "workshop",
+   "interior"
+  ],
+  "style": [
+   "modern",
+   "industrial"
+  ],
+  "zones": [
+   "lab",
+   "garage"
+  ],
+  "rating": 4,
+  "note": "бетонная коробка, жёлто-чёрная разметка пола — гараж-мастерская"
+ },
+ "hermitcraft9:overworld_-1390_70_2238": {
+  "type": [
+   "shop",
+   "hall"
+  ],
+  "style": [
+   "medieval",
+   "rustic"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 3,
+  "note": "деревянная круглая арена-рынок"
+ },
+ "hermitcraft9:overworld_-1442_70_2250": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "steampunk",
+   "rustic"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-1442_70_2306": {
+  "type": [
+   "street",
+   "shop"
+  ],
+  "style": [
+   "fantasy",
+   "modern"
+  ],
+  "zones": [
+   "market"
+  ],
+  "rating": 3,
+  "note": "участки района магазинов"
+ },
+ "hermitcraft9:overworld_-1472_51_5808": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "futuristic",
+   "modern"
+  ],
+  "zones": [
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "стеклянная оранжерея с голубой крышей"
+ },
+ "hermitcraft9:overworld_-1534_70_2262": {
+  "type": [
+   "plaza"
+  ],
+  "style": [
+   "oriental",
+   "organic"
+  ],
+  "zones": [
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "круглая площадь с сакурами — радиальная планировка"
+ },
+ "hermitcraft9:overworld_-1654_54_1530": {
+  "type": [
+   "castle"
+  ],
+  "style": [
+   "fantasy",
+   "desert"
+  ],
+  "rating": 4,
+  "note": "песчаниковый замок с бирюзовыми крышами"
+ },
+ "hermitcraft9:overworld_-1806_66_240": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "organic",
+   "fantasy"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-1834_175_990": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "fantasy"
+  ],
+  "zones": [
+   "portal"
+  ],
+  "rating": 4,
+  "note": "башня волшебника на снежной горе"
+ },
+ "hermitcraft9:overworld_-1922_174_640": {
+  "type": [
+   "ship"
+  ],
+  "style": [
+   "steampunk"
+  ],
+  "zones": [
+   "docks",
+   "skyline"
+  ],
+  "rating": 4,
+  "note": "летучий корабль"
+ },
+ "hermitcraft9:overworld_-1958_62_2014": {
+  "type": [
+   "ruin"
+  ],
+  "style": [
+   "ruined"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-2034_58_2102": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "modern",
+   "gothic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4,
+  "note": "чёрная высотка с золотыми окнами"
+ },
+ "hermitcraft9:overworld_-2130_58_1578": {
+  "rating": 2
+ },
+ "hermitcraft9:overworld_-2162_58_1922": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "modern",
+   "futuristic"
+  ],
+  "rating": 3,
+  "note": "квартал; бело-зелёное здание со скруглениями"
+ },
+ "hermitcraft9:overworld_-2194_58_2074": {
+  "type": [
+   "shop"
+  ],
+  "style": [
+   "desert",
+   "neoclassical"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-2432_57_3334": {
+  "type": [
+   "plaza"
+  ],
+  "style": [
+   "rustic"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-2784_83_2112": {
+  "type": [
+   "castle"
+  ],
+  "style": [
+   "fantasy"
+  ],
+  "rating": 4,
+  "note": "белый замок с бирюзовыми крышами, остров со рвом"
+ },
+ "hermitcraft9:overworld_-3078_60_2726": {
+  "type": [
+   "farm"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 2
+ },
+ "hermitcraft9:overworld_-472_48_2806": {
+  "type": [
+   "ship"
+  ],
+  "style": [
+   "modern",
+   "organic"
+  ],
+  "zones": [
+   "docks"
+  ],
+  "rating": 4,
+  "note": "корабль на воде, заросший палубой"
+ },
+ "hermitcraft9:overworld_-4880_97_2048": {
+  "rating": 2
+ },
+ "hermitcraft9:overworld_-533_-61_1374": {
+  "type": [
+   "storage",
+   "interior"
+  ],
+  "style": [
+   "industrial"
+  ],
+  "rating": 3
+ },
+ "hermitcraft9:overworld_-577_71_1534": {
+  "type": [
+   "house"
+  ],
+  "style": [
+   "modern"
+  ],
+  "zones": [
+   "garage"
+  ],
+  "rating": 3,
+  "note": "дом с бассейном"
+ },
+ "hermitcraft9:overworld_82_51_1015": {
+  "rating": 3
+ },
+ "inbox:spaceship": {
+  "type": [
+   "ship"
+  ],
+  "style": [
+   "scifi"
+  ],
+  "zones": [
+   "docks",
+   "lab"
+  ],
+  "rating": 4,
+  "note": "тёмный корабль с отсеками и пультами"
+ },
+ "incendium:castle/rooms/2x2/sentry_lab": {
+  "type": [
+   "dungeon"
+  ],
+  "style": [
+   "medieval",
+   "gothic"
+  ],
+  "rating": 2
+ },
+ "incendium:the_lab": {
+  "type": [
+   "hall",
+   "workshop"
+  ],
+  "style": [
+   "scifi",
+   "gothic"
+  ],
+  "zones": [
+   "lab"
+  ],
+  "rating": 3,
+  "note": "тёмный купол-лаборатория, чернокамень с фиолетовым"
+ },
+ "terracitee:overworld_-109_62_41": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 5,
+  "note": "изогнутая белая башня"
+ },
+ "terracitee:overworld_-113_0_-251": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_-113_0_133": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_-169_34_-243": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "scifi"
+  ],
+  "zones": [
+   "skyline",
+   "portal"
+  ],
+  "rating": 5,
+  "note": "шпиль с красной короной — антенна"
+ },
+ "terracitee:overworld_-1_26_217": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 5,
+  "note": "башня с переходами-консолями"
+ },
+ "terracitee:overworld_-241_0_-123": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 5,
+  "note": "неоновый фиолетовый квартал"
+ },
+ "terracitee:overworld_-241_0_-251": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 5,
+  "note": "квартал вокруг голубой стеклянной башни"
+ },
+ "terracitee:overworld_-241_0_133": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_-241_0_5": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 5,
+  "note": "пёстрые неоновые фасады"
+ },
+ "terracitee:overworld_-369_0_-123": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_-369_0_5": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_-77_66_-227": {
+  "type": [
+   "castle"
+  ],
+  "style": [
+   "gothic"
+  ],
+  "rating": 3
+ },
+ "terracitee:overworld_-85_58_-111": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4
+ },
+ "terracitee:overworld_-89_74_-51": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline"
+  ],
+  "rating": 4
+ },
+ "terracitee:overworld_11_2_-311": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_139_2_-183": {
+  "rating": 3
+ },
+ "terracitee:overworld_143_0_-123": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_143_0_5": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "futuristic",
+   "neoclassical"
+  ],
+  "zones": [
+   "plaza",
+   "council"
+  ],
+  "rating": 4,
+  "note": "белый квартал"
+ },
+ "terracitee:overworld_15_14_141": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic"
+  ],
+  "zones": [
+   "skyline",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "башни с садами"
+ },
+ "terracitee:overworld_167_6_-191": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk",
+   "futuristic"
+  ],
+  "zones": [
+   "slums",
+   "market",
+   "bar"
+  ],
+  "rating": 4,
+  "note": "плотный квартал: неон, трубы, переходы"
+ },
+ "terracitee:overworld_223_10_-119": {
+  "type": [
+   "tower"
+  ],
+  "style": [
+   "futuristic",
+   "cyberpunk"
+  ],
+  "zones": [
+   "skyline",
+   "slums"
+  ],
+  "rating": 5,
+  "note": "белая башня-цилиндр с кранами"
+ },
+ "terracitee:overworld_283_6_-55": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "futuristic",
+   "gothic"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 4,
+  "note": "белая крепость с красным «глазом»"
+ },
+ "terracitee:overworld_31_14_245": {
+  "type": [
+   "street"
+  ],
+  "style": [
+   "cyberpunk"
+  ],
+  "zones": [
+   "slums",
+   "market"
+  ],
+  "rating": 4,
+  "note": "пёстрое здание уступами"
+ },
+ "terracitee:overworld_379_42_-199": {
+  "rating": 2
+ },
+ "uncensored_library:overworld_1306_134_1374": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 3,
+  "note": "галерея-коридор"
+ },
+ "uncensored_library:overworld_1330_110_1378": {
+  "type": [
+   "wall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council",
+   "plaza"
+  ],
+  "rating": 4
+ },
+ "uncensored_library:overworld_1338_154_1206": {
+  "type": [
+   "interior",
+   "hall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 4
+ },
+ "uncensored_library:overworld_1358_154_1182": {
+  "type": [
+   "bridge"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "plaza"
+  ],
+  "rating": 3
+ },
+ "uncensored_library:overworld_1410_46_1382": {
+  "type": [
+   "hall",
+   "temple"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 5,
+  "note": "портик: колоннада, ступени, фронтон — Blockworks"
+ },
+ "uncensored_library:overworld_1410_50_1358": {
+  "type": [
+   "hall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "rating": 3
+ },
+ "uncensored_library:overworld_1426_154_1122": {
+  "type": [
+   "bridge"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "rating": 2
+ },
+ "uncensored_library:overworld_1430_154_1338": {
+  "type": [
+   "interior",
+   "hall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 4,
+  "note": "угол зала с нишами"
+ },
+ "uncensored_library:overworld_1438_154_1102": {
+  "type": [
+   "interior",
+   "hall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 4,
+  "note": "книжные стены между пилястрами"
+ },
+ "uncensored_library:overworld_1534_110_1378": {
+  "type": [
+   "wall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council",
+   "plaza"
+  ],
+  "rating": 4,
+  "note": "колоннада с зеленью наверху"
+ },
+ "uncensored_library:overworld_1546_154_1170": {
+  "type": [
+   "bridge"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "plaza"
+  ],
+  "rating": 3,
+  "note": "изогнутый мост-переход"
+ },
+ "uncensored_library:overworld_1574_154_1190": {
+  "type": [
+   "interior",
+   "hall"
+  ],
+  "style": [
+   "neoclassical"
+  ],
+  "zones": [
+   "council"
+  ],
+  "rating": 4,
+  "note": "стена зала: арочные окна, пилястры"
+ }
+}

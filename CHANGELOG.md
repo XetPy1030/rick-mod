@@ -14,6 +14,8 @@
 - **Голос Рика** в лаборатории через Simple Voice Chat: `gpt-audio-mini`, голос `ash`; расшифровка сверяется с текстом, `/rick voice off` — не слышать ([voice](docs/design/voice.md)).
 - **Глава FTB «Задания Рика»** (8 квестов, побочная — не входит в «Полный свод») и скрытые достижения `rikoshet:…` для неё.
 - NPC мода нельзя поднять Carry On.
+- Столбы фонарей на площади Цитадели: в постройке был несуществующий блок `polished_andesite_wall` — в игре он становился воздухом, и фонари висели в пустоте. Теперь `andesite_wall`. На сервере, где Цитадель уже стоит, — `/rickadmin citadel place`.
+- Для разработки: `/rickdev dump registry` — дамп реестров для визуального конвейера ([visual-pipeline](docs/architecture/visual-pipeline.md)).
 
 **Что включить.** Миграция 0005 применится сама. `config/polymer/auto-host.json` → `enabled: true` ([ресурспак](docs/ops/server-setup.md#ресурспак)). Флаги `citadel: true`, `quests: true`, `voice: true` в `config/rikoshet.json5`, потом `/rickadmin reload`. Главу FTB — `build.py --deploy` в `quests-design` на остановленном сервере.
 
